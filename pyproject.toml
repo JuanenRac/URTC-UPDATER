@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "urtc-updater"
+version = "0.0.1"
+description = "Detects, installs, and manually updates the URTC ecosystem's own repositories on the machine it runs on (a developer PC with the same checkout layout, no CM5 or server involved)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "JuanenRac (Electro Hobby 3D)", email = "electrohobby3d@gmail.com" },
+]
+keywords = ["hydra-umc", "urtc", "updater", "installer", "fleet-management"]
+# The CLI and its safety-critical update core remain stdlib-only. The visual
+# desktop shell is optional because a headless CM5 must not need a Qt runtime.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+gui = ["PySide6>=6.8,<7"]
+# P01: a durable, on-disk promotion journal (HYDRA-UMC-SDK's own
+# promotion_journal.py, shared with HYDRA-UMC-OPS-AGENT's own
+# canary_deploy.py) that survives a full process crash mid-promotion,
+# not just an in-process exception - the safety-critical update core in
+# install.py stays usable with zero external dependencies either way
+# (see that module's own header comment), this only adds real durability
+# when installed.
+durable-journal = ["hydra-umc-sdk @ git+https://github.com/JuanenRac/HYDRA-UMC-SDK.git@main#subdirectory=clients/python"]
+
+[project.urls]
+Homepage = "https://github.com/JuanenRac/URTC-UPDATER"
+
+[project.scripts]
+urtc-updater = "urtc_updater.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+urtc_updater = ["qml/*.qml"]
