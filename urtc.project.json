@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "ecosystem": "URTC",
   "name": "URTC-UPDATER",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "role": "tool",
   "stack": "python",
   "technologies": [
@@ -12,7 +12,7 @@
     "GitHub raw content"
   ],
   "deployment_target": "user-pc",
-  "maturity": "scaffolding",
+  "maturity": "functional",
   "family": "Ecosystem Operations",
   "parent": null,
   "native_version": {
@@ -20,5 +20,5 @@
     "pattern": "^version\\s*=\\s*\"(\\d+)\\.(\\d+)\\.(\\d+)\""
   },
   "build": "Detects local URTC projects, compares their manifests with GitHub and performs explicit install or update actions.",
-  "notes": "Adapted from HYDRA-UMC-UPDATER's own proven design (the same atomic-by-verification staging-clone install/update, manifest discovery and evidence log), scoped to just the URTC ecosystem's own urtc.project.json/ecosystem: \"URTC\" repositories instead of HYDRA-UMC's. Every URTC repository is public, so remote discovery works with no GITHUB_TOKEN at all. Not yet run against a real URTC repository end to end."
+  "notes": "Adapted from HYDRA-UMC-UPDATER's own proven design (the same atomic-by-verification staging-clone install/update, manifest discovery and evidence log), scoped to just the URTC ecosystem's own urtc.project.json/ecosystem: \"URTC\" repositories instead of HYDRA-UMC's. Every URTC repository is public, so remote discovery works with no GITHUB_TOKEN at all. Run for real, end to end, against GitHub in an isolated workspace: a clean install and a later update of a real repository both cloned, built (106 own tests passing), and promoted correctly, with the previous checkout kept as an atomic backup."
 }
