@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "ecosystem": "URTC",
+  "name": "URTC-UPDATER",
+  "version": "0.0.1",
+  "role": "tool",
+  "stack": "python",
+  "technologies": [
+    "Python 3.10+",
+    "PySide6 / Qt Quick (QML)",
+    "Git",
+    "GitHub raw content"
+  ],
+  "deployment_target": "user-pc",
+  "maturity": "scaffolding",
+  "family": "Ecosystem Operations",
+  "parent": null,
+  "native_version": {
+    "file": "pyproject.toml",
+    "pattern": "^version\\s*=\\s*\"(\\d+)\\.(\\d+)\\.(\\d+)\""
+  },
+  "build": "Detects local URTC projects, compares their manifests with GitHub and performs explicit install or update actions.",
+  "notes": "Adapted from HYDRA-UMC-UPDATER's own proven design (the same atomic-by-verification staging-clone install/update, manifest discovery and evidence log), scoped to just the URTC ecosystem's own urtc.project.json/ecosystem: \"URTC\" repositories instead of HYDRA-UMC's. Every URTC repository is public, so remote discovery works with no GITHUB_TOKEN at all. Not yet run against a real URTC repository end to end."
+}

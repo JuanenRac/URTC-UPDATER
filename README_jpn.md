@@ -1,0 +1,231 @@
+<p align="center">
+  <img src="images/URTC_UPDATER_BANNER.svg" alt="URTC-UPDATER banner" width="100%">
+</p>
+
+# 🛠️ URTC-UPDATER
+
+<p align="center"><a href="README.md">🇺🇸 English</a> | <a href="README_spa.md">🇪🇸 Español</a> | <a href="README_fra.md">🇫🇷 Français</a> | <a href="README_ita.md">🇮🇹 Italiano</a> | <a href="README_deu.md">🇩🇪 Deutsch</a> | <a href="README_zho.md">🇨🇳 简体中文</a> | 🇯🇵 <b>日本語</b></p>
+
+### 📦 URTC エコシステム全体の検出、インストール、手動更新
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0">
+  <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
+  <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
+</p>
+
+> **ビジュアルデスクトップモード：** 既定のデスクトップ画面は、任意の
+> `PySide6` GUI ランタイムを通じて **Qt Quick / QML** を使用します。更新コアと
+> `--cli` はヘッドレス CM5 向けに標準ライブラリのみを維持します。
+>
+> **Windows 起動と証跡：** `run-gui.vbs` をダブルクリックするか、引数なしの
+> `run.bat` を実行するとコンソールなしの GUI が起動します。更新パネルには、
+> 実際の事前確認、ソース更新、マニフェスト検証、ビルドテスト、完了のチェックポイントと
+> 取得した証跡を表示します。`run.bat --cli ...` は診断用ターミナルを維持します。
+> インストールはチェックアウトがない場合だけ、更新は GitHub が新しい場合だけ有効です。
+> 承認済み操作中はチェックポイントがプロジェクト操作を置き換え、別のプロジェクトを
+> 選ぶと操作を復元します。
+> **不足分をすべてインストール**と**古い項目をすべて更新**は、同じ実際の状態と
+> 安全経路に基づく、別途確認される順次一括アクションです。
+
+**正直な現状確認 - 実際に今動くもの:** エコシステム全体の検出・バージョン判定ロジック（`registry.py`、`project_manifest.py`、`ecosystem_catalog.py`、`version_parse.py`、`detect.py`）、リトライ/バックオフ付きの本物の GitHub raw-content クライアント（`github_client.py`）、そしてインストール/更新パイプラインの clone-stage-verify-promote ロジック（`install.py`) は本物であり、テストもされている — 64件のテストが通過している（`pytest tests/`）。壊れたカタログと壊れた単一プロジェクトの分離を証明する模擬 HTTP サーバーや、一時ディレクトリでの本物の git clone/ビルド往復テストも含まれる。`--cli status`/`install`/`update` を実際に実行すると、この同じテスト済みコアが、モックではなく本物の稼働中の GitHub raw-content ホストに対してエンドツーエンドで動く。Qt Quick デスクトップ GUI（`qt_gui.py`、`qml/Main.qml`）とレガシーな Tkinter フォールバック（`gui.py`）は同じテスト済みコアを本物のウィンドウに接続しており、実際のエコシステムのチェックアウト上で実行されてきたが、どちらも専用の自動テストは持たない — 本物の Qt/Tk イベントループをここで動かそうとはしていないため、`test_gui.py`/`test_qt_gui.py` は存在しない。`i18n.py` の7言語対応はテスト（`test_i18n.py`）で強制されているが、それは言語間のキーの一致のみであり、翻訳の品質までは保証しない。これまでに実際に出荷されたものの詳細は `CHANGELOG.md` を参照。
+
+---
+
+## 1. 🛠️ 技術概要
+
+URTC-UPDATER は、小さなツールです——デフォルトはウィンドウ付き
+GUI、`--cli` で完全な CLI が利用可能——実際の CM5 本体上、または開発者
+自身の Windows/Linux/macOS マシン（同じ方法でチェックアウトされた任意の
+ワークスペース）で実行されることを意図しており、各隣接チェックアウト
+自身の `urtc.project.json` マニフェストを通じて発見する、他の
+すべての実在するプロジェクトそれぞれについて 3 つの問いに答えます
+——この数自体はエコシステムとともに増えていくため、ここでは決して
+固定値としてハードコードされていません：
+
+1. **ここに実際に何がインストールされていて、そのバージョンは何か？**
+2. **GitHub 上に公開されている最新バージョンは何か？**
+3. **GitHub の方が新しければ、1 つのプロジェクトまたは確認済みの順次一括操作を選ばせてほしい。**
+
+最後のポイントは意図的であり、譲れないものです：このツールが独自の判断
+でプロジェクトを変更することは決してありません。選択したプロジェクトの
+操作には常に明示的な確認が必要です。GUI は**不足分をすべてインストール**
+または**古い項目をすべて更新**も提供できますが、いずれも個別確認された
+順次一括操作で、同じマニフェスト・バージョン・安全ゲートを通ります。
+人の承認なしに夜間自動更新されることはありません。
+
+発見されたプロジェクトのすべてが CM5 本体に属するわけでもありません——ほとんど
+の URTC プレフィックスのリポジトリと一部の HYDRA-UMC のリポジトリは、
+開発者自身の PC から実行されるツールです（ファームウェアはワークステー
+ションからコンパイル/書き込まれるのであって、セル上でビルドされるので
+はありません）、あるいはスマートフォン/ウォッチにインストールされる
+アプリです。`registry.py` 自身の `deploy` フィールドがどれがどれかを
+記録しており（第 3 節参照）、GUI のプロジェクトテーブルはそれに基づい
+てフィルタリングします——Linux（実際の CM5 自身の OS）上で実行されて
+いることを検知した場合はデフォルトで「CM5 のみ」、Windows/macOS では
+「すべて表示」となります。
+
+実例（以下のプロジェクト数と各バージョン番号は出力の形を示すために
+作成したものであり、実際にキャプチャした実行結果ではありません——実際の
+数は常にその時点で `registry.py` が発見するものであり、この文書に
+固定された数値ではありません）：
+
+```
+$ urtc-updater --cli status
+Workspace root: /home/pi/HYDRA-UMC
+Checking GitHub... 59/59
+PROJECT                        STACK       LOCAL     GITHUB    STATE
+--------------------------------------------------------------------
+HYDRA-UMC                      firmware-c  0.0.7     0.0.7     up to date
+HYDRA-UMC-SERVER               node        0.0.5     0.0.9     OUTDATED
+HYDRA-UMC-STUDIO               node        0.0.8     0.1.3     OUTDATED
+...
+59/59 installed, 2 outdated
+
+$ urtc-updater --cli update HYDRA-UMC-SERVER
+Updating HYDRA-UMC-SERVER into /home/pi/HYDRA-UMC ...
+OK  Pulled latest into /home/pi/HYDRA-UMC/HYDRA-UMC-SERVER
+OK  build.sh completed successfully.
+```
+
+`urtc-updater` を引数なしで実行する（またはダブルクリックする）
+と、同じ情報がウィンドウ内に表示されます——ソート可能なプロジェクト
+テーブル、デプロイターゲットフィルター、そして選択された行に対する
+インストール/更新ボタンです。
+
+<p align="center">
+  <img src="images/" alt="URTC-UPDATER の実際のデスクトップ概要" width="100%">
+</p>
+
+## 2. 🔄 チェック/更新が実際にどう機能するか
+
+- **バージョンの取得元**：このエコシステム自身の「オドメーター」式の自動インクリメント慣例（実際のビルドのたびに、ソースファイル*内部*に存在するバージョン番号が増加します——プロジェクトの技術スタックに応じて `pyproject.toml`、`Cargo.toml`、`version.go`、`package.json`、`version.properties`、`pubspec.yaml`、またはファームウェアの `#define` のいずれか）は、そのインクリメントに対して git タグや GitHub リリースを一度も作成したことがありません。そのため本ツールは、各プロジェクト自身の `bump_version.py`/ビルドスクリプトが既に書き込んでいる*その同じ*ファイルを、GitHub の生コンテンツホスト経由でリポジトリのデフォルトブランチから直接読み取ります——Releases API ではありません。それを使うと、すべてのプロジェクトが「リリースが一切ない」と報告されてしまいます。
+- **ローカル検出**：発見されたプロジェクトそれぞれについて、そのプロジェクトと完全に同じ名前のディレクトリがワークスペースルート下に存在するかを確認します（標準的なエコシステムのレイアウト——すべてのプロジェクトを兄弟ディレクトリとして配置する、`build-frontend.sh`/HYDRA-UMC-SUITE 自身の検出ロジックが既に前提としているのと同じ形）。存在する場合、そのプロジェクト*自身*の同じバージョンファイルのローカルコピーを読み取ります。
+- **単一の解析実装**（`version_parse.py`）が、ローカル読み取りと GitHub 取得の間で共有されているため、ローカルのチェックアウトと GitHub からの取得が、2 つの独立して食い違っていく正規表現によって別々に解釈されることは決してありません。
+- **インストール/更新**：`git clone`（インストール）はその後、別のステップとしてビルドします。既存のチェックアウトの更新は代わりに「検証による原子性」です——候補はクローンされ、ファストフォワードでマージされ(強制リセットは決して行わないため、実際のローカルの編集は破棄されるのではなく明確に失敗します)、まず完全に独立したステージング用クローンの中でビルド・検証されます——実際にインストールされているものが実際に触られるのは(2 回連続のディレクトリのリネームによって、以前のインストールは削除されずに `<name>.backup` として保持されます)、そのステージングビルドが本当に成功した場合だけです。ビルドの失敗、分岐した/汚れたチェックアウト、クラッシュ、あるいは最終的な昇格の前のどの時点でのディスクフルも、以前のインストールを完全に無傷のまま、稼働可能な状態に保ちます——詳細は `install.py` 自身の `clone_or_pull` の docstring を参照してください。ステージング用クローン自身の git リモートは、作成された直後に実際の GitHub アップストリームへ復元されます(そうしないと、単なるローカルクローンは古いインストールパスを指したままになり、昇格された時点で今後のすべての更新を静かに終わらせてしまいます)。また、インストール済みチェックアウト自身の実際のローカルデータ(git が未追跡または無視対象とみなすもの——`data/settings.json` などで、再生成可能なビルド成果物は除く)は、ビルドの前にステージング用クローンへ持ち込まれるため、プロジェクト自身の実際の運用状態は、保持された `.backup` チェックアウトに取り残されることなく、更新を乗り越えます。いずれにせよ、そのプロジェクトが実際に持っている `build-test.sh`/`build-test.bat`(バージョンを上げない非破壊チェック——第 3 節参照)があれば、それを実行します。本ツールは、プロジェクト自身のビルド手順を再実装することは決してありません。
+
+<p align="center">
+  <img src="images/" alt="URTC-UPDATER のインストールまたは更新中の実際のチェックポイント" width="100%">
+</p>
+
+## 3. 🧱 アーキテクチャと設計上の決定
+
+- **標準は Qt Quick GUI、ヘッドレス向けは `--cli`。** `main.py` は任意の PySide6
+  ランタイムを読み込む前に `--cli` を確認します。CLI は画面やデスクトップ依存のない
+  CM5 で動作し、引数なしでは利用可能な場合に QML を起動します。Tkinter は一時的な
+  互換フォールバックとしてのみ残ります。
+- **ウィンドウ表示のGUIは実在し、7言語対応の多言語です(`i18n.py`)—— `--cli` は意図的にそうなっていません。** 実在するすべてのウィジェットは、言語 `Combobox`(en/es/fr/it/de/zh/ja、公開ダッシュボードとすべてのREADMEが提供するのと同じ7言語)から保存された設定またはOS自身のロケールに基づいて検出され、リアルタイムでラベルが再表示されます。プロジェクト/ファミリー名と各プロジェクト自身の実際の `notes`/`tech` テキストは未翻訳のままです—— `registry.py` がそれらの唯一の信頼できる情報源であり、7つの並行した実際のエンジニアリングドキュメントのコピーはそれを妨げてしまいます。`--cli` の出力は意図的に英語のみのままです:これはスクリプト化/パイプ処理を想定しており、安定してgrep可能なテキストがローカライゼーションよりも重要な場面のためです。
+- **`deploy` は制限ではなく分類です。** 発見されたプロジェクトすべてを「CM5 に属するもの」として扱うのは誤りでした——ファームウェアリポジトリは PC からコンパイル・書き込みされます（CM5 は CAN-OTA 経由で最終的なバイナリだけを必要とし、このリポジトリ自身のソースコードを必要とすることは決してありません）。また、いくつかのツール（URTC-FLASHER、HYDRA-UMC-SUITE、HYDRA-UMC-TOOL-CLI……）は、セル自体の内部ではなく、オペレーター自身のワークステーションで実行されることを意図しています。`registry.py` の `deploy` フィールド（"cm5" / "user-pc" / "mobile" / "wearable" / "dev-server"）がそれを記録しており、GUI のフィルターはそれを妥当な出発点として使用します——厳格な制限ではありません。なぜなら、この同じツールは開発者自身の PC 上でも実行されることを意図しており、その場合は発見されたプロジェクトのすべてが検査対象になり得るからです。
+- **本ツールには技術スタックごとのビルドロジックがありません。** このエコシステムは 7 つのツールチェーン（Python、Rust、Go、Node/TS、Android/Kotlin、Flutter、ARM ファームウェア）にまたがっています。`npm install && npm run build` / `cargo build --release` / `./gradlew assembleDebug` などを*ここで*再実装すると、各プロジェクトのビルド方法を知っていると主張する 2 つ目の場所ができてしまい、そのプロジェクト自身の実際の（そして既に正しい）`build.sh`/`.bat` から必ず食い違っていきます。代わりに `install.py` は、既知のビルドスクリプト名（`build.sh`、`build_firmware.sh`、`build_exe.sh`、`build-android.sh`、およびそれらの `.bat` 相当版——エコシステム自身の発見されたプロジェクト全体で実際に使用されている名前）を探し、実際に存在するものを実行します。
+- **Releases API ではなく GitHub の生コンテンツを使用。** 上記の第 2 節を参照——このエコシステムのバージョン管理慣例はタグ/リリースを一切作成しないため、ここで Releases API を使うことは、単に不便なだけでなく、積極的に間違っています。
+- **一時的なネットワーク障害には本物の再試行があるが、確定的な応答には決してない。** 実際の GitHub へのリクエストはすべて（`github_client.py` の `_urlopen_with_retries`）、接続がまったく応答を得られなかった場合（DNS/タイムアウト/リセット）に限り、バックオフを伴って最大 3 回まで再試行します。GitHub が実際に返した本物の HTTP ステータス——404、403、500——は決して再試行されません。GitHub はすでに応答しており、再度叩いても同じ結果のためにレート制限をさらに消費するだけだからです。
+- **不正な形式のリモートカタログは大きく失敗するが、1 つの不正なプロジェクトはそうではない。** GitHub のリポジトリ一覧そのものに到達できない、または解析できない場合、`discover_remote_projects()` は例外を送出します——`gui.py` と `main.py` はどちらもすでにこれを捕捉し、壊れた、あるいは空のスキャンを表示する代わりに、ローカルで発見されたプロジェクト一覧にフォールバックします。対照的に、単一リポジトリの不正な形式のマニフェストは、そのスキャン自身の `errors` リストに隔離され、残りの発見処理を決して中断させません——実際のフィクスチャサーバーを使ったテスト（`tests/test_github_client.py`）が両方の経路を証明しています。
+- **CLI 操作は明示的、GUI の一括操作は確認付きです。** CLI の
+  `install`/`update` は 1 つのプロジェクト名を必要とします。デスクトップ
+  GUI は**不足分をすべてインストール**または**古い項目をすべて更新**を
+  実行できますが、個別確認後に同じ安全ゲートを通して順次実行します。
+  無人の自動更新は存在しません。
+- **標準ライブラリのみ。** GitHub の取得には `urllib`（`github_client.py`）、git/ビルドスクリプトの呼び出しには `subprocess`（`install.py`）を使用し、それ以外は何もありません——他の*すべての*プロジェクトの依存関係を健全に保つ責任を持つツール自体が依存関係を持たないでいることは、意図的なものです。
+- **既知の簡略化**：HYDRA-UMC と URTC は、実際には複数コンポーネントからなるファームウェアリポジトリです（それぞれ 6 個と 4 個の独立してバージョン管理されるバイナリを持ちます——それぞれの `VERSION_CHECKLIST.txt`/`build_firmware.sh` を参照）。単一の「これが」バージョン番号というものは存在しません。`registry.py` はリポジトリごとに 1 つの代表的なコンポーネントのみを追跡します——「このリポジトリはおおむね最新か」に答えるには十分ですが、実際のフラッシュ用の `build_firmware.sh` 自身の `firmware_manifest.json` の代替にはなりません。
+
+## 📂 リポジトリ構成
+
+```
+URTC-UPDATER/
+├── src/urtc_updater/
+│   ├── registry.py         # ProjectEntry - 静的カタログなし。各リポジトリ自身のマニフェストから検出時に構築
+│   ├── project_manifest.py # リポジトリ自身の urtc.project.json を読み取り/検証
+│   ├── ecosystem_catalog.py # JuanenRac エコシステムの公開検出カタログのパーサー
+│   ├── version_parse.py   # ローカル+GitHub 共通の単一の正規表現抽出実装
+│   ├── detect.py          # ワークスペースルートをスキャンし、何がインストールされているかを検出
+│   ├── github_client.py   # 生コンテンツの並行取得 + 一時的なネットワークエラーに対する本物の再試行/バックオフ
+│   ├── install.py         # git clone/pull + プロジェクト自身のビルドスクリプトへの委譲
+│   ├── i18n.py             # 実際の完全なGUI翻訳(7言語)
+│   ├── qt_gui.py           # 実際の検出/更新サービスへの Qt Quick ブリッジ
+│   ├── qml/Main.qml        # テーマ、チェックポイント、About を持つデスクトップ画面
+│   ├── gui.py              # PySide6 がない場合の Tkinter 互換フォールバック
+│   └── main.py             # ディスパッチ：デフォルトは GUI、--cli で status/install/update
+├── tests/                  # 実際のテスト：github_client、i18n、install、project_manifest、registry
+├── docs/
+│   ├── CLI_REFERENCE.md     # コマンドリファレンス
+│   └── QML_DESKTOP_GUI.md   # Qt Quick GUIのアーキテクチャ
+├── images/                 # メディア、アプリアイコン、インターフェースのスクリーンショット
+├── tools/
+│   ├── build_test.py        # バージョンを増やさないビルドチェック
+│   ├── ci_validate.py       # CI が使用するマニフェスト/CHANGELOG/ドキュメント検証
+│   ├── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
+│   ├── migrate_project_manifests.py  # 一度限りのマニフェスト移行後のワークスペース監査
+│   └── validate_project_manifests.py # リポジトリ自身のマニフェスト+ネイティブビルドバージョンを検証
+├── .env.example            # 環境変数テンプレート
+├── build.sh / build.bat    # venv + editable インストール + コンパイルチェック
+├── run.sh / run.bat        # 標準 GUI / CLI エントリポイント
+├── run-gui.vbs             # コンソールなしの Windows GUI ランチャー
+├── bump_version.py         # エコシステム全体で統一されたオドメーター式インクリメント（pyproject.toml + __init__.py）
+└── bump_manifest_version.py # urtc.project.json のバージョンをネイティブ版と同期(--sync)
+```
+
+## ⚙️ ビルドと実行
+
+```bash
+chmod +x build.sh   # 初回のみ
+./build.sh          # .venv を作成、pip install -e .、すべてをコンパイルチェック
+./run.sh                              # ウィンドウ付き GUI（デフォルト）
+./run.sh --cli status                 # 何がインストールされているか、ローカル対 GitHub のバージョン
+./run.sh --cli status --offline       # 同上、GitHub チェックをスキップ
+./run.sh --cli install <PROJECT-NAME> # まだインストールされていない 1 プロジェクトをクローン + ビルド
+./run.sh --cli update  <PROJECT-NAME> # 既にインストールされている 1 プロジェクトをプル + 再ビルド
+```
+
+Windows では：先に `build.bat`、その後 `run.bat`（GUI）/ `run.bat
+--cli status` / `run.bat --cli install <name>` / `run.bat --cli
+update <name>`。
+
+優先 GUI にはオプションの Qt ランタイムが必要です（`pip install -e ".[gui]"`;
+`build.bat`/`build.sh` は既にこれを導入します）。`--cli` には GUI 依存がなく、
+ヘッドレス CM5 の正しい入口です。Qt がない場合、古い Tkinter ウィンドウは
+互換フォールバックとしてのみ残ります。
+
+**トラブルシューティング**
+
+- `status` が、あるプロジェクトのローカルまたは GitHub バージョンに `?` を表示する：そのバージョンファイルは存在しますが、そのプロジェクト自身の慣例が `registry.py` の最終更新以降に変わっています——そのプロジェクトの実際の現在のバージョンファイルと照らし合わせて、`registry.py` の該当エントリを確認してください。
+- `status` が GitHub についてエラーを表示せずに `-` を表示する：（`--offline` なしで）`status` を実行してください——`-` は GitHub チェックが完全にスキップされた場合にのみ表示されます。
+- `install`/`update` が「build.sh/.bat が見つかりません」で失敗する：そのプロジェクトは、本ツールがまだ認識していないビルドスクリプト名を使用しています——実際の名前についてはそのプロジェクト自身の README を確認し、`install.py` 自身の `BUILD_SCRIPT_CANDIDATES_*` リストへの追加を検討してください。
+- `git pull --ff-only` が失敗する：ローカルのチェックアウトに未コミットの変更があるか、履歴が分岐しています——`update` を再試行する前に、（そのプロジェクト自身のディレクトリで `git status` を実行して）手動で解決してください。本ツールはチェックアウトを強制リセットすることは決してありません。
+
+## 🚀 ロードマップ
+
+- パッケージ化された独立の GUI 実行ファイル（PyInstaller、HYDRA-UMC-SUITE 自身の `build_exe.bat`/`.sh` の慣例と一致）——`pip`/venv のステップを一切必要としないダブルクリックインストールのため。現在の GUI は、CLI と同様にまず `./build.sh` を必要とします。
+- オプションのプロジェクトごとの依存関係の事前チェック（`install` が途中で失敗する前に、不足しているツールチェーン——Rust/Go/Android SDK/Flutter が未インストールであること——を報告）。
+- `status` 用の `--json` 出力モード、これに対するスクリプト化のため。
+- HYDRA-UMC/URTC 自身のマルチバイナリファームウェアのコンポーネントごとの追跡（第 3 節の「既知の簡略化」を参照）、今日追跡している単一の代表的コンポーネントを超える実際の必要性が生じた時点で。
+
+## 🔗 関連プロジェクト
+
+**URTC**(Universal Robot Tool Controller)は、同じ著者(JuanenRac / Electro Hobby 3D)による実在の物理ツールチェンジャー・プラットフォームです。各リポジトリはそれぞれ独自のバージョン、独自のテスト、独自の README を持ちます。以下がそのファミリー全体です:
+
+* **[URTC](https://github.com/JuanenRac/URTC)** - 物理的な Universal Robot Tool Controller 基板のファームウェア、CAN バス経由の25以上のツールプロファイル
+* **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 基板用デスクトップGUIフラッシュツール、CAN-OTA に加えてフルチップ SWD/JTAG
+* **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 実際のツールID デコードと Smart Idle 予熱ロジックを備えたツール搭載ラックのファームウェア
+* **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 基板用デスクトップライブ CAN バス診断ツール、ツールプロファイルごとに1パネル
+* **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - ファームウェアと、サーマル/RGB検査ツールヘッド用の実際の Python ビジョンコンパニオン
+* **[URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)** - Web Serial API 経由の URTC-TESTER のブラウザ版代替、ローカルインストール不要
+* **URTC-UPDATER**(本リポジトリ)- エコシステム自身のリポジトリを検出・インストール・更新する
+
+このツールの設計(マニフェスト発見、検証済みでのみ確定する原子的インストール/更新、証跡ログ)は、同じ著者による HYDRA-UMC および A.R.M.O.R. エコシステム向けのアップデーターである **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** および **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** と共有されています。それぞれ自分自身のリポジトリのみに限定されています。
+
+## 📚 ドキュメントとコミュニティ
+
+* **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — すべての `--cli` サブコマンド、実際にインストールされた実行から取得した実際の出力、および終了コードの契約。
+* **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML デスクトップクライアントがどのように構成されているか、そして `--cli` と同じバックエンドの上に立つ実際のコントロールサーフェスであり続ける理由(2つ目の実装ではない)。
+* **[本リポジトリの変更履歴](CHANGELOG.md)**
+* 質問、アイデア、報告: electrohobby3d@gmail.com
+
+## 👤 作者
+**JuanenRac** (Electro Hobby 3D)
+📧 electrohobby3d@gmail.com
+📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
+
+## 📜 ライセンス
+
+GPL-3.0-or-later —— 詳細は [LICENSE](LICENSE) を参照してください。
