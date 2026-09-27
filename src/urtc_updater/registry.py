@@ -3,7 +3,7 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0 - see LICENSE
 # =============================================================================
-"""Runtime representation of a repository-owned HYDRA-UMC manifest.
+"""Runtime representation of a repository-owned URTC manifest.
 
 This module deliberately contains no project catalogue.  A repository enters
 the ecosystem by publishing a valid ``urtc.project.json``; discovery in

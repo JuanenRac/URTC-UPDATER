@@ -257,7 +257,7 @@ class UpdaterGUI:
         # updater/control surface rather than a generic settings dialog.
         header = tk.Frame(self.root, bg=self.BG, padx=24, pady=18)
         header.pack(side="top", fill="x")
-        tk.Label(header, text="HYDRA-UMC", bg=self.BG, fg=self.ACCENT,
+        tk.Label(header, text="URTC", bg=self.BG, fg=self.ACCENT,
                  font=("Segoe UI", 12, "bold")).pack(anchor="w")
         tk.Label(header, text="Updater", bg=self.BG, fg=self.TEXT,
                  font=("Segoe UI", 26, "bold")).pack(anchor="w")

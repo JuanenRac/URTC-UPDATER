@@ -58,7 +58,7 @@ def _setup_file_logging() -> Path:
     handler = logging.FileHandler(log_path, encoding="utf-8")
     handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
     logger.addHandler(handler)
-    logger.info("HYDRA-UMC Updater GUI v%s starting - log file: %s", __version__, log_path)
+    logger.info("URTC Updater GUI v%s starting - log file: %s", __version__, log_path)
 
     def _log_unhandled(exc_type, exc_value, exc_tb) -> None:
         logger.error("UNHANDLED EXCEPTION:\n%s", "".join(traceback.format_exception(exc_type, exc_value, exc_tb)))
@@ -609,7 +609,7 @@ def launch_qt_gui(workspace_root: Path) -> int:
     log_path = _setup_file_logging()
     app = QGuiApplication.instance() or QGuiApplication(sys.argv)
     app.setApplicationName("URTC-UPDATER")
-    app.setApplicationDisplayName("HYDRA-UMC Updater")
+    app.setApplicationDisplayName("URTC Updater")
     # Windows receives a native .ico rendered from the official SVG identity
     # asset. The SVG is a safe fallback for a fresh source checkout where the
     # generated ICO has not yet been produced.

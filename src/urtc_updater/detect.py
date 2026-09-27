@@ -41,7 +41,7 @@ class LocalDiscovery:
 
 
 def discover_workspace(workspace_root: Path) -> LocalDiscovery:
-    """Discover local HYDRA-UMC repositories by their root manifest.
+    """Discover local URTC repositories by their root manifest.
 
     A folder name alone is never enough to join the ecosystem. This prevents
     unrelated local folders from being mistaken for an installable project.

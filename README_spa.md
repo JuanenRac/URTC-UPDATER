@@ -76,20 +76,20 @@ documento):
 
 ```
 $ urtc-updater --cli status
-Workspace root: /home/pi/HYDRA-UMC
-Checking GitHub... 59/59
+Workspace root: /home/user/GitHub
+Checking GitHub... 6/6
 PROJECT                        STACK       LOCAL     GITHUB    STATE
 --------------------------------------------------------------------
-HYDRA-UMC                      firmware-c  0.0.7     0.0.7     up to date
-HYDRA-UMC-SERVER               node        0.0.5     0.0.9     OUTDATED
-HYDRA-UMC-STUDIO               node        0.0.8     0.1.3     OUTDATED
+URTC                           firmware-c  0.3.0     0.3.1     OUTDATED
+URTC-FLASHER                   python-qt   0.2.1     0.2.1     up to date
+URTC-TESTER                    python-qt   0.2.2     0.2.2     up to date
 ...
-59/59 installed, 2 outdated
+6/6 installed, 1 outdated
 
-$ urtc-updater --cli update HYDRA-UMC-SERVER
-Updating HYDRA-UMC-SERVER into /home/pi/HYDRA-UMC ...
-OK  Pulled latest into /home/pi/HYDRA-UMC/HYDRA-UMC-SERVER
-OK  build.sh completed successfully.
+$ urtc-updater --cli update URTC
+Updating URTC into /home/user/GitHub ...
+OK  Pulled latest into /home/user/GitHub/URTC
+OK  build_firmware.sh completed successfully.
 ```
 
 Ejecutar `urtc-updater` sin argumentos (o hacer doble clic) abre la
