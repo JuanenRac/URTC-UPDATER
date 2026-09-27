@@ -244,7 +244,7 @@ class RemoteDiscovery:
 
 
 def _fetch_discovered_manifest(owner: str, name: str, branch: str) -> RemoteStatus | None:
-    """Return a project only when its own manifest opts into HYDRA-UMC."""
+    """Return a project only when its own manifest opts into URTC."""
     url = f"{GITHUB_RAW_BASE}/{owner}/{name}/{branch}/{MANIFEST_FILE}"
     request = urllib.request.Request(
         url,
@@ -287,7 +287,7 @@ def discover_remote_projects(
 
     GitHub's repository listing is only a candidate list. A repository joins
     the ecosystem only after its own root manifest validates and declares
-    ``ecosystem: HYDRA-UMC``. A newly pushed repository therefore appears on
+    ``ecosystem: URTC``. A newly pushed repository therefore appears on
     the next dashboard or updater scan without an index.html edit.
     """
     resolved_token = token if token is not None else os.environ.get("GITHUB_TOKEN", "")

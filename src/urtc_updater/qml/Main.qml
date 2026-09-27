@@ -20,7 +20,7 @@ ApplicationWindow {
     minimumHeight: 680
     visible: true
     visibility: Window.Maximized
-    title: "HYDRA-UMC Updater"
+    title: "URTC Updater"
     color: "#07111e"
 
     property string languageTick: backend.language
@@ -129,8 +129,9 @@ ApplicationWindow {
         }
     }
 
-    // A real Version/Author/Email/License info row, matching
-    // HYDRA-UMC-STUDIO's own About.tsx InfoRow.
+    // A real Version/Author/Email/License info row, matching the same
+    // pattern this design was adapted from (HYDRA-UMC-UPDATER's own,
+    // itself matching HYDRA-UMC-STUDIO's About.tsx InfoRow).
     component AboutInfoRow: Rectangle {
         property string label: ""
         property string value: ""
@@ -309,7 +310,7 @@ ApplicationWindow {
             LabelText {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
-                text: "HYDRA<font color=\"" + window.green + "\">-UM</font><font color=\"" + window.red + "\">C</font> <font color=\"" + window.cyan + "\">UPDATER</font>"
+                text: "UR<font color=\"" + window.cyan + "\">TC</font> <font color=\"" + window.cyan + "\">UPDATER</font>"
                 textFormat: Text.RichText
                 font.pixelSize: 20
                 font.bold: true
@@ -396,7 +397,7 @@ ApplicationWindow {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 1
-                LabelText { text: "HYDRA-UMC"; color: window.cyan; font.pixelSize: 13; font.bold: true; font.letterSpacing: 1.2 }
+                LabelText { text: "URTC"; color: window.cyan; font.pixelSize: 13; font.bold: true; font.letterSpacing: 1.2 }
                 LabelText { text: "UPDATER"; font.pixelSize: 27; font.bold: true; font.letterSpacing: 1.1 }
                 LabelText { text: ui("ui_subtitle"); color: window.textMuted; font.pixelSize: 13 }
             }
