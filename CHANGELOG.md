@@ -5,6 +5,10 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.0.3]
+
+- Build version synchronized with `urtc.project.json` and the repository-native version source.
+
 ## [0.0.2] - The GUI still called itself HYDRA-UMC Updater
 
 - **Real bug, reported by the user directly comparing this GUI against its two siblings:** the About dialog's title and description (all 7 languages), the Qt Quick window's own OS-level title and taskbar/Alt-Tab display name, the QML splash's big brand text and a label under its icon, and the legacy Tkinter shell's own header label all still literally read "HYDRA-UMC" - never adapted when this project was copied from HYDRA-UMC-UPDATER. Every one of those now says URTC (the QML brand text now follows URTC's own "UR" + cyan "TC" mark, not HYDRA-UMC's three-color one). Three module docstrings that likewise claimed to be about "a HYDRA-UMC manifest"/"HYDRA-UMC repositories" were corrected the same way - they describe this project's own code, not HYDRA-UMC's.
