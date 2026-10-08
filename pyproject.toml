@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "urtc-updater"
-version = "0.0.3"
+version = "0.0.4"
 description = "Detects, installs, and manually updates the URTC ecosystem's own repositories on the machine it runs on (a developer PC with the same checkout layout, no CM5 or server involved)."
 readme = "README.md"
 requires-python = ">=3.10"
