@@ -5,6 +5,15 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.0.4] - The window icon shows reliably
+
+- **Window and taskbar icon:** the `.ico` now has seven sizes (16 to 256, made from the SVG) instead of a single large one, the window is given its icon itself, and on Windows the process gets its own identity so the taskbar shows it and not the one of Python. The `.ico` is now shipped too (it was missing).
+
+
+## [0.0.4]
+
+- Build version synchronized with `urtc.project.json` and the repository-native version source.
+
 ## [0.0.3]
 
 - Build version synchronized with `urtc.project.json` and the repository-native version source.
