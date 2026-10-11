@@ -150,6 +150,8 @@ continues to be written to the launch terminal.
   <img src="images/" alt="URTC-UPDATER installation or update checkpoints in progress" width="100%">
 </p>
 
+**Signed commits only (optional):** with `"require_signed_commits": true` in `~/.urtc_updater_settings.json` (or `URTC_UPDATER_REQUIRE_SIGNED=1`), the candidate revision - a fresh clone's `HEAD` or an update's fetched `FETCH_HEAD` - must pass `git verify-commit` (GPG keyring, or SSH with `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) before its manifest is read or anything in it is built. A refused candidate leaves the installed checkout untouched. Off by default, since the ecosystem's repositories are not all signed yet.
+
 ## 3. 🧱 ARCHITECTURE & DESIGN DECISIONS
 
 - **Qt Quick GUI by default, `--cli` for headless.** `main.py` checks for
@@ -214,6 +216,7 @@ URTC-UPDATER/
 │   ├── detect.py          # Scans a workspace root for what's installed
 │   ├── github_client.py   # Concurrent raw-content fetch + real retry/backoff for transient network errors
 │   ├── install.py         # git clone/pull + delegate to the project's own build script
+│   ├── signature.py       # Optional signed-commits policy (git verify-commit before building)
 │   ├── i18n.py             # Real, complete GUI translations (7 languages)
 │   ├── qt_gui.py           # Qt Quick bridge over the real discovery/update services
 │   ├── qml/Main.qml        # Themed desktop shell: controls, checkpoints and About

@@ -109,6 +109,8 @@ OK  build_firmware.sh completed successfully.
   <img src="images/" alt="URTC-UPDATER のインストールまたは更新中の実際のチェックポイント" width="100%">
 </p>
 
+**署名付きコミットのみ（任意）:** `~/.urtc_updater_settings.json` に `"require_signed_commits": true`（または `URTC_UPDATER_REQUIRE_SIGNED=1`）を設定すると、候補リビジョン（新規クローンの `HEAD`、または更新時に取得した `FETCH_HEAD`）は、マニフェストを読み込んだり何かをビルドしたりする前に `git verify-commit`（GPG キーリング、または `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` を使った SSH）に合格しなければなりません。拒否された候補はインストール済みのチェックアウトを一切変更しません。エコシステムのリポジトリがまだすべて署名されていないため、既定では無効です。
+
 ## 3. 🧱 アーキテクチャと設計上の決定
 
 - **標準は Qt Quick GUI、ヘッドレス向けは `--cli`。** `main.py` は任意の PySide6
@@ -141,6 +143,7 @@ URTC-UPDATER/
 │   ├── detect.py          # ワークスペースルートをスキャンし、何がインストールされているかを検出
 │   ├── github_client.py   # 生コンテンツの並行取得 + 一時的なネットワークエラーに対する本物の再試行/バックオフ
 │   ├── install.py         # git clone/pull + プロジェクト自身のビルドスクリプトへの委譲
+│   ├── signature.py       # 任意の署名付きコミットポリシー（ビルド前に git verify-commit）
 │   ├── i18n.py             # 実際の完全なGUI翻訳(7言語)
 │   ├── qt_gui.py           # 実際の検出/更新サービスへの Qt Quick ブリッジ
 │   ├── qml/Main.qml        # テーマ、チェックポイント、About を持つデスクトップ画面

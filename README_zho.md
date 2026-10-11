@@ -96,6 +96,8 @@ OK  build_firmware.sh completed successfully.
   <img src="images/" alt="URTC-UPDATER 安装或更新期间的真实检查点" width="100%">
 </p>
 
+**仅限已签名提交（可选）：** 在 `~/.urtc_updater_settings.json` 中设置 `"require_signed_commits": true`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`）后，候选修订——新克隆的 `HEAD` 或更新时获取的 `FETCH_HEAD`——必须先通过 `git verify-commit`（GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH），然后才会读取其清单或构建其中的任何内容。被拒绝的候选不会改动已安装的检出。默认关闭，因为生态系统中的仓库尚未全部签名。
+
 ## 3. 🧱 架构与设计决策
 
 - **默认 Qt Quick GUI，`--cli` 用于无桌面环境。** `main.py` 会在导入可选 PySide6
@@ -126,6 +128,7 @@ URTC-UPDATER/
 │   ├── detect.py          # 扫描工作区根目录，检测已安装的内容
 │   ├── github_client.py   # 并发抓取原始内容 + 针对临时性网络错误的真实重试/退避机制
 │   ├── install.py         # git clone/pull + 委托给项目自身的构建脚本
+│   ├── signature.py       # 可选的已签名提交策略（构建前执行 git verify-commit）
 │   ├── i18n.py             # 真实、完整的 GUI 翻译（7 种语言）
 │   ├── qt_gui.py           # 通向真实发现/更新服务的 Qt Quick 桥接层
 │   ├── qml/Main.qml        # 带主题、检查点和 About 的桌面界面

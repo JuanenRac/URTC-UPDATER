@@ -153,6 +153,8 @@ ligne sélectionnée.
   <img src="images/" alt="Checkpoints réels pendant une installation ou mise à jour URTC-UPDATER" width="100%">
 </p>
 
+**Commits signés uniquement (optionnel) :** avec `"require_signed_commits": true` dans `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=1`), la révision candidate - le `HEAD` d'un nouveau clone ou le `FETCH_HEAD` récupéré lors d'une mise à jour - doit passer `git verify-commit` (trousseau GPG, ou SSH avec `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) avant que son manifeste soit lu ou que quoi que ce soit soit compilé. Une candidate refusée laisse l'installation existante intacte. Désactivé par défaut, car les dépôts de l'écosystème ne sont pas encore tous signés.
+
 ## 3. 🧱 ARCHITECTURE ET DÉCISIONS DE CONCEPTION
 
 - **GUI Qt Quick par défaut, `--cli` pour le headless.** `main.py` vérifie
@@ -233,6 +235,7 @@ URTC-UPDATER/
 │   ├── detect.py          # Scanne une racine de workspace pour ce qui est installé
 │   ├── github_client.py   # Récupération concurrente du contenu brut + réessai/backoff réel pour les erreurs réseau transitoires
 │   ├── install.py         # git clone/pull + délègue au script de build propre
+│   ├── signature.py       # Politique optionnelle de commits signés (git verify-commit avant la compilation)
 │   ├── i18n.py             # Vraies traductions complètes de la GUI (7 langues)
 │   ├── qt_gui.py           # Pont Qt Quick vers les services réels de découverte/mise à jour
 │   ├── qml/Main.qml        # Shell desktop theme avec checkpoints et About

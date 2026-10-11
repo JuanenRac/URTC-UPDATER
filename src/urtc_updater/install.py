@@ -33,6 +33,7 @@ from uuid import uuid4
 from .evidence import installed_state, record_attempt
 from .project_manifest import ManifestValidationError, ProjectManifest, parse_manifest
 from .registry import ProjectEntry, github_repo_url
+from .signature import current_policy, verify_revision
 
 # P01/the durable version of this module's own in-process
 # self-heal for the narrow gap between the 2 promotion renames below (see
@@ -398,6 +399,10 @@ def clone_or_pull(
         if result.returncode != 0:
             rmtree(staging_path, ignore_errors=True)
             return InstallResult(False, f"git clone failed (exit {result.returncode})", _command_output(result))
+        refused = verify_revision(staging_path, "HEAD", current_policy())
+        if refused:
+            rmtree(staging_path, ignore_errors=True)
+            return InstallResult(False, f"cloned candidate refused by the signature policy: {refused}")
         try:
             _checkpoint(progress, "validation", "Validating the fetched repository manifest before deployment.")
             _manifest_from_revision(staging_path, "HEAD", entry)
@@ -454,6 +459,9 @@ def clone_or_pull(
             f"git fetch failed (exit {result.returncode}) - remote unavailable or authentication failed?",
             _command_output(result),
         )
+    refused = verify_revision(path, "FETCH_HEAD", current_policy())
+    if refused:
+        return InstallResult(False, f"remote candidate refused by the signature policy: {refused}")
     try:
         _checkpoint(progress, "validation", "Checking the candidate manifest and anti-rollback rule.")
         candidate = _manifest_from_revision(path, "FETCH_HEAD", entry)

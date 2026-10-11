@@ -5,6 +5,21 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.0.7] - Optional signed-commits policy
+
+- **`signature.py` (new):** with `"require_signed_commits": true` in the
+  settings file (or `URTC_UPDATER_REQUIRE_SIGNED=1`), the candidate revision
+  of an install (`HEAD` of the staging clone) or an update (`FETCH_HEAD`)
+  must pass `git verify-commit` - GPG keyring, or SSH with
+  `allowed_signers_file` / `URTC_UPDATER_ALLOWED_SIGNERS` - before its
+  manifest is read or anything in it is built. A refused install leaves no
+  directory behind; a refused update leaves the installed checkout as it
+  was. Off by default.
+- **Tests:** `tests/test_signature.py` (6 tests, real repositories and a
+  real SSH signing key); `tests/conftest.py` runs every test with the policy
+  off and without the machine's global git config.
+- READMEs in all 7 languages describe the policy.
+
 ## [0.0.6] - A failed write of the evidence is said
 
 - **The evidence file:** when the line of evidence of an install or update attempt cannot be written, the log now says so (it used to return nothing without a word).

@@ -155,6 +155,8 @@ für die ausgewählte Zeile.
   <img src="images/" alt="Echte URTC-UPDATER Checkpoints während Installation oder Aktualisierung" width="100%">
 </p>
 
+**Nur signierte Commits (optional):** mit `"require_signed_commits": true` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=1`) muss die Kandidaten-Revision - das `HEAD` eines frischen Klons oder das geholte `FETCH_HEAD` eines Updates - `git verify-commit` bestehen (GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`), bevor ihr Manifest gelesen oder irgendetwas darin gebaut wird. Ein abgelehnter Kandidat lässt die installierte Kopie unverändert. Standardmäßig aus, da noch nicht alle Repositories des Ökosystems signiert sind.
+
 ## 3. 🧱 ARCHITEKTUR UND DESIGN-ENTSCHEIDUNGEN
 
 - **Qt-Quick-GUI standardmäßig, `--cli` für Headless.** `main.py` prüft
@@ -239,6 +241,7 @@ URTC-UPDATER/
 │   ├── detect.py          # Scannt eine Workspace-Wurzel nach Installiertem
 │   ├── github_client.py   # Nebenläufiger Abruf des Rohinhalts + echter Wiederholungsversuch/Backoff bei vorübergehenden Netzwerkfehlern
 │   ├── install.py         # git clone/pull + delegiert an das eigene Build-Skript
+│   ├── signature.py       # Optionale Richtlinie für signierte Commits (git verify-commit vor dem Build)
 │   ├── i18n.py             # Echte, vollständige GUI-Übersetzungen (7 Sprachen)
 │   ├── qt_gui.py           # Qt-Quick-Brücke zu realen Erkennungs-/Update-Diensten
 │   ├── qml/Main.qml        # Desktop-Shell mit Theme, Checkpoints und About
