@@ -5,6 +5,10 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.0.8] - Copy-log icon button
+
+- **Copy-log button:** the activity log has a small copy icon (two sheets) that puts the whole log on the clipboard and flashes green when done.
+
 ## [0.0.7] - Optional signed-commits policy
 
 - **`signature.py` (new):** with `"require_signed_commits": true` in the
