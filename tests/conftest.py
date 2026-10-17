@@ -11,6 +11,8 @@ a developer's own commit-signing or hook settings cannot change what the
 tests see."""
 import pytest
 
+from urtc_updater import github_client, settings
+
 
 @pytest.fixture(autouse=True)
 def _signature_policy_off(monkeypatch, tmp_path_factory):
@@ -20,3 +22,9 @@ def _signature_policy_off(monkeypatch, tmp_path_factory):
     empty.write_text("", encoding="utf-8")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty))
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    # Preferences and the cached repository listing live in the home folder:
+    # each test gets its own, so nothing is read from or written to the real one.
+    home = tmp_path_factory.mktemp("home")
+    monkeypatch.setattr(settings, "SETTINGS_PATH", home / ".urtc_updater_settings.json")
+    monkeypatch.setattr(settings, "_LEGACY_LANG_PATH", home / ".urtc_updater_lang.json")
+    monkeypatch.setattr(github_client, "REPO_LIST_CACHE_PATH", home / ".urtc_updater_repo_cache.json")

@@ -26,7 +26,7 @@
 > **安装全部缺失项目**和**更新全部过期项目**是分别确认的顺序批量操作，使用相同的
 > 实时状态和安全流程。
 
-**诚实核查 - 今天真正能运行的部分：** 整个生态系统的发现/版本逻辑（`registry.py`、`project_manifest.py`、`ecosystem_catalog.py`、`version_parse.py`、`detect.py`）、带重试/退避的真实 GitHub 原始内容客户端（`github_client.py`），以及安装/更新流水线中"克隆-暂存-验证-提升"的真实逻辑（`install.py`）都是真实且经过测试的——64 个通过的测试（`pytest tests/`），包括一个证明"目录损坏"与"单个项目清单损坏"相互隔离的模拟 HTTP 服务器，以及在临时目录中进行的真实 git 克隆/构建往返测试。`--cli status`/`install`/`update` 在你真正运行它们时，会端到端地驱动这同一套经过测试的核心逻辑，访问真实、在线的 GitHub 原始内容服务器（而非模拟）。Qt Quick 桌面 GUI（`qt_gui.py`、`qml/Main.qml`）和旧版 Tkinter 后备方案（`gui.py`）把同一套经过测试的核心接入一个真实窗口，并已经在真实的生态系统检出目录上运行过，但两者都没有自己的自动化测试——不存在 `test_gui.py`/`test_qt_gui.py`，因为这里没有尝试去驱动真实的 Qt/Tk 事件循环。`i18n.py` 的 7 语言覆盖由测试强制保证（`test_i18n.py`），但仅保证各语言间的键一致性，不保证翻译质量。具体已经交付了什么，请参见 `CHANGELOG.md`。
+**诚实核查 - 今天真正能运行的部分：** **成熟度：可用（functional）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
 
 ---
 
@@ -62,39 +62,30 @@ GUI 的项目表格会据此进行筛选——当检测到运行在 Linux（真�
 ```
 $ urtc-updater --cli status
 Workspace root: /home/user/GitHub
-Checking GitHub... 6/6
-PROJECT                        STACK       LOCAL     GITHUB    STATE
---------------------------------------------------------------------
-URTC                           firmware-c  0.3.0     0.3.1     OUTDATED
-URTC-FLASHER                   python-qt   0.2.1     0.2.1     up to date
-URTC-TESTER                    python-qt   0.2.2     0.2.2     up to date
-...
-6/6 installed, 1 outdated
+PROJECT       MATURITY     ROLE      STACK       LOCAL     GITHUB    STATE
+-------------------------------------------------------------------------------
+URTC          production   firmware  firmware-c  0.3.0     0.3.1     OUTDATED
+URTC-FLASHER  functional   tool      python-qt   0.2.1     0.2.1     up to date
+URTC-TESTER   functional   tool      python-qt   0.2.2     0.2.2     NEW COMMITS
+
+3/3 installed, 1 outdated, 1 with new commits at the same version
+Run `urtc-updater update <project>` to update one by hand - never automatic, see this tool's own README.
 
 $ urtc-updater --cli update URTC
 Updating URTC into /home/user/GitHub ...
-OK  Pulled latest into /home/user/GitHub/URTC
-OK  build_firmware.sh completed successfully.
+OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verified build; previous installation kept at /home/user/GitHub/URTC.backup-1a2b3c4d
 ```
 
 不带任何参数运行 `urtc-updater`（或直接双击它）会在窗口中打开同样
 的信息——一个可排序的项目表格、一个部署目标筛选器，以及针对当前所选行
 的安装/更新按钮。
 
-<p align="center">
-  <img src="images/" alt="URTC-UPDATER 真实桌面总览" width="100%">
-</p>
-
 ## 2. 🔄 检查/更新实际是如何工作的
 
 - **版本来源**：本生态系统自身的"里程表"式自动递增惯例（每次真实构建都会递增一个存在于源文件*内部*的版本号——根据项目所用技术栈的不同，可能是 `pyproject.toml`、`Cargo.toml`、`version.go`、`package.json`、`version.properties`、`pubspec.yaml`，或一个固件 `#define`）从未为该次递增创建过 git 标签或 GitHub Release。因此本工具直接通过 GitHub 的原始内容托管，读取每个项目自身的 `bump_version.py`/构建脚本已经在写入的那个*同一个*文件的仓库默认分支版本——而非 Releases API，后者会把每个项目都报告为"完全没有发布记录"。
 - **本地检测**：对于每一个发现的项目，检查工作区根目录下是否存在一个与该项目名称完全一致的目录（标准的生态系统布局——每个项目作为同级目录，这正是 `build-frontend.sh`/HYDRA-UMC-SUITE 自身的发现逻辑已经假定的方式），如果存在，则读取该项目*自身*的本地版本文件副本。
 - **单一解析实现**（`version_parse.py`）在本地读取和 GitHub 抓取之间共享，因此本地检出和 GitHub 抓取绝不会被两个独立漂移的正则表达式分别解读。
-- **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
-
-<p align="center">
-  <img src="images/" alt="URTC-UPDATER 安装或更新期间的真实检查点" width="100%">
-</p>
+- **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup-xxxxxxxx` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup-xxxxxxxx` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
 
 **仅限已签名提交（可选）：** 在 `~/.urtc_updater_settings.json` 中设置 `"require_signed_commits": true`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`）后，候选修订——新克隆的 `HEAD` 或更新时获取的 `FETCH_HEAD`——必须先通过 `git verify-commit`（GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH），然后才会读取其清单或构建其中的任何内容。被拒绝的候选不会改动已安装的检出。默认关闭，因为生态系统中的仓库尚未全部签名。
 
@@ -103,9 +94,9 @@ OK  build_firmware.sh completed successfully.
 - **默认 Qt Quick GUI，`--cli` 用于无桌面环境。** `main.py` 会在导入可选 PySide6
   运行时之前检查 `--cli`。CLI 可在没有显示器或桌面依赖的 CM5 上工作；无参数时会在
   可用条件下启动 QML，Tkinter 仅保留为临时兼容回退。
-- **带窗口的 GUI 是真实的,支持 7 种语言的多语言(`i18n.py`)—— `--cli` 则刻意不支持。** 每个真实的控件都会根据保存的偏好或操作系统自身的区域设置,从语言 `Combobox`(en/es/fr/it/de/zh/ja,与公开仪表盘和每份 README 提供的相同 7 种语言)实时重新标注。项目/家族名称以及每个项目自身真实的 `notes`/`tech` 文本保持未翻译——`registry.py` 是它们唯一的真相来源,而 7 份并行的真实工程文档副本会破坏这一点。`--cli` 的输出刻意只保留英文:它是为脚本化/管道化设计的,在这种场景下,稳定、可 grep 的文本比本地化更重要。
+- **带窗口的 GUI 是真实的，支持 8 种语言（`i18n.py`）—— `--cli` 则有意不支持。** 每个控件，以及安装或更新中每个检查点和每次失败的文字，都会以选择器中选定的语言显示（en/es/fr/it/de/zh/ja/pt，其中 pt 为葡萄牙的葡萄牙语），语言取自已保存的偏好或系统区域设置。安装和更新的步骤以消息代码加参数的形式传递，只有窗口把它们转换为文字，因此切换语言会重新渲染它们。项目名、家族名以及每个项目自己的 `notes`/`tech` 文本不翻译：清单是它们唯一的事实来源。`--cli` 的输出有意保持英文，因为它是为脚本和管道准备的。
 - **`deploy` 是一种分类，而非一种限制。** 把每一个发现的项目都当作"属于 CM5 的东西"是错误的——固件仓库是从 PC 编译并刷写的（CM5 只需要通过 CAN-OTA 得到最终的二进制文件，从不需要本仓库自身的源代码），而若干工具（URTC-FLASHER、HYDRA-UMC-SUITE、HYDRA-UMC-TOOL-CLI……）本应运行在操作员自己的工作站上，而非单元本机内部。`registry.py` 的 `deploy` 字段（"cm5" / "user-pc" / "mobile" / "wearable" / "dev-server"）记录了这一点，GUI 的筛选器将其作为一个合理的起点使用——而非硬性限制，因为这个同一工具也可以运行在开发者自己的 PC 上，此时每一个发现的项目都可以被检查。
-- **本工具中不包含针对特定技术栈的构建逻辑。** 本生态系统横跨 7 种工具链（Python、Rust、Go、Node/TS、Android/Kotlin、Flutter、ARM 固件）。在*这里*重新实现 `npm install && npm run build` / `cargo build --release` / `./gradlew assembleDebug` 等，会制造出第二个声称知道如何构建每个项目的地方，注定会与该项目自身真实的（且已经正确的）`build.sh`/`.bat` 逐渐脱节。`install.py` 转而探测一个已知的构建脚本名称（`build.sh`、`build_firmware.sh`、`build_exe.sh`、`build-android.sh` 及其 `.bat` 等效版本——这些是横跨生态系统自身发现的项目实际使用的真实名称），并运行其中实际存在的那一个。
+- **本工具中不包含针对特定技术栈的构建逻辑。** 本生态系统涉及多种工具链（Python、Rust、Go、Node/TS、Android/Kotlin、Flutter、ARM 固件）。在这里重新实现每个项目的构建，会多出第二个声称知道如何构建它的地方，必然与项目自己的脚本逐渐偏离。`install.py` 改为运行项目自己的、不改版本号的 `build-test.sh`（Windows 上为 `build-test.bat`），若某个副本没有它则安全地失败。会提升版本号的构建脚本（`build.sh` 等）本工具永远不会运行。
 - **使用 GitHub 原始内容，而非 Releases API。** 见上方第 2 节——本生态系统的版本控制惯例从不创建标签/发布，因此在这里使用 Releases API 不仅不够方便，而且是彻底错误的做法。
 - **临时性网络故障会获得真正的重试；确定性的回应则永远不会。** 每一次真实的 GitHub 请求（`github_client.py` 的 `_urlopen_with_retries`）最多重试 3 次并带有退避延迟，但仅限于连接从未获得任何响应的情况（DNS/超时/重置）。GitHub 实际返回的真实 HTTP 状态——404、403、500——永远不会被重试：GitHub 已经给出了答复，再次请求只会消耗更多的速率限制额度而得到相同的结果。
 - **格式错误的远程目录会响亮地失败；单个格式错误的项目不会。** 如果 GitHub 的仓库列表本身无法访问或无法解析，`discover_remote_projects()` 会抛出异常——`gui.py` 和 `main.py` 都已经捕获了这一点，并回退到本地发现的项目列表，而不是显示一次损坏或空白的扫描。相反，单个仓库格式错误的清单会被隔离到该次扫描自己的 `errors` 列表中，绝不会中止对其余项目的发现——一个真实的、基于夹具服务器的测试（`tests/test_github_client.py`）证明了这两条路径。
@@ -114,7 +105,7 @@ OK  build_firmware.sh completed successfully.
   过期项目**，但只会在独立确认后，并按顺序通过相同安全检查执行。不存在
   无人值守的自动更新。
 - **仅使用标准库。** `urllib` 用于 GitHub 抓取（`github_client.py`），`subprocess` 用于 git/构建脚本调用（`install.py`），仅此而已——一个负责维护其他*所有*项目依赖健全性的工具，其自身保持零依赖，这是刻意为之的。
-- **已知的简化处理**：HYDRA-UMC 和 URTC 是真正的多组件固件仓库（各自分别有 6 个和 4 个独立版本管理的二进制文件——见各自的 `VERSION_CHECKLIST.txt`/`build_firmware.sh`），并不存在单一的"那个"版本号。`registry.py` 每个仓库只跟踪*一个*代表性组件——足以回答"这个仓库大致是否是最新的"，但不能替代 `build_firmware.sh` 自身的 `firmware_manifest.json` 用于真实的刷写场景。
+- **已知的简化处理：** 由多个独立版本的二进制文件组成的仓库（URTC 有四个：主控与从控、应用与引导程序）只用一个版本来跟踪，即其自身 `urtc.project.json` 在 `native_version` 中声明的版本。这回答的是“这个仓库大致是否最新”，并不能替代烧录时按组件进行的版本检查。
 
 ## 📂 目录结构
 
@@ -123,18 +114,24 @@ URTC-UPDATER/
 ├── src/urtc_updater/
 │   ├── registry.py         # ProjectEntry —— 没有静态目录;在发现时从每个仓库自身的清单构建
 │   ├── project_manifest.py # 读取/校验仓库自身的 urtc.project.json
-│   ├── ecosystem_catalog.py # JuanenRac 生态系统公开发现目录的解析器
 │   ├── version_parse.py   # 单一的正则表达式提取实现，本地+GitHub 通用
 │   ├── detect.py          # 扫描工作区根目录，检测已安装的内容
 │   ├── github_client.py   # 并发抓取原始内容 + 针对临时性网络错误的真实重试/退避机制
 │   ├── install.py         # git clone/pull + 委托给项目自身的构建脚本
 │   ├── signature.py       # 可选的已签名提交策略（构建前执行 git verify-commit）
-│   ├── i18n.py             # 真实、完整的 GUI 翻译（7 种语言）
+│   ├── commits.py          # 按提交把副本与其远程进行比较（git ls-remote）
+│   ├── messages.py         # 以代码加参数表示的安装/更新消息
+│   ├── evidence.py         # 按哈希链接的每次尝试日志
+│   ├── settings.py         # 记住的偏好（语言、工作区、保留数量、配置档）
+│   ├── profiles.py         # 具名的工作站配置档
+│   ├── notify.py           # 仅通知检查所用的桌面通知
+│   ├── logs.py             # 窗口日志文件的轮转
+│   ├── i18n.py             # 真实、完整的 GUI 翻译（8 种语言）
 │   ├── qt_gui.py           # 通向真实发现/更新服务的 Qt Quick 桥接层
 │   ├── qml/Main.qml        # 带主题、检查点和 About 的桌面界面
 │   ├── gui.py              # PySide6 不可用时的 Tkinter 兼容回退
 │   └── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update
-├── tests/                  # 真实测试：github_client、i18n、install、project_manifest、registry
+├── tests/                  # 每个模块的真实测试（`python -m pytest`）
 ├── docs/
 │   ├── CLI_REFERENCE.md     # 命令参考
 │   └── QML_DESKTOP_GUI.md   # Qt Quick GUI 架构
@@ -175,16 +172,25 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
 **故障排查**
 
-- `status` 对某个项目的本地或 GitHub 版本显示 `?`：其版本文件存在，但该项目自身的惯例自 `registry.py` 上次更新以来发生了变化——请对照该项目真实的、当前的版本文件，检查 `registry.py` 中对应的条目。
+- `status` 在某个项目的 GitHub 版本处显示 `?`：无法为它读取 GitHub。STATE 列会说明原因（例如 `installed, GitHub unknown (HTTP 404)` 或请求限额提示）。
 - `status` 对 GitHub 显示 `-` 但没有显示任何错误：运行 `status`（不带 `--offline`）——`-` 只会在 GitHub 检查被完全跳过时出现。
-- `install`/`update` 失败并提示"未找到 build.sh/.bat"：该项目使用了本工具尚未识别的构建脚本名称——请查阅其自身的 README 以获取真实名称，并考虑将其添加到 `install.py` 自身的 `BUILD_SCRIPT_CANDIDATES_*` 列表中。
+- `install`/`update` 失败并提示 "No non-versioning build-test.sh/.bat found"：该副本没有 `build-test.sh`（Windows 上为 `build-test.bat`）。请更新项目本身，或手动验证；本工具绝不会改为运行会提升版本号的构建脚本。
 - `git pull --ff-only` 失败：本地检出存在未提交的修改，或历史已分叉——请手动解决该问题（在该项目自身的目录中运行 `git status`）后再重试 `update`。本工具从不对检出进行强制重置。
+
+## 🧹 维护与工作站命令
+
+- **保留的旧安装。** 每次更新都会把被替换的安装保留在 `<名称>.backup-xxxxxxxx` 中。每个项目保留最新的 2 份（在 `~/.urtc_updater_settings.json` 中设置 `"backups_to_keep"` 可更改数量），更新成功后会移除更旧的。`urtc-updater --cli clean-backups [--keep N] [--dry-run]` 可按需移除它们，同时移除因运行中断而遗留的隐藏暂存文件夹。
+- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。
+- **版本相同，但有新提交。** 版本号只在发布构建时变化，所以 `status` 还会把每个已安装项目的提交与远程提交（`git ls-remote`）比较，当 GitHub 上有该副本没有的内容时显示 `NEW COMMITS`。窗口显示同样的状态并提供更新。
+- **批准前先看。** `urtc-updater --cli update <项目> --preview` 会获取候选版本并显示其提交、作者、版本、签名状态以及它更改的构建或工具文件，而不触碰该副本。
+- **仅通知。** `urtc-updater --cli check [--notify] [--quiet]` 列出可以更新的内容，但不做任何更改。有可更新内容时以代码 10 退出，便于计划任务通知相关人员；`--notify` 还会显示桌面通知。
+- **证据。** 每次安装、更新和恢复都会连同时间、主机和用户记录在 `.urtc-updater/evidence.jsonl` 中，每一行都通过哈希与上一行链接。`urtc-updater --cli evidence [--export 文件]` 会验证该链，并可将其导出为一个 JSON 文档。
+- **工作站配置档。** 设置文件中的 `"profiles"` 指明一台机器处理哪些项目以及是否允许批量操作；`--profile 名称`（或设置中的 `"profile"`）会把 `status`、`check`、`install` 和 `update` 限制在其中，窗口也遵循同一配置档。
 
 ## 🚀 路线图
 
 - 一个打包的独立 GUI 可执行文件（PyInstaller，与 HYDRA-UMC-SUITE 自身的 `build_exe.bat`/`.sh` 惯例一致），实现完全无需 `pip`/venv 步骤的双击安装——目前的 GUI 仍然需要像 CLI 一样先执行 `./build.sh`。
 - 可选的逐项目依赖预检查（在 `install` 中途失败之前，报告缺失的工具链——未安装 Rust/Go/Android SDK/Flutter）。
-- 为 `status` 提供 `--json` 输出模式，便于对其进行脚本化调用。
 - 针对 HYDRA-UMC/URTC 自身多二进制固件的逐组件跟踪（见第 3 节中的"已知的简化处理"），一旦出现超出目前所跟踪的单一代表性组件的真实需求。
 
 ## 🔗 相关项目

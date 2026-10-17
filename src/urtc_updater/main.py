@@ -18,7 +18,9 @@
 #   update  <project>   - pull + rebuild ONE project that IS installed
 # install/update are deliberately separate from status and always take an
 # explicit project name - there is no "update everything" - see
-# install.py's own header comment for why.
+# install.py's own header comment for why. Four more commands never change a
+# project's code on their own: `check` (notify only), `clean-backups`,
+# `restore-backup` and `evidence`.
 #
 # GUI imports are only attempted after --cli has been ruled out.  A genuinely
 # headless CM5 therefore never needs Qt, tkinter or a display to run
@@ -31,10 +33,19 @@ import json
 import sys
 from pathlib import Path
 
-from . import __version__, settings
+from . import __version__, commits, profiles, settings
 from .detect import LocalStatus, discover_workspace
+from .evidence import export_evidence, verify_chain
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
-from .install import install_or_update
+from .install import (
+    InstallError,
+    clean_workspace,
+    install_or_update,
+    list_backups,
+    preview_update,
+    restore_backup,
+)
+from .notify import send_notification
 
 
 def default_workspace_root() -> Path:
@@ -68,7 +79,27 @@ def resolve_workspace_root() -> Path:
     return settings.get_saved_workspace_root() or default_workspace_root()
 
 
-def _state_label(local: LocalStatus, remote: RemoteStatus | None) -> str:
+#: Exit code of `check` when something can be updated (0: nothing to do).
+EXIT_UPDATES_AVAILABLE = 10
+
+
+def _same_version(local: LocalStatus, remote: RemoteStatus | None) -> bool:
+    return (
+        local.installed and local.version is not None and remote is not None and remote.version is not None
+        and not local.version < remote.version and not remote.version < local.version
+    )
+
+
+def _commit_states(locals_: list[LocalStatus], remotes: dict[str, RemoteStatus]) -> dict[str, str]:
+    """For every installed project whose version equals GitHub's, whether
+    the remote has commits the checkout does not (one `git ls-remote` each)."""
+    same = {
+        ls.entry.name: ls.path for ls in locals_ if _same_version(ls, remotes.get(ls.entry.name))
+    }
+    return commits.commit_states(same)
+
+
+def _state_label(local: LocalStatus, remote: RemoteStatus | None, commit: str | None = None) -> str:
     if not local.installed:
         return "not installed"
     if local.version is None:
@@ -81,6 +112,8 @@ def _state_label(local: LocalStatus, remote: RemoteStatus | None) -> str:
         return "OUTDATED"
     if remote.version < local.version:
         return "ahead of GitHub"
+    if commit == commits.NEW_COMMITS:
+        return "NEW COMMITS"
     return "up to date"
 
 
@@ -117,6 +150,13 @@ def cmd_status(args: argparse.Namespace) -> int:
 
     entries = {name: status.entry for name, status in local_by_name.items()}
     entries.update({name: status.entry for name, status in remotes.items()})
+    try:
+        profile = profiles.load_profile(getattr(args, "profile", None))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    if profile is not None:
+        entries = {name: entry for name, entry in entries.items() if profile.allows(name)}
     locals_ = [
         local_by_name.get(
             name,
@@ -124,6 +164,7 @@ def cmd_status(args: argparse.Namespace) -> int:
         )
         for name, entry in sorted(entries.items(), key=lambda item: item[0].casefold())
     ]
+    commit_map = {} if args.offline else _commit_states(locals_, remotes)
 
     if args.json:
         # Real, scripting-friendly shape - every field the human-readable
@@ -143,7 +184,8 @@ def cmd_status(args: argparse.Namespace) -> int:
                     "path": str(ls.path),
                     "local_version": str(ls.version) if ls.version else None,
                     "github_version": str(remotes[ls.entry.name].version) if ls.entry.name in remotes and remotes[ls.entry.name].version else None,
-                    "state": _state_label(ls, remotes.get(ls.entry.name)),
+                    "state": _state_label(ls, remotes.get(ls.entry.name), commit_map.get(ls.entry.name)),
+                    "commit_state": commit_map.get(ls.entry.name),
                 }
                 for ls in locals_
             ],
@@ -152,6 +194,7 @@ def cmd_status(args: argparse.Namespace) -> int:
         outdated_count = sum(1 for ls in locals_ if _state_label(ls, remotes.get(ls.entry.name)) == "OUTDATED")
         payload["installed_count"] = installed_count
         payload["outdated_count"] = outdated_count
+        payload["new_commits_count"] = sum(1 for state in commit_map.values() if state == commits.NEW_COMMITS)
         payload["total"] = len(locals_)
         print(json.dumps(payload, indent=2, ensure_ascii=False))
         return 0
@@ -166,13 +209,16 @@ def cmd_status(args: argparse.Namespace) -> int:
     print("-" * len(header))
 
     outdated = 0
+    new_commits = 0
     for ls in locals_:
         remote = remotes.get(ls.entry.name)
         local_v = str(ls.version) if ls.version else ("-" if not ls.installed else "?")
         remote_v = str(remote.version) if remote and remote.version else ("-" if args.offline else "?")
-        state = _state_label(ls, remote)
+        state = _state_label(ls, remote, commit_map.get(ls.entry.name))
         if state == "OUTDATED":
             outdated += 1
+        elif state == "NEW COMMITS":
+            new_commits += 1
         print(
             f"{ls.entry.name:<{name_w}}{ls.entry.maturity:<13}{ls.entry.role:<10}"
             f"{ls.entry.stack:<{stack_w}}{local_v:<10}{remote_v:<10}{state}"
@@ -180,8 +226,11 @@ def cmd_status(args: argparse.Namespace) -> int:
 
     print()
     installed_count = sum(1 for ls in locals_ if ls.installed)
-    print(f"{installed_count}/{len(locals_)} installed, {outdated} outdated" + (" (GitHub not checked)" if args.offline else ""))
-    if outdated:
+    summary = f"{installed_count}/{len(locals_)} installed, {outdated} outdated"
+    if new_commits:
+        summary += f", {new_commits} with new commits at the same version"
+    print(summary + (" (GitHub not checked)" if args.offline else ""))
+    if outdated or new_commits:
         print("Run `urtc-updater update <project>` to update one by hand - never automatic, see this tool's own README.")
     if args.notes:
         print("\nNotes (what's actually real per project, from its own manifest):")
@@ -193,6 +242,84 @@ def cmd_status(args: argparse.Namespace) -> int:
             if entry.tech:
                 print(f"  Tech: {', '.join(entry.tech)}")
     return 0
+
+
+def cmd_check(args: argparse.Namespace) -> int:
+    """Notify-only: reports what could be updated, changes nothing. Exits
+    EXIT_UPDATES_AVAILABLE when something can be, so a scheduled task can act
+    on the code; with --notify it also shows a desktop notification."""
+    workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
+    local_discovery = discover_workspace(workspace_root)
+    installed = [status for status in local_discovery.projects if status.installed]
+    try:
+        profile = profiles.load_profile(getattr(args, "profile", None))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    if profile is not None:
+        installed = [status for status in installed if profile.allows(status.entry.name)]
+    remotes = fetch_all([status.entry for status in installed])
+    pending: list[str] = []
+    for status in installed:
+        remote = remotes.get(status.entry.name)
+        if remote is not None and remote.version is not None and status.version is not None and status.version < remote.version:
+            pending.append(f"{status.entry.name} {status.version} -> {remote.version}")
+    commit_map = _commit_states(installed, remotes)
+    pending += [
+        f"{name} (new commits at the same version)"
+        for name, state in sorted(commit_map.items()) if state == commits.NEW_COMMITS
+    ]
+    if not pending:
+        if not args.quiet:
+            print("Everything checked is up to date.")
+        return 0
+    print("Updates available (nothing was changed):")
+    for item in pending:
+        print(f"  {item}")
+    if args.notify:
+        shown = send_notification("URTC updates available", "; ".join(pending[:5]) + (f" (+{len(pending) - 5} more)" if len(pending) > 5 else ""))
+        if not shown:
+            print("(no desktop notification could be shown on this system)", file=sys.stderr)
+    return EXIT_UPDATES_AVAILABLE
+
+
+def cmd_clean_backups(args: argparse.Namespace) -> int:
+    workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
+    try:
+        report = clean_workspace(workspace_root, keep=args.keep, dry_run=args.dry_run)
+    except InstallError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    verb = "Would remove" if args.dry_run else "Removed"
+    for folder in report.backups + report.staging:
+        print(f"{verb} {folder}")
+    print(f"{verb} {len(report.backups)} previous installation(s) and {len(report.staging)} leftover staging folder(s); kept the newest {args.keep} per project.")
+    return 0
+
+
+def cmd_restore_backup(args: argparse.Namespace) -> int:
+    workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
+    if args.list:
+        found = list_backups(workspace_root, args.project)
+        for folder in found.get(args.project, []):
+            print(folder.name)
+        return 0
+    result = restore_backup(args.project, workspace_root, backup=args.backup)
+    print(("OK  " if result.ok else "FAIL ") + result.message)
+    return 0 if result.ok else 1
+
+
+def cmd_evidence(args: argparse.Namespace) -> int:
+    workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
+    problems = verify_chain(workspace_root)
+    if args.export:
+        destination = export_evidence(workspace_root, Path(args.export))
+        print(f"Evidence exported to {destination}")
+    for problem in problems:
+        print(f"PROBLEM {problem}", file=sys.stderr)
+    if not problems:
+        print("Evidence chain intact.")
+    return 1 if problems else 0
 
 
 def cmd_install(args: argparse.Namespace) -> int:
@@ -225,6 +352,15 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
         print("The project must expose a valid urtc.project.json on GitHub.", file=sys.stderr)
         return 1
 
+    try:
+        profile = profiles.load_profile(getattr(args, "profile", None))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    if profile is not None and not profile.allows(entry.name):
+        print(f"{entry.name} is not part of the {profile.name!r} profile.", file=sys.stderr)
+        return 1
+
     path = workspace_root / entry.name
     already_installed = path.is_dir()
     if expect_installed and not already_installed:
@@ -233,6 +369,25 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
     if not expect_installed and already_installed:
         print(f"{entry.name} already exists at {path} - use `update`, not `install`, for an existing checkout.", file=sys.stderr)
         return 1
+
+    if expect_installed and getattr(args, "preview", False):
+        try:
+            preview = preview_update(entry, workspace_root)
+        except InstallError as exc:
+            print(f"FAIL {exc.args[0] if exc.args else exc}", file=sys.stderr)
+            return 1
+        print(f"Candidate commit: {preview.commit}")
+        print(f"Author:           {preview.author}")
+        print(f"Version:          {preview.installed_version} -> {preview.version}")
+        print(f"Signature:        {preview.signature}")
+        if preview.changed_scripts:
+            print("Build/tool files changed since the installed commit:")
+            for name in preview.changed_scripts:
+                print(f"  {name}")
+        else:
+            print("Build/tool files changed since the installed commit: none")
+        print("Nothing was changed. Run the same command without --preview to apply it.")
+        return 0
 
     if entry.note:
         print(f"Note: {entry.note}")
@@ -258,19 +413,57 @@ def build_parser() -> argparse.ArgumentParser:
     status_p.add_argument("--offline", action="store_true", help="Skip the GitHub check - local state only.")
     status_p.add_argument("--notes", action="store_true", help="Also print each project's real notes (family/parent, what's actually implemented, tech) below the table.")
     status_p.add_argument("--json", action="store_true", help="Machine-readable JSON instead of the human-readable table (ignores --notes).")
+    status_p.add_argument("--profile", help="Only the projects of this station profile (default: the profile selected in the settings).")
     status_p.set_defaults(func=cmd_status)
 
     install_p = subparsers.add_parser("install", help="Clone and build ONE project that isn't installed yet.")
     install_p.add_argument("project", help="Exact project name (see `status` for the full list).")
     install_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
     install_p.add_argument("--no-build", action="store_true", help="Clone only - skip running the project's own build script.")
+    install_p.add_argument("--profile", help="Refuse a project outside this station profile.")
     install_p.set_defaults(func=cmd_install)
 
     update_p = subparsers.add_parser("update", help="Pull and rebuild ONE project that's already installed.")
     update_p.add_argument("project", help="Exact project name (see `status` for the full list).")
     update_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
     update_p.add_argument("--no-build", action="store_true", help="Pull only - skip running the project's own build script.")
+    update_p.add_argument("--profile", help="Refuse a project outside this station profile.")
+    update_p.add_argument(
+        "--preview", action="store_true",
+        help="Show the candidate commit, its author, signature state and the build/tool files it changes, then stop without updating.",
+    )
     update_p.set_defaults(func=cmd_update)
+
+    check_p = subparsers.add_parser(
+        "check", help="Notify only: list what could be updated and change nothing (exit code 10 when something can).",
+    )
+    check_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
+    check_p.add_argument("--notify", action="store_true", help="Also show a desktop notification when updates are available.")
+    check_p.add_argument("--quiet", action="store_true", help="Print nothing when everything is up to date.")
+    check_p.add_argument("--profile", help="Only the projects of this station profile.")
+    check_p.set_defaults(func=cmd_check)
+
+    clean_p = subparsers.add_parser(
+        "clean-backups", help="Remove kept previous installations (and leftover staging folders) beyond the newest N per project.",
+    )
+    clean_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
+    clean_p.add_argument("--keep", type=int, default=0, help="Previous installations to keep per project (default: 0).")
+    clean_p.add_argument("--dry-run", action="store_true", help="Only list what would be removed.")
+    clean_p.set_defaults(func=cmd_clean_backups)
+
+    restore_p = subparsers.add_parser(
+        "restore-backup", help="Put the newest kept previous installation of ONE project back in place (the current one is kept too).",
+    )
+    restore_p.add_argument("project", help="Exact project name.")
+    restore_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
+    restore_p.add_argument("--backup", help="Folder name of the backup to restore (default: the newest).")
+    restore_p.add_argument("--list", action="store_true", help="Only list the kept previous installations of the project.")
+    restore_p.set_defaults(func=cmd_restore_backup)
+
+    evidence_p = subparsers.add_parser("evidence", help="Verify the hash chain of the evidence log, optionally exporting it as one JSON file.")
+    evidence_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
+    evidence_p.add_argument("--export", metavar="FILE", help="Write the entries and the verification result to FILE.")
+    evidence_p.set_defaults(func=cmd_evidence)
 
     return parser
 

@@ -48,6 +48,7 @@ ApplicationWindow {
         if (stateKey === "state_up_to_date") return green
         if (stateKey === "state_not_installed") return textMuted
         if (stateKey === "state_ahead") return amber
+        if (stateKey === "state_new_commits") return amber
         return cyan
     }
 

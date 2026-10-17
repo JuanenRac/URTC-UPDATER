@@ -21,6 +21,7 @@
 # =============================================================================
 from __future__ import annotations
 
+import re
 import stat
 import sys
 import subprocess
@@ -34,6 +35,7 @@ from typing import Callable, Iterator
 from uuid import uuid4
 
 from .evidence import installed_state, record_attempt
+from .messages import coded
 from .project_manifest import ManifestValidationError, ProjectManifest, parse_manifest
 from .registry import ProjectEntry, github_repo_url
 from .signature import current_policy, verify_revision
@@ -149,7 +151,7 @@ def _run(
     try:
         return subprocess.run(cmd, **kwargs)  # type: ignore[arg-type]
     except FileNotFoundError as exc:
-        raise InstallError(f"'{cmd[0]}' was not found: install it (git for Windows, for example) or put it on the PATH - {exc}") from exc
+        raise InstallError(coded("tool_missing", tool=cmd[0], error=str(exc))) from exc
 
 
 def _rmtree_best_effort(path: Path) -> None:
@@ -187,9 +189,9 @@ def _rmtree_best_effort(path: Path) -> None:
             time.sleep(0.2)
 
 
-def _checkpoint(progress: ProgressCallback | None, phase: str, message: str) -> None:
+def _checkpoint(progress: ProgressCallback | None, phase: str, code: str, **params: object) -> None:
     if progress is not None:
-        progress(phase, message)
+        progress(phase, coded(code, **params))
 
 
 # well-known
@@ -239,6 +241,11 @@ class DirtyCheckError(RuntimeError):
     see `_tracked_dirty_paths()`'s own docstring for why this must never
     be read as "no dirty files found". Nothing was touched."""
 
+    def __init__(self, message: str, *, exit_code: int = 0, detail: str = "") -> None:
+        super().__init__(message)
+        self.exit_code = exit_code
+        self.detail = detail
+
 
 def _tracked_dirty_paths(path: Path) -> list[str]:
     """Returns every real path (relative to `path`) this checkout's own
@@ -276,7 +283,9 @@ def _tracked_dirty_paths(path: Path) -> list[str]:
     if result.returncode != 0:
         raise DirtyCheckError(
             f"could not verify {path} has no uncommitted changes - `git status` itself failed "
-            f"(exit {result.returncode}): {result.stderr.strip() or '(no stderr)'}"
+            f"(exit {result.returncode}): {result.stderr.strip() or '(no stderr)'}",
+            exit_code=result.returncode,
+            detail=result.stderr.strip() or "(no stderr)",
         )
     if not result.stdout:
         return []
@@ -325,10 +334,7 @@ def _carry_over_local_data(old_path: Path, staging_path: Path, *, progress: Prog
             copy2(source, destination)
         carried += 1
     if carried:
-        _checkpoint(
-            progress, "validation",
-            f"Carried {carried} real local data file(s)/director(y/ies) from the installed checkout into the verified candidate.",
-        )
+        _checkpoint(progress, "validation", "cp_carried", count=carried)
 
 
 def _validated_manifest_text(text: str, entry: ProjectEntry) -> ProjectManifest:
@@ -402,14 +408,14 @@ def clone_or_pull(
     doesn't want a build (matching install_or_update's own `build=False`
     path)."""
     path = workspace_root / entry.name
-    _checkpoint(progress, "preflight", "Validating the selected workspace and project manifest.")
+    _checkpoint(progress, "preflight", "cp_workspace")
     if not path.exists():
         # Clone to a sibling staging path first.  A failed network transfer or
         # malformed remote must not leave a partial directory that the next
         # operator run mistakes for a real installation.  rename() is atomic
         # inside workspace_root and we never remove a path we did not create.
         staging_path = workspace_root / f".{entry.name}.clone-{uuid4().hex}"
-        _checkpoint(progress, "source", "Cloning the selected repository into a safe staging directory.")
+        _checkpoint(progress, "source", "cp_clone_staging")
         result = _run(
             ["git", "clone", github_repo_url(entry), str(staging_path)],
             cwd=workspace_root,
@@ -417,32 +423,32 @@ def clone_or_pull(
         )
         if result.returncode != 0:
             _rmtree_best_effort(staging_path)
-            return InstallResult(False, f"git clone failed (exit {result.returncode})", _command_output(result))
+            return InstallResult(False, coded("clone_failed", code=result.returncode), _command_output(result))
         refused = verify_revision(staging_path, "HEAD", current_policy())
         if refused:
             _rmtree_best_effort(staging_path)
-            return InstallResult(False, f"cloned candidate refused by the signature policy: {refused}")
+            return InstallResult(False, coded("clone_refused_signature", reason=refused))
         try:
-            _checkpoint(progress, "validation", "Validating the fetched repository manifest before deployment.")
+            _checkpoint(progress, "validation", "cp_validate_fetched")
             _manifest_from_revision(staging_path, "HEAD", entry)
         except ManifestValidationError as exc:
             _rmtree_best_effort(staging_path)
-            return InstallResult(False, f"cloned checkout failed manifest validation: {exc}")
+            return InstallResult(False, coded("clone_manifest_invalid", reason=str(exc)))
         if path.exists():
             _rmtree_best_effort(staging_path)
-            return InstallResult(False, f"{path} appeared while cloning - not replacing it")
+            return InstallResult(False, coded("path_appeared", path=str(path)))
         staging_path.replace(path)
-        _checkpoint(progress, "validation", "Manifest accepted; staged checkout promoted without replacing other files.")
-        return InstallResult(True, f"Cloned into {path}")
+        _checkpoint(progress, "validation", "cp_clone_promoted")
+        return InstallResult(True, coded("cloned", path=str(path)))
 
     if not (path / ".git").is_dir():
-        return InstallResult(False, f"{path} exists but isn't a git checkout - not touching it")
+        return InstallResult(False, coded("not_git", path=str(path)))
 
     try:
-        _checkpoint(progress, "preflight", "Validating the installed repository manifest.")
+        _checkpoint(progress, "preflight", "cp_validate_installed")
         installed = _manifest_from_revision(path, "HEAD", entry)
     except ManifestValidationError as exc:
-        return InstallResult(False, f"installed checkout failed manifest validation: {exc}")
+        return InstallResult(False, coded("installed_manifest_invalid", reason=str(exc)))
 
     # refuse upfront, before any fetch/staging work, if a real
     # tracked file has a genuine uncommitted edit - see
@@ -454,30 +460,22 @@ def clone_or_pull(
     try:
         dirty = _tracked_dirty_paths(path)
     except DirtyCheckError as exc:
-        return InstallResult(False, str(exc))
+        return InstallResult(False, coded("dirty_check_failed", path=str(path), code=exc.exit_code, detail=exc.detail))
     if dirty:
         preview = ", ".join(dirty[:5]) + (f" (+{len(dirty) - 5} more)" if len(dirty) > 5 else "")
-        return InstallResult(
-            False,
-            f"{path} has uncommitted change(s) to real tracked file(s): {preview} - refusing to update; "
-            "commit, stash, or discard them first so an update can never silently discard real local work",
-        )
+        return InstallResult(False, coded("dirty", path=str(path), preview=preview))
 
     # Fetch first and inspect FETCH_HEAD before changing the operator's
     # working tree. This prevents a malformed or older remote manifest from
     # becoming an installed downgrade merely because Git can fast-forward it.
-    _checkpoint(progress, "source", "Fetching the remote candidate without changing the local checkout.")
+    _checkpoint(progress, "source", "cp_fetching")
     result = _run(
         ["git", "fetch", "--quiet", "origin", "HEAD"],
         cwd=path,
         capture_output=progress is not None,
     )
     if result.returncode != 0:
-        return InstallResult(
-            False,
-            f"git fetch failed (exit {result.returncode}) - remote unavailable or authentication failed?",
-            _command_output(result),
-        )
+        return InstallResult(False, coded("fetch_failed", code=result.returncode), _command_output(result))
     # Resolve the fetched commit exactly once and use that SHA for every
     # later step (signature, manifest, merge): the name FETCH_HEAD is a
     # shared file another process could rewrite between two reads.
@@ -486,35 +484,28 @@ def clone_or_pull(
     )
     candidate_sha = resolved.stdout.strip() if resolved.returncode == 0 else ""
     if not candidate_sha:
-        return InstallResult(False, f"could not resolve the fetched candidate to a real commit; {path} was not modified")
+        return InstallResult(False, coded("unresolved", path=str(path)))
     refused = verify_revision(path, candidate_sha, current_policy())
     if refused:
-        return InstallResult(False, f"remote candidate refused by the signature policy: {refused}")
+        return InstallResult(False, coded("remote_refused_signature", reason=refused))
     try:
-        _checkpoint(progress, "validation", "Checking the candidate manifest and anti-rollback rule.")
+        _checkpoint(progress, "validation", "cp_check_candidate")
         candidate = _manifest_from_revision(path, candidate_sha, entry)
     except ManifestValidationError as exc:
-        return InstallResult(False, f"remote candidate failed manifest validation: {exc}")
+        return InstallResult(False, coded("remote_manifest_invalid", reason=str(exc)))
     if _version_tuple(candidate) < _version_tuple(installed):
-        return InstallResult(
-            False,
-            f"remote candidate v{candidate.version} is older than installed v{installed.version}; anti-rollback refused update",
-        )
+        return InstallResult(False, coded("anti_rollback", candidate=candidate.version, installed=installed.version))
 
     if not verify_build:
-        _checkpoint(progress, "validation", "Applying the accepted candidate with a fast-forward-only merge.")
+        _checkpoint(progress, "validation", "cp_merge_in_place")
         result = _run(
             ["git", "merge", "--ff-only", candidate_sha],
             cwd=path,
             capture_output=progress is not None,
         )
         if result.returncode != 0:
-            return InstallResult(
-                False,
-                f"git merge --ff-only failed (exit {result.returncode}) - local changes or a diverged branch?",
-                _command_output(result),
-            )
-        return InstallResult(True, f"Pulled latest into {path}")
+            return InstallResult(False, coded("merge_failed", code=result.returncode), _command_output(result))
+        return InstallResult(True, coded("pulled", path=str(path)))
 
     # prove the candidate actually builds in a fully independent
     # staging clone BEFORE touching `path` at all - see this function's
@@ -529,7 +520,7 @@ def clone_or_pull(
     # upstream - fetching "origin" there would silently fetch nothing
     # new and validate the WRONG, stale candidate).
     staging_path = workspace_root / f".{entry.name}.update-{uuid4().hex}"
-    _checkpoint(progress, "source", "Cloning the installed checkout into an isolated staging area for verification.")
+    _checkpoint(progress, "source", "cp_clone_for_verify")
     # --no-hardlinks: a plain `git clone --local` hardlinks object files
     # from `path` on the same volume by default - real, reproducible
     # testing on Windows found that a build script running INSIDE the
@@ -547,11 +538,7 @@ def clone_or_pull(
     )
     if result.returncode != 0:
         _rmtree_best_effort(staging_path)
-        return InstallResult(
-            False,
-            f"could not create a staging clone for verification (exit {result.returncode}); {path} was not modified",
-            _command_output(result),
-        )
+        return InstallResult(False, coded("staging_clone_failed", code=result.returncode, path=str(path)), _command_output(result))
 
     # `git
     # clone --local` above points the new clone's own `origin` remote at
@@ -569,11 +556,7 @@ def clone_or_pull(
     result = _run(["git", "remote", "set-url", "origin", real_origin_url], cwd=staging_path, capture_output=progress is not None)
     if result.returncode != 0:
         _rmtree_best_effort(staging_path)
-        return InstallResult(
-            False,
-            f"could not restore the real upstream remote on the staging clone (exit {result.returncode}); {path} was not modified",
-            _command_output(result),
-        )
+        return InstallResult(False, coded("remote_restore_failed", code=result.returncode, path=str(path)), _command_output(result))
 
     # carry
     # over the installed checkout's own real local data BEFORE building/
@@ -584,25 +567,17 @@ def clone_or_pull(
     # the promoted checkout will actually run against.
     _carry_over_local_data(path, staging_path, progress=progress)
 
-    _checkpoint(progress, "validation", "Applying the accepted candidate in the isolated staging clone.")
+    _checkpoint(progress, "validation", "cp_merge_staging")
     result = _run(["git", "merge", "--ff-only", candidate_sha], cwd=staging_path, capture_output=progress is not None)
     if result.returncode != 0:
         _rmtree_best_effort(staging_path)
-        return InstallResult(
-            False,
-            f"git merge --ff-only failed (exit {result.returncode}) in a staging clone - local changes or a diverged branch? {path} was not modified.",
-            _command_output(result),
-        )
+        return InstallResult(False, coded("staging_merge_failed", code=result.returncode, path=str(path)), _command_output(result))
 
-    _checkpoint(progress, "build", "Building and verifying the candidate in isolation before touching the live installation.")
+    _checkpoint(progress, "build", "cp_build_isolated")
     build_result = _run_build_script_at(staging_path, progress=progress)
     if not build_result.ok:
         _rmtree_best_effort(staging_path)
-        return InstallResult(
-            False,
-            f"candidate build failed - {path} was left completely untouched and remains the operative installation: {build_result.message}",
-            build_result.output,
-        )
+        return InstallResult(False, coded("candidate_build_failed", path=str(path), detail=build_result.message), build_result.output)
 
     # The one real promotion step: swap the previous installation aside
     # (kept, never deleted - see this function's own docstring) and move
@@ -643,13 +618,19 @@ def clone_or_pull(
     health_check_url = _health_check_url_for(entry)
     journal = PromotionJournal(workspace_root / _JOURNAL_FILENAME) if _HAS_DURABLE_JOURNAL else None
     promotion_id = journal.begin(entry.name, path, staging_path, backup_path, health_check_url=health_check_url).promotion_id if journal else None
-    _checkpoint(progress, "validation", "Promoting the verified candidate; the previous installation is kept as a backup.")
+    _checkpoint(progress, "validation", "cp_promoting")
     try:
         path.rename(backup_path)
     except OSError as exc:
         # Something has a file of the installation open (the tool running, a terminal inside the folder, an editor): nothing was changed and the candidate is thrown away.
         _rmtree_best_effort(staging_path)
-        return InstallResult(False, f"the installation at {path} could not be set aside (is it open in a running program or a terminal?): {exc}", build_result.output)
+        return InstallResult(False, coded("set_aside_failed", path=str(path), error=str(exc)), build_result.output)
+    try:
+        # The folder keeps the modification time of the files inside it; the
+        # retention rule orders backups by when they were made.
+        os.utime(backup_path, None)
+    except OSError:
+        pass
     if journal:
         journal.advance(promotion_id, PromotionPhase.BACKED_UP)
     try:
@@ -658,23 +639,13 @@ def clone_or_pull(
         try:
             backup_path.rename(path)
         except OSError:
-            return InstallResult(
-                False,
-                f"promotion failed AND the self-heal restore also failed - {path} may not exist right now; "
-                f"the previous installation should still be recoverable at {backup_path}: {exc}",
-                build_result.output,
-            )
+            return InstallResult(False, coded("promotion_double_failure", path=str(path), backup=str(backup_path), error=str(exc)), build_result.output)
         if journal:
             # The in-process self-heal above already fully resolved this -
             # nothing left for a later recover_interrupted_promotions()
             # call to do.
             journal.complete(promotion_id)
-        return InstallResult(
-            False,
-            f"promotion failed (exit path unavailable: {exc}) - restored the previous installation at {path}; "
-            f"the verified candidate is still available at {staging_path} for manual inspection",
-            build_result.output,
-        )
+        return InstallResult(False, coded("promotion_restored", error=str(exc), path=str(path), staging=str(staging_path)), build_result.output)
     if journal:
         journal.advance(promotion_id, PromotionPhase.PROMOTED)
     sha_label = candidate_sha[:12]
@@ -691,24 +662,20 @@ def clone_or_pull(
         if not healthy:
             return InstallResult(
                 False,
-                f"Promoted {path} to v{candidate.version} (commit {sha_label}), but its own declared health "
-                f"check at {health_check_url} still fails ({reason}) - the promotion is left pending in the "
-                f"journal; re-running install_or_update() will retry the check without repeating the build",
+                coded("health_failed", path=str(path), version=candidate.version, commit=sha_label, url=health_check_url, reason=str(reason)),
                 build_result.output,
             )
         journal.complete(promotion_id)
         return InstallResult(
             True,
-            f"Updated {path} to v{candidate.version} (commit {sha_label}) after a verified build and a real "
-            f"passing health check ({reason}); previous installation kept at {backup_path}",
+            coded("updated_health", path=str(path), version=candidate.version, commit=sha_label, reason=str(reason), backup=str(backup_path)),
             build_result.output,
         )
     if journal:
         journal.complete(promotion_id)
     return InstallResult(
         True,
-        f"Updated {path} to v{candidate.version} (commit {sha_label}) after a verified build; "
-        f"previous installation kept at {backup_path}",
+        coded("updated", path=str(path), version=candidate.version, commit=sha_label, backup=str(backup_path)),
         build_result.output,
     )
 
@@ -737,22 +704,18 @@ def _run_build_script_at(path: Path, *, progress: ProgressCallback | None = None
     not (yet) the real installed checkout."""
     script = find_build_test_script(path)
     if script is None:
-        return InstallResult(False, f"No non-versioning build-test.sh/.bat found in {path} - upgrade this checkout or verify it manually before deployment.")
+        return InstallResult(False, coded("no_build_script", path=str(path)))
 
     if os.name == "nt":
         cmd = ["cmd", "/c", str(script)]
     else:
         cmd = ["bash", str(script)]
 
-    _checkpoint(progress, "build", f"Running {script.name}; this never increments the project version.")
+    _checkpoint(progress, "build", "cp_run_script", script=script.name)
     result = _run(cmd, cwd=path, capture_output=progress is not None)
     if result.returncode != 0:
-        return InstallResult(
-            False,
-            f"{script.name} exited with code {result.returncode} - see the in-window evidence below for what failed.",
-            _command_output(result),
-        )
-    return InstallResult(True, f"{script.name} completed successfully.", _command_output(result))
+        return InstallResult(False, coded("script_failed", script=script.name, code=result.returncode), _command_output(result))
+    return InstallResult(True, coded("script_ok", script=script.name), _command_output(result))
 
 
 class InstallError(Exception):
@@ -776,8 +739,8 @@ def workspace_lock(workspace_root: Path) -> Iterator[None]:
         directory.mkdir(parents=True, exist_ok=True)
         handle = open(directory / _LOCK_FILENAME, "a+b")
     except OSError as exc:
-        raise InstallError(f"could not create the workspace lock in {directory}: {exc}") from exc
-    busy = InstallError("another URTC-UPDATER instance is already installing or updating in this workspace - wait for it to finish")
+        raise InstallError(coded("lock_create_failed", path=str(directory), error=str(exc))) from exc
+    busy = InstallError(coded("lock_busy"))
     try:
         # A few short retries: the operating system may take a moment to
         # release a lock whose previous holder has only just finished.
@@ -835,12 +798,12 @@ def install_or_update(
     try:
         return _install_or_update(entry, workspace_root, build=build, progress=progress)
     except InstallError as exc:
-        return [InstallResult(False, str(exc))]
+        return [InstallResult(False, exc.args[0] if exc.args else str(exc))]
     except Exception as exc:  # noqa: BLE001 - the whole point is that nothing gets out
         import logging
         import traceback
         logging.getLogger("urtc_updater.gui").error("unexpected error installing %s: %s", entry.name, traceback.format_exc())
-        return [InstallResult(False, f"unexpected error: {exc}", traceback.format_exc())]
+        return [InstallResult(False, coded("unexpected", error=str(exc)), traceback.format_exc())]
 
 
 def _install_or_update(
@@ -869,11 +832,7 @@ def _install_or_update(
     recover_interrupted_promotions()'s own doc comment. A genuine no-op
     when nothing was pending, or when hydra-umc-sdk isn't installed."""
     if is_running_checkout(workspace_root / entry.name):
-        return [InstallResult(
-            False,
-            f"{entry.name} is the program running right now and cannot replace itself - close it and update it "
-            "from a command line run of another copy, or fetch it by hand",
-        )]
+        return [InstallResult(False, coded("running_checkout", name=entry.name))]
     with workspace_lock(workspace_root):
         return _install_or_update_locked(entry, workspace_root, build=build, progress=progress)
 
@@ -888,13 +847,22 @@ def _install_or_update_locked(
     recover_interrupted_promotions(workspace_root)
     was_existing_checkout = (workspace_root / entry.name / ".git").is_dir()
     before = installed_state(workspace_root / entry.name)
-    results = [clone_or_pull(entry, workspace_root, verify_build=build, progress=progress)]
+    leftovers_before = set(_orphan_staging(workspace_root, entry.name))
+    try:
+        results = [clone_or_pull(entry, workspace_root, verify_build=build, progress=progress)]
+    except BaseException:
+        # An exception that escapes mid-flow must not strand its hidden
+        # staging folder in the workspace.
+        for stray in _orphan_staging(workspace_root, entry.name):
+            if stray not in leftovers_before:
+                _rmtree_best_effort(stray)
+        raise
     if results[0].ok and build and not was_existing_checkout:
         results.append(run_build_script(entry, workspace_root, progress=progress))
     elif results[0].ok and build:
-        _checkpoint(progress, "build", "Build already verified in an isolated staging clone before promotion.")
+        _checkpoint(progress, "build", "cp_build_already")
     elif results[0].ok:
-        _checkpoint(progress, "build", "Build-test was deliberately skipped for this one approved source refresh.")
+        _checkpoint(progress, "build", "cp_build_skipped")
     record_attempt(
         workspace_root,
         project=entry.name,
@@ -903,6 +871,11 @@ def _install_or_update_locked(
         ok=all(r.ok for r in results),
         message="; ".join(r.message for r in results),
     )
+    if was_existing_checkout and all(r.ok for r in results):
+        try:
+            prune_backups(workspace_root, backups_to_keep(), name=entry.name)
+        except OSError:
+            pass  # retention is housekeeping; it never turns a good update into a failure
     return results
 
 
@@ -914,3 +887,223 @@ def _command_output(result: subprocess.CompletedProcess[str]) -> str:
     attempting to render an unbounded compiler log.
     """
     return "\n".join(part for part in (result.stdout, result.stderr) if part).strip()
+
+
+# ---------------------------------------------------------------------------
+# Kept previous installations: listing, retention, cleaning and restoring
+# ---------------------------------------------------------------------------
+
+#: How many previous installations of one project are kept after an update.
+DEFAULT_BACKUPS_TO_KEEP = 2
+
+_BACKUP_FOLDER = re.compile(r"^(?P<name>.+)\.backup-[0-9a-f]{8}$")
+_STAGING_FOLDER = re.compile(r"^\.(?P<name>.+)\.(?:update|clone)-[0-9a-f]{32}$")
+
+
+def backups_to_keep() -> int:
+    """The retention count: the `backups_to_keep` setting when it is a whole
+    number of at least zero, otherwise the default."""
+    from .settings import load_settings
+
+    value = load_settings().get("backups_to_keep")
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return DEFAULT_BACKUPS_TO_KEEP
+
+
+def list_backups(workspace_root: Path, name: str | None = None) -> dict[str, list[Path]]:
+    """Kept previous installations by project name, newest first."""
+    found: dict[str, list[Path]] = {}
+    if not workspace_root.is_dir():
+        return found
+    for folder in workspace_root.iterdir():
+        match = _BACKUP_FOLDER.match(folder.name)
+        if match is None or not folder.is_dir():
+            continue
+        if name is not None and match.group("name") != name:
+            continue
+        found.setdefault(match.group("name"), []).append(folder)
+
+    def age(folder: Path) -> tuple[float, str]:
+        try:
+            return (folder.stat().st_mtime, folder.name)
+        except OSError:
+            return (0.0, folder.name)
+
+    for folders in found.values():
+        folders.sort(key=age, reverse=True)
+    return found
+
+
+def _orphan_staging(workspace_root: Path, name: str | None = None) -> list[Path]:
+    """Hidden staging folders (`.NAME.update-...`, `.NAME.clone-...`)."""
+    if not workspace_root.is_dir():
+        return []
+    found = []
+    for folder in workspace_root.iterdir():
+        match = _STAGING_FOLDER.match(folder.name)
+        if match is not None and folder.is_dir() and (name is None or match.group("name") == name):
+            found.append(folder)
+    return sorted(found)
+
+
+def prune_backups(
+    workspace_root: Path,
+    keep: int = DEFAULT_BACKUPS_TO_KEEP,
+    *,
+    name: str | None = None,
+    dry_run: bool = False,
+) -> list[Path]:
+    """Removes every kept previous installation beyond the newest `keep` of
+    each project (only that project when `name` is given). Returns the
+    folders removed - or, with `dry_run`, the ones that would be."""
+    removed: list[Path] = []
+    for folders in list_backups(workspace_root, name).values():
+        for folder in folders[max(keep, 0):]:
+            if not dry_run:
+                _rmtree_best_effort(folder)
+                if folder.exists():
+                    continue
+            removed.append(folder)
+    return removed
+
+
+@dataclass
+class CleanReport:
+    backups: list[Path]
+    staging: list[Path]
+
+
+def clean_workspace(workspace_root: Path, *, keep: int = 0, dry_run: bool = False) -> CleanReport:
+    """The "clean backups" operation: holds the workspace lock (so it can
+    never run under another install), first heals any promotion that was
+    interrupted, then removes old backups beyond `keep` per project and every
+    hidden staging folder left behind by a run that died."""
+    with workspace_lock(workspace_root):
+        recover_interrupted_promotions(workspace_root)
+        backups = prune_backups(workspace_root, keep, dry_run=dry_run)
+        staging = _orphan_staging(workspace_root)
+        if not dry_run:
+            for folder in staging:
+                _rmtree_best_effort(folder)
+            staging = [folder for folder in staging if not folder.exists()]
+        return CleanReport(backups, staging)
+
+
+def restore_backup(name: str, workspace_root: Path, *, backup: str | None = None) -> InstallResult:
+    """Puts a kept previous installation back in place, with the same
+    guarantees as an update: the installation being replaced is itself kept
+    (as a new backup, so the swap can be undone), nothing is deleted, and a
+    failure between the two renames puts the original back."""
+    try:
+        with workspace_lock(workspace_root):
+            return _restore_backup_locked(name, workspace_root, backup)
+    except InstallError as exc:
+        return InstallResult(False, exc.args[0] if exc.args else str(exc))
+
+
+def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) -> InstallResult:
+    path = workspace_root / name
+    if is_running_checkout(path):
+        return InstallResult(False, coded("running_checkout", name=name))
+    recover_interrupted_promotions(workspace_root)
+    available = list_backups(workspace_root, name).get(name, [])
+    if backup is not None:
+        available = [folder for folder in available if folder.name == backup]
+    if not available:
+        return InstallResult(False, f"no kept previous installation of {name} to restore" + (f" named {backup}" if backup else ""))
+    chosen = available[0]
+    manifest_file = chosen / "urtc.project.json"
+    try:
+        restored = parse_manifest(manifest_file.read_text(encoding="utf-8"), expected_name=name)
+    except (OSError, ManifestValidationError) as exc:
+        return InstallResult(False, f"{chosen.name} is not a usable installation of {name}: {exc}")
+    before = installed_state(path)
+    set_aside: Path | None = None
+    if path.exists():
+        set_aside = workspace_root / f"{name}.backup-{uuid4().hex[:8]}"
+        try:
+            path.rename(set_aside)
+        except OSError as exc:
+            return InstallResult(False, f"the installation at {path} could not be set aside (is it open in a running program or a terminal?): {exc}")
+        try:
+            os.utime(set_aside, None)
+        except OSError:
+            pass
+    try:
+        chosen.rename(path)
+    except OSError as exc:
+        if set_aside is not None:
+            try:
+                set_aside.rename(path)
+            except OSError:
+                return InstallResult(False, f"restoring failed AND putting {path} back also failed; the installation that was in place is at {set_aside}: {exc}")
+        return InstallResult(False, f"could not restore {chosen.name} ({exc}); {path} was left as it was")
+    message = f"Restored {path} to v{restored.version} from {chosen.name}" + (
+        f"; the installation that was in place is kept at {set_aside}" if set_aside is not None else ""
+    )
+    record_attempt(
+        workspace_root, project=name, before=before, after=installed_state(path), ok=True, message=message,
+    )
+    return InstallResult(True, message)
+
+
+# ---------------------------------------------------------------------------
+# What an update would change, before it is approved
+# ---------------------------------------------------------------------------
+
+#: Paths whose changes matter most before approving an update: what gets run.
+_BUILD_PATHSPECS = ("build-test.*", "build*.sh", "build*.bat", "tools", "scripts")
+
+
+@dataclass
+class UpdatePreview:
+    commit: str
+    author: str
+    version: str
+    installed_version: str
+    #: "not required", "accepted" or the reason the policy refuses the commit.
+    signature: str
+    #: Changed files among the build and tool scripts the update would run.
+    changed_scripts: list[str]
+    diffstat: str
+
+
+def preview_update(entry: ProjectEntry, workspace_root: Path) -> UpdatePreview:
+    """Fetches the candidate commit and describes it - author, signature
+    state and the build or tool scripts it changes - without modifying the
+    checkout. Raises InstallError when it cannot."""
+    path = workspace_root / entry.name
+    if not (path / ".git").is_dir():
+        raise InstallError(coded("not_git", path=str(path)))
+    with workspace_lock(workspace_root):
+        try:
+            installed = _manifest_from_revision(path, "HEAD", entry)
+        except ManifestValidationError as exc:
+            raise InstallError(coded("installed_manifest_invalid", reason=str(exc))) from exc
+        fetched = _run(["git", "fetch", "--quiet", "origin", "HEAD"], cwd=path, capture_output=True)
+        if fetched.returncode != 0:
+            raise InstallError(coded("fetch_failed", code=fetched.returncode))
+        resolved = subprocess.run(["git", "rev-parse", "FETCH_HEAD"], cwd=str(path), check=False, capture_output=True, text=True)
+        sha = resolved.stdout.strip() if resolved.returncode == 0 else ""
+        if not sha:
+            raise InstallError(coded("unresolved", path=str(path)))
+        try:
+            candidate = _manifest_from_revision(path, sha, entry)
+        except ManifestValidationError as exc:
+            raise InstallError(coded("remote_manifest_invalid", reason=str(exc))) from exc
+        policy = current_policy()
+        refusal = verify_revision(path, sha, policy)
+        signature = refusal if refusal else ("accepted" if policy.required else "not required")
+        author = subprocess.run(
+            ["git", "log", "-1", "--format=%an <%ae>", sha], cwd=str(path), check=False, capture_output=True, text=True
+        ).stdout.strip()
+        names = subprocess.run(
+            ["git", "diff", "--name-only", f"HEAD..{sha}", "--", *_BUILD_PATHSPECS],
+            cwd=str(path), check=False, capture_output=True, text=True,
+        ).stdout.split()
+        stat_text = subprocess.run(
+            ["git", "diff", "--stat", f"HEAD..{sha}", "--", *_BUILD_PATHSPECS],
+            cwd=str(path), check=False, capture_output=True, text=True,
+        ).stdout.strip()
+    return UpdatePreview(sha, author, candidate.version, installed.version, signature, names, stat_text)

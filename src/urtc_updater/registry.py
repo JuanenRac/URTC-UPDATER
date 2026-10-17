@@ -30,7 +30,7 @@ class ProjectEntry:
     version_file: str
     pattern: str | dict[str, str]
     note: str = ""
-    deploy: str = "cm5"
+    deploy: str = "user-pc"
     tech: tuple[str, ...] = ()
     notes: str = ""
     maturity: str = "scaffolding"

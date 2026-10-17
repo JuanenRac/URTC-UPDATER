@@ -29,14 +29,20 @@ from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
-from . import __version__, i18n, settings
+from . import __version__, i18n, profiles, settings
+from .commits import NEW_COMMITS, commit_states
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import install_or_update, is_running_checkout
+from .logs import prune_logs
+from .messages import localize
 from .registry import GITHUB_OWNER
 
 
 DEPLOY_ORDER = ("all", "cm5", "user-pc", "mobile", "wearable", "dev-server")
+
+#: Row states that offer an update: GitHub is newer, or at the same version it has new commits.
+_UPDATABLE_STATES = ("state_outdated", "state_new_commits")
 
 #: Real, plain-text log file, one per real GUI run - the QML Activity Log
 #: only ever shows the last 8 lines (see UpdaterBridge.activity's own
@@ -60,6 +66,7 @@ def _setup_file_logging() -> Path:
     handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
     logger.addHandler(handler)
     logger.info("URTC Updater GUI v%s starting - log file: %s", __version__, log_path)
+    prune_logs(LOGS_DIR)
 
     def _log_unhandled(exc_type, exc_value, exc_tb) -> None:
         logger.error("UNHANDLED EXCEPTION:\n%s", "".join(traceback.format_exception(exc_type, exc_value, exc_tb)))
@@ -75,7 +82,7 @@ def _setup_file_logging() -> Path:
 _GUI_LOGGER = logging.getLogger("urtc_updater.gui")
 
 
-def _state_key(local: LocalStatus, remote: RemoteStatus | None) -> str:
+def _state_key(local: LocalStatus, remote: RemoteStatus | None, commit: str | None = None) -> str:
     if not local.installed:
         return "state_not_installed"
     if local.version is None:
@@ -88,6 +95,8 @@ def _state_key(local: LocalStatus, remote: RemoteStatus | None) -> str:
         return "state_outdated"
     if remote.version < local.version:
         return "state_ahead"
+    if commit == NEW_COMMITS:
+        return "state_new_commits"
     return "state_up_to_date"
 
 
@@ -105,7 +114,7 @@ class UpdaterBridge(QObject):
     deployOptionsChanged = Signal()
     _remoteResult = Signal(object, object, object)
     _actionResult = Signal(str, object)
-    _operationCheckpoint = Signal(str, str)
+    _operationCheckpoint = Signal(str, object, str)
     _batchProject = Signal(int, int, str)
 
     def __init__(self, workspace_root: Path, log_file_path: Path | None = None):
@@ -114,6 +123,8 @@ class UpdaterBridge(QObject):
         self._logFilePath = str(log_file_path) if log_file_path else ""
         self._locals: list[LocalStatus] = []
         self._remotes: dict[str, RemoteStatus] = {}
+        #: Per project: whether the remote has commits at the same version.
+        self._commits: dict[str, str] = {}
         # Every real URTC repository is "user-pc" - there is no CM5/server
         # role in this ecosystem, unlike HYDRA-UMC's, so no platform-specific
         # default is worth special-casing here (see gui.py's own
@@ -131,11 +142,27 @@ class UpdaterBridge(QObject):
         self._batch_total = 1
         self._batch_project = ""
         self._lang = i18n.resolve_initial_lang()
+        self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
         self._actionResult.connect(self._on_action_result)
         self._operationCheckpoint.connect(self._on_operation_checkpoint)
         self._batchProject.connect(self._on_batch_project)
         self.refresh(False)
+
+    @staticmethod
+    def _load_profile() -> profiles.Profile | None:
+        """The station profile in the settings, if any. A profile that is
+        named but not defined restricts nothing here; the command line reports it."""
+        try:
+            return profiles.load_profile()
+        except ValueError:
+            return None
+
+    def _allowed(self, name: str) -> bool:
+        return self._profile is None or self._profile.allows(name)
+
+    def _batch_allowed(self) -> bool:
+        return self._profile is None or self._profile.allow_batch
 
     # -- QML-visible properties -----------------------------------------
     @Property(str, notify=languageChanged)
@@ -227,7 +254,9 @@ class UpdaterBridge(QObject):
         if selected is None or not selected.installed or selected.version is None:
             return False
         remote = self._remotes.get(selected.entry.name)
-        return remote is not None and remote.version is not None and selected.version < remote.version
+        if remote is None or remote.version is None:
+            return False
+        return selected.version < remote.version or self._commits.get(selected.entry.name) == NEW_COMMITS
 
     @Property(int, notify=summaryChanged)
     def missingCount(self) -> int:
@@ -235,11 +264,11 @@ class UpdaterBridge(QObject):
 
     @Property(bool, notify=summaryChanged)
     def canInstallAll(self) -> bool:
-        return self.missingCount > 0
+        return self.missingCount > 0 and self._batch_allowed()
 
     @Property(bool, notify=summaryChanged)
     def canUpdateAll(self) -> bool:
-        return self.updateCount > 0
+        return self.updateCount > 0 and self._batch_allowed()
 
     @Property(int, notify=summaryChanged)
     def discoveredCount(self) -> int:
@@ -253,7 +282,7 @@ class UpdaterBridge(QObject):
     def updateCount(self) -> int:
         return sum(
             1 for item in self._locals
-            if _state_key(item, self._remotes.get(item.entry.name)) == "state_outdated"
+            if _state_key(item, self._remotes.get(item.entry.name), self._commits.get(item.entry.name)) in _UPDATABLE_STATES
         )
 
     @Property("QVariantList", notify=deployOptionsChanged)
@@ -279,7 +308,7 @@ class UpdaterBridge(QObject):
             if self._deploy != "all" and entry.deploy != self._deploy:
                 continue
             remote = self._remotes.get(entry.name)
-            state_key = _state_key(item, remote)
+            state_key = _state_key(item, remote, self._commits.get(entry.name))
             visible.append({
                 "name": entry.name,
                 "family": entry.family,
@@ -362,8 +391,9 @@ class UpdaterBridge(QObject):
         self._set_busy(True, self.text("status_scanning"))
         self._append_activity(self.text("log_local_scan"))
         local_discovery = discover_workspace(self._workspace_root)
-        self._locals = list(local_discovery.projects)
+        self._locals = [item for item in local_discovery.projects if self._allowed(item.entry.name)]
         self._remotes = {}
+        self._commits = {}
         self.projectsChanged.emit()
         self.summaryChanged.emit()
         self.selectionChanged.emit()
@@ -383,14 +413,23 @@ class UpdaterBridge(QObject):
                 errors: tuple[str, ...] = discovery.errors
             except RuntimeError as exc:
                 remotes = fetch_all([status.entry for status in self._locals])
-                errors = (f"Remote discovery unavailable: {exc}",)
+                errors = (self._t("inst_remote_unavailable", error=str(exc)),)
             local_by_name = {status.entry.name: status for status in self._locals}
             entries = {name: status.entry for name, status in local_by_name.items()}
             entries.update({name: status.entry for name, status in remotes.items()})
             combined = [
                 local_by_name.get(name, LocalStatus(entry=entry, path=self._workspace_root / name, installed=False, version=None))
                 for name, entry in entries.items()
+                if self._allowed(name)
             ]
+            # Installed projects at the same version as GitHub may still be behind it by commits.
+            same_version = {
+                item.entry.name: item.path for item in combined
+                if item.installed and item.version is not None
+                and (remote := remotes.get(item.entry.name)) is not None and remote.version is not None
+                and not item.version < remote.version and not remote.version < item.version
+            }
+            self._commits = commit_states(same_version)
             self._remoteResult.emit(combined, remotes, errors)
 
         threading.Thread(target=worker, daemon=True, name="urtc-updater-github").start()
@@ -415,8 +454,8 @@ class UpdaterBridge(QObject):
         self._append_activity(self.text("log_action_started").format(verb=verb, name=selected.entry.name))
 
         def worker() -> None:
-            def report(phase: str, detail: str) -> None:
-                self._operationCheckpoint.emit(phase, detail)
+            def report(phase: str, detail: object) -> None:
+                self._operationCheckpoint.emit(phase, detail, "")
 
             self._actionResult.emit(
                 selected.entry.name,
@@ -439,12 +478,15 @@ class UpdaterBridge(QObject):
         """
         if self._busy:
             return
+        if not self._batch_allowed():
+            self._append_activity(self.text("msg_batch_not_allowed"))
+            return
         if action == "install":
             targets = [item for item in self._locals if not item.installed]
         elif action == "update":
             targets = [
                 item for item in self._locals
-                if _state_key(item, self._remotes.get(item.entry.name)) == "state_outdated"
+                if _state_key(item, self._remotes.get(item.entry.name), self._commits.get(item.entry.name)) in _UPDATABLE_STATES
                 and not is_running_checkout(self._workspace_root / item.entry.name)
             ]
         else:
@@ -463,8 +505,8 @@ class UpdaterBridge(QObject):
             for index, selected in enumerate(targets, start=1):
                 self._batchProject.emit(index, len(targets), selected.entry.name)
 
-                def report(phase: str, detail: str, *, position: int = index, total: int = len(targets), name: str = selected.entry.name) -> None:
-                    self._operationCheckpoint.emit(phase, f"[{position}/{total}] {name}: {detail}")
+                def report(phase: str, detail: object, *, position: int = index, total: int = len(targets), name: str = selected.entry.name) -> None:
+                    self._operationCheckpoint.emit(phase, detail, f"[{position}/{total}] {name}: ")
 
                 outcome.extend(
                     install_or_update(
@@ -510,8 +552,10 @@ class UpdaterBridge(QObject):
         self._append_activity(self.text("log_action_finished").format(name=name, result=self.text(result_key)))
         self.refresh(False)
 
-    @Slot(str, str)
-    def _on_operation_checkpoint(self, phase: str, detail: str) -> None:
+    @Slot(str, object, str)
+    def _on_operation_checkpoint(self, phase: str, message: object, prefix: str) -> None:
+        # Rendered here, in the language the window has now.
+        detail = prefix + localize(self._lang, message)
         step_index = next((index for index, step in enumerate(self._operation_steps) if step["id"] == phase), None)
         if step_index is None:
             return
@@ -583,7 +627,7 @@ class UpdaterBridge(QObject):
         else:
             active = next((step for step in self._operation_steps if step["state"] == "active"), self._operation_steps[0])
             active["state"] = "failed"
-            active["detail"] = failed_step.message if failed_step is not None else self.text("checkpoint_failed")
+            active["detail"] = localize(self._lang, failed_step.message) if failed_step is not None else self.text("checkpoint_failed")
             self._active_phase = active["id"]
         for result in outcome:
             output = getattr(result, "output", "")

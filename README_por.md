@@ -34,7 +34,7 @@
 > sequenciais, confirmadas em separado, construídas a partir do mesmo estado em
 > direto e do mesmo caminho de segurança.
 
-**Verificação de honestidade - o que realmente funciona hoje:** **Maturidade: scaffolding.** Este projeto adapta o design já comprovado do próprio HYDRA-UMC-UPDATER (a mesma deteção por manifesto, instalação/atualização com staging clone atómica por verificação, registo de evidência) apenas aos seis repositórios do ecossistema URTC. A lógica de deteção/versões (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), o cliente real de conteúdo raw do GitHub com retry/backoff (`github_client.py`) e a lógica de clone-stage-verify-promote do pipeline de instalação/atualização (`install.py`) são reais e estão testadas - 106 testes a passar (`pytest tests/`), incluindo um servidor HTTP de fixture que prova o isolamento entre catálogo malformado e projeto malformado, e ciclos completos reais de git clone/build em diretórios temporários. Nunca instalou nem atualizou de ponta a ponta um repositório URTC real. A cobertura de 7 idiomas de `i18n.py` é imposta por teste (`test_i18n.py`), mas apenas quanto à paridade de chaves entre idiomas, não quanto à qualidade da tradução. Consulte `CHANGELOG.md` para saber exatamente o que foi entregue até agora.
+**Verificação de honestidade - o que realmente funciona hoje:** **Maturidade: funcional.** Este projeto adapta o desenho já comprovado do HYDRA-UMC-UPDATER (a mesma deteção por manifesto, a instalação/atualização com clone temporário verificado de forma atómica e o registo de evidências) apenas aos repositórios do ecossistema URTC. Foi executado de ponta a ponta contra o GitHub numa área de trabalho isolada: uma instalação limpa e uma atualização posterior de um repositório real foram clonadas, compiladas e promovidas corretamente, ficando a cópia anterior guardada como cópia de segurança. A lógica de deteção e de versões (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), o cliente de conteúdo raw do GitHub com retry/backoff e lista de repositórios em cache (`github_client.py`), a comparação por commit (`commits.py`) e o pipeline clonar-preparar-verificar-promover (`install.py`) estão cobertos por testes (`python -m pytest`), incluindo um servidor HTTP de teste local e repositórios git temporários reais com um remoto bare local. A lógica própria da ponte Qt corre sem ecrã nos testes; os próprios ecrãs QML não têm teste automático. A cobertura de 8 idiomas do `i18n.py` é verificada por teste quanto a chaves e marcadores, não quanto à qualidade da tradução. Consulte o `CHANGELOG.md` para saber exatamente o que foi entregue até agora.
 
 ---
 
@@ -77,19 +77,18 @@ nunca um número fixo gravado neste documento):
 ```
 $ urtc-updater --cli status
 Workspace root: /home/user/GitHub
-Checking GitHub... 6/6
-PROJECT                        STACK       LOCAL     GITHUB    STATE
---------------------------------------------------------------------
-URTC                           firmware-c  0.3.0     0.3.1     OUTDATED
-URTC-FLASHER                   python-qt   0.2.1     0.2.1     up to date
-URTC-TESTER                    python-qt   0.2.2     0.2.2     up to date
-...
-6/6 installed, 1 outdated
+PROJECT       MATURITY     ROLE      STACK       LOCAL     GITHUB    STATE
+-------------------------------------------------------------------------------
+URTC          production   firmware  firmware-c  0.3.0     0.3.1     OUTDATED
+URTC-FLASHER  functional   tool      python-qt   0.2.1     0.2.1     up to date
+URTC-TESTER   functional   tool      python-qt   0.2.2     0.2.2     NEW COMMITS
+
+3/3 installed, 1 outdated, 1 with new commits at the same version
+Run `urtc-updater update <project>` to update one by hand - never automatic, see this tool's own README.
 
 $ urtc-updater --cli update URTC
 Updating URTC into /home/user/GitHub ...
-OK  Pulled latest into /home/user/GitHub/URTC
-OK  build_firmware.sh completed successfully.
+OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verified build; previous installation kept at /home/user/GitHub/URTC.backup-1a2b3c4d
 ```
 
 Executar `urtc-updater` sem argumentos (ou fazer duplo clique) abre a mesma
@@ -98,13 +97,7 @@ Ecosystem** com métricas de deteção/instalação/atualização em direto, uma
 árvore **Project Registry** orientada por manifesto e um painel **Safe
 Update** para o projeto selecionado. O layout torna visíveis as proteções
 reais: deteção por manifesto, uma única ação explícita sobre um projeto,
-confirmação manual, build opcional e um rasto de atividade no ecrã; a
-evidência completa dos comandos continua a ser escrita no terminal de
-arranque.
-
-<p align="center">
-  <img src="images/" alt="Visão geral real do desktop do URTC-UPDATER" width="100%">
-</p>
+confirmação manual, build opcional e um rasto de atividade no ecrã; o registo completo também é escrito num ficheiro em `~/.urtc_updater/logs` (ficam os 20 mais recentes).
 
 ## 2. 🔄 COMO FUNCIONA REALMENTE UMA VERIFICAÇÃO/ATUALIZAÇÃO
 
@@ -134,7 +127,7 @@ arranque.
   vez de serem descartadas) e compilado/verificado PRIMEIRO num staging clone
   totalmente independente - a instalação em uso só é tocada (através de dois
   renomeamentos de diretório consecutivos, ficando a instalação anterior em
-  `<name>.backup`, não apagada) se essa compilação de staging for bem-sucedida.
+  `<name>.backup-xxxxxxxx`, não apagada) se essa compilação de staging for bem-sucedida.
   Uma falha de build, um checkout divergente/sujo, um crash ou um disco cheio
   em qualquer momento antes dessa promoção final deixam a instalação anterior
   completamente intacta e operacional - ver o próprio docstring de
@@ -147,14 +140,10 @@ arranque.
   excluindo artefactos de build regeneráveis) são transportados para o
   staging clone antes de compilar, para que o estado operacional real do
   próprio projeto sobreviva a uma atualização em vez de ficar abandonado no
-  checkout `.backup` mantido.
+  checkout `.backup-xxxxxxxx` mantido.
   Em ambos os casos executa o `build-test.sh`/`build-test.bat` do próprio
   projeto (a verificação sem versionamento - ver secção 3) que ele realmente
   tiver. Esta ferramenta nunca reimplementa os passos de build de um projeto.
-
-<p align="center">
-  <img src="images/" alt="Pontos de controlo de instalação ou atualização do URTC-UPDATER em curso" width="100%">
-</p>
 
 **Apenas commits assinados (opcional):** com `"require_signed_commits": true` em `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=1`), a revisão candidata - o `HEAD` de um clone novo ou o `FETCH_HEAD` obtido numa atualização - tem de passar `git verify-commit` (chaveiro GPG, ou SSH com `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) antes de o seu manifesto ser lido ou de qualquer coisa nela ser compilada. Um candidato recusado deixa o checkout instalado intacto. Desativado por predefinição, pois nem todos os repositórios do ecossistema estão ainda assinados.
 
@@ -166,7 +155,7 @@ arranque.
   dependência de desktop. A invocação simples inicia o cliente QML onde o
   runtime estiver instalado; a antiga shell Tkinter permanece apenas como
   alternativa temporária de compatibilidade.
-- **A GUI em janela é real, multilingue em 7 idiomas (`i18n.py`) - o `--cli` deliberadamente não é.** Cada widget real muda de etiqueta em direto a partir de uma `Combobox` de idioma (en/es/fr/it/de/zh/ja, os mesmos 7 que o dashboard público e todos os README fornecem), detetado a partir de uma preferência guardada ou da própria localização do SO. Os nomes de projetos/famílias e o texto real de `notes`/`tech` de cada projeto permanecem sem tradução - `registry.py` é a sua única fonte de verdade, e 7 cópias paralelas de documentação de engenharia real deixariam de o ser. A saída do `--cli` permanece só em inglês de propósito: destina-se a ser usada em scripts/pipes, onde um texto estável e pesquisável com grep importa mais do que a localização.
+- **A GUI em janela é real e fala 8 idiomas (`i18n.py`) - o `--cli` deliberadamente não.** Cada widget, e o texto de cada ponto de controlo e de cada falha de uma instalação ou atualização, aparece no idioma escolhido num seletor (en/es/fr/it/de/zh/ja/pt, português de Portugal para pt), obtido de uma preferência guardada ou da configuração regional do sistema. Os passos de instalação e atualização viajam como códigos de mensagem mais parâmetros e só a janela os transforma em texto, pelo que mudar de idioma os volta a desenhar. Os nomes de projeto e de família e os textos `notes`/`tech` de cada projeto não são traduzidos: o manifesto é a sua única fonte de verdade. A saída do `--cli` fica em inglês de propósito, porque se destina a scripts e pipes.
 - **`deploy` é uma classificação, não uma restrição.** Uma primeira versão
   desta adaptação copiou literalmente a predefinição da GUI do próprio
   HYDRA-UMC-UPDATER - definindo o filtro de deploy como `"cm5"` em Linux - sem
@@ -179,16 +168,7 @@ arranque.
   O campo `deploy` de `registry.py` ("cm5" / "user-pc" / "mobile" / "wearable" /
   "dev-server") continua a registar a classificação por manifesto de
   repositório - apenas nunca é usado como predefinição de arranque.
-- **Sem lógica de build por stack nesta ferramenta.** O ecossistema abrange 7
-  toolchains (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware
-  ARM). Reimplementar `npm install && npm run build` /
-  `cargo build --release` / `./gradlew assembleDebug` / etc. AQUI criaria um
-  segundo sítio que alega saber compilar cada projeto, com garantia de
-  divergir do `build.sh`/`.bat` real (e já correto) desse projeto. Em vez
-  disso, `install.py` procura um nome conhecido de script de build
-  (`build.sh`, `build_firmware.sh`, `build_exe.sh`, `build-android.sh` e os
-  seus equivalentes `.bat` - os nomes reais usados nos projetos detetados do
-  próprio ecossistema) e executa o que existir.
+- **Sem lógica de build por stack nesta ferramenta.** O ecossistema abrange várias toolchains (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Reimplementar aqui o build de cada projeto criaria um segundo sítio que diz saber compilá-lo, condenado a divergir do script do próprio projeto. O `install.py` executa antes o `build-test.sh` sem versionamento do próprio projeto (`build-test.bat` no Windows) e falha de forma segura se uma cópia não o tiver. Os scripts de build que aumentam a versão (`build.sh` e semelhantes) nunca são executados por esta ferramenta.
 - **Conteúdo raw do GitHub, não a API de Releases.** Ver a secção 2 acima -
   a convenção de versionamento deste ecossistema nunca cria tag/release,
   pelo que a API de Releases estaria ativamente errada aqui, e não apenas
@@ -205,13 +185,7 @@ arranque.
   `subprocess` para as chamadas a git/scripts de build (`install.py`), nada
   mais - é deliberado que uma ferramenta responsável por manter saudáveis as
   dependências de todos os OUTROS projetos não tenha ela própria dependências.
-- **Simplificação conhecida**: o URTC é um repositório de firmware real com
-  vários componentes (4 binários com versões independentes - main + slave,
-  cada um com app + bootloader - ver o seu próprio `build_firmware.sh`) sem um
-  único número de versão "o" correto. `registry.py` acompanha UM componente
-  representativo por repositório - suficiente para responder a "este
-  repositório está aproximadamente atualizado", mas não substitui a
-  verificação de versão por componente de uma gravação real.
+- **Simplificação conhecida:** um repositório formado por vários binários com versão independente (o URTC tem quatro: principal e escravo, aplicação e bootloader) é acompanhado por UMA só versão, a que o seu próprio `urtc.project.json` declara em `native_version`. Isso responde a "este repositório está mais ou menos atualizado?", não substitui a verificação de versão por componente de uma gravação.
 
 ## 📂 ESTRUTURA DE DIRETÓRIOS
 
@@ -220,18 +194,24 @@ URTC-UPDATER/
 ├── src/urtc_updater/
 │   ├── registry.py         # ProjectEntry - no static catalogue; built at discovery time from each repo's own manifest
 │   ├── project_manifest.py # Reads/validates a repository-owned urtc.project.json
-│   ├── ecosystem_catalog.py # Parser for a public ecosystem discovery catalog (not yet wired into main.py)
 │   ├── version_parse.py   # ONE regex-extraction implementation, local+GitHub
 │   ├── detect.py          # Scans a workspace root for what's installed
 │   ├── github_client.py   # Concurrent raw-content fetch + real retry/backoff for transient network errors
 │   ├── install.py         # git clone/pull + delegate to the project's own build script
 │   ├── signature.py       # Optional signed-commits policy (git verify-commit before building)
-│   ├── i18n.py             # Real, complete GUI translations (7 languages)
+│   ├── commits.py          # Compara uma cópia com o seu remoto por commit (git ls-remote)
+│   ├── messages.py         # Mensagens de instalação/atualização como códigos mais parâmetros
+│   ├── evidence.py         # Registo encadeado por hash de cada tentativa
+│   ├── settings.py         # Preferências memorizadas (idioma, área de trabalho, retenção, perfis)
+│   ├── profiles.py         # Perfis de estação com nome
+│   ├── notify.py           # Notificação de ambiente de trabalho para a verificação só de aviso
+│   ├── logs.py             # Rotação dos ficheiros de registo da janela
+│   ├── i18n.py             # Real, complete GUI translations (8 languages)
 │   ├── qt_gui.py           # Qt Quick bridge over the real discovery/update services
 │   ├── qml/Main.qml        # Themed desktop shell: controls, checkpoints and About
 │   ├── gui.py              # Legacy Tkinter fallback if PySide6 is unavailable
 │   └── main.py             # Dispatch: GUI by default, --cli for status/install/update
-├── tests/                  # Real tests: github_client, i18n, install, project_manifest, registry
+├── tests/                  # Testes reais de cada módulo (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Command reference
 │   └── QML_DESKTOP_GUI.md   # Qt Quick GUI architecture
@@ -271,21 +251,25 @@ compatibilidade.
 
 **Resolução de problemas**
 
-- `status` mostra `?` na versão local ou do GitHub de um projeto: o seu
-  ficheiro de versão existe, mas a convenção do próprio projeto mudou desde
-  a última atualização de `registry.py` - compare a entrada de `registry.py`
-  desse projeto com o seu ficheiro de versão real e atual.
+- `status` mostra `?` na versão do GitHub de um projeto: não foi possível ler o GitHub para ele. A coluna STATE diz porquê (por exemplo `installed, GitHub unknown (HTTP 404)` ou um aviso de limite de pedidos).
 - `status` mostra `-` no GitHub sem nenhum erro: execute `status`
   (sem `--offline`) - `-` só aparece quando a verificação do GitHub foi
   totalmente ignorada.
-- `install`/`update` falha com "No build.sh/.bat found": esse projeto
-  usa um nome de script de build que esta ferramenta ainda não reconhece -
-  consulte o README do próprio projeto para saber o nome real e considere
-  adicioná-lo às listas `BUILD_SCRIPT_CANDIDATES_*` do próprio `install.py`.
+- `install`/`update` falha com "No non-versioning build-test.sh/.bat found": essa cópia não tem `build-test.sh` (`build-test.bat` no Windows). Atualize o próprio projeto ou verifique-o manualmente; esta ferramenta nunca executa em vez disso um script de build que aumente a versão.
 - `git pull --ff-only` falha: o checkout local tem alterações por
   submeter ou um histórico divergente - resolva-o manualmente (`git status`
   no diretório do próprio projeto) antes de tentar `update` novamente. Esta
   ferramenta nunca faz force-reset de um checkout.
+
+## 🧹 MANUTENÇÃO E COMANDOS DE ESTAÇÃO
+
+- **Instalações anteriores guardadas.** Cada atualização guarda a instalação que substituiu em `<nome>.backup-xxxxxxxx`. Ficam as 2 mais recentes por projeto (`"backups_to_keep"` em `~/.urtc_updater_settings.json` altera o número) e as mais antigas são removidas após uma atualização bem-sucedida. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` remove-as quando pedido, juntamente com qualquer pasta temporária oculta deixada por uma execução interrompida.
+- **Restaurar uma.** `urtc-updater --cli restore-backup <PROJETO> [--backup PASTA] [--list]` repõe uma instalação guardada. A instalação que é substituída também fica guardada, pelo que a troca pode ser desfeita.
+- **Mesma versão, commits novos.** A versão só muda num build de lançamento, por isso o `status` também compara o commit de cada projeto instalado com o remoto (`git ls-remote`) e mostra `NEW COMMITS` quando o GitHub tem trabalho que a cópia não tem. A janela mostra o mesmo estado e oferece a atualização.
+- **Ver antes de aprovar.** `urtc-updater --cli update <PROJETO> --preview` obtém o candidato e mostra o seu commit, autor, versão, estado da assinatura e os ficheiros de build ou de ferramentas que altera, sem tocar na cópia.
+- **Só avisar.** `urtc-updater --cli check [--notify] [--quiet]` lista o que poderia ser atualizado e não altera nada. Termina com o código 10 quando há algo para atualizar, para que uma tarefa agendada avise uma pessoa; `--notify` mostra também uma notificação no ambiente de trabalho.
+- **Evidências.** Cada instalação, atualização e restauro é registado com hora, máquina e utilizador em `.urtc-updater/evidence.jsonl`, com cada linha encadeada à anterior por hash. `urtc-updater --cli evidence [--export FICHEIRO]` verifica a cadeia e pode exportá-la como um único documento JSON.
+- **Perfis de estação.** `"profiles"` no ficheiro de definições indica os projetos com que uma máquina trabalha e se são permitidos lotes; `--profile NOME` (ou `"profile"` nas definições) restringe `status`, `check`, `install` e `update` a esse perfil, e a janela segue o mesmo perfil.
 
 ## 🚀 ROADMAP
 
@@ -295,7 +279,6 @@ compatibilidade.
   hoje ainda precisa primeiro de `./build.sh`, tal como o CLI.
 - Verificação prévia opcional de dependências por projeto (indicar a falta de
   uma toolchain arm-none-eabi-gcc/Node antes de um `install` falhar a meio).
-- Um modo de saída `--json` para `status`, para uso em scripts.
 - Acompanhamento por componente do firmware multi-binário do próprio URTC
   (ver a "simplificação conhecida" na secção 3), quando houver uma
   necessidade real para além do único componente representativo que é

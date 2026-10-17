@@ -52,7 +52,8 @@ from . import __version__, i18n, settings
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import install_or_update
-from .registry import GITHUB_OWNER, ProjectEntry
+from .messages import localize
+from .registry import GITHUB_OWNER
 
 #: Order matters - shown left-to-right in the filter dropdown, "all" first.
 #: Real labels come from i18n.t(lang, f"deploy_{key}") / "deploy_all" at
@@ -794,7 +795,7 @@ class UpdaterGUI:
                 elif kind == "install_done":
                     name, results = payload  # type: ignore[misc]
                     ok = all(r.ok for r in results)
-                    lines = "\n".join(("OK  " if r.ok else "FAIL ") + r.message for r in results)
+                    lines = "\n".join(("OK  " if r.ok else "FAIL ") + localize(self.lang, r.message) for r in results)
                     self._set_busy(False, self.t("status_ready"))
                     self._append_log(self.t("log_action_finished", name=name, result=(self.t("log_result_ok") if ok else self.t("log_result_failed"))))
                     (messagebox.showinfo if ok else messagebox.showerror)(

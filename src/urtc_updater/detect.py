@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from .project_manifest import ECOSYSTEM_ID, MANIFEST_FILE, ManifestValidationError, parse_manifest
+from .project_manifest import MANIFEST_FILE, ManifestValidationError, parse_manifest
 from .registry import ProjectEntry, entry_from_manifest
 from .version_parse import Version
 
@@ -73,8 +73,6 @@ def discover_workspace(workspace_root: Path) -> LocalDiscovery:
             manifest = parse_manifest(manifest_path.read_text(encoding="utf-8"), expected_name=project_path.name)
         except (OSError, ManifestValidationError) as exc:
             errors.append(f"{project_path.name}: invalid manifest: {exc}")
-            continue
-        if manifest.ecosystem != ECOSYSTEM_ID:
             continue
         entry = entry_from_manifest(manifest)
         projects.append(

@@ -49,9 +49,9 @@ from concurrent.futures import (
     as_completed,
 )
 from dataclasses import dataclass, replace
+from pathlib import Path
 
 from .project_manifest import (
-    ECOSYSTEM_ID,
     MANIFEST_FILE,
     ManifestValidationError,
     ProjectManifest,
@@ -71,6 +71,10 @@ from .version_parse import Version, parse_version
 # ---------------------------------------------------------------------------
 
 REQUEST_TIMEOUT_S = 10
+
+#: The repository listing and its ETags, kept between runs: GitHub answers an
+#: unchanged listing with 304, which does not count against the hourly quota.
+REPO_LIST_CACHE_PATH = Path.home() / ".urtc_updater_repo_cache.json"
 
 # GitHub is being queried for small text files only.
 #
@@ -168,7 +172,8 @@ def _urlopen_with_retries(
     backoff_base_s: float | None = None,
     opener=urllib.request.urlopen,
     sleep=time.sleep,
-) -> bytes:
+    with_headers: bool = False,
+):
     """Open `request`, retrying up to `max_attempts` times on a transient
     network failure (URLError/TimeoutError/socket.timeout/OSError, or a
     real GitHub secondary rate limit - see `_retry_after_seconds()`).
@@ -191,6 +196,8 @@ def _urlopen_with_retries(
         attempt += 1
         try:
             with opener(request, timeout=timeout) as response:
+                if with_headers:
+                    return response.read(), getattr(response, "headers", None)
                 return response.read()
         except urllib.error.HTTPError as exc:
             retry_after = _retry_after_seconds(exc)
@@ -272,14 +279,55 @@ def _fetch_discovered_manifest(owner: str, name: str, branch: str) -> RemoteStat
         # logs rather than silently treating it as a non-ecosystem project.
         raise RuntimeError(f"{name}: invalid manifest: {exc}") from exc
 
-    if manifest.ecosystem != ECOSYSTEM_ID:
-        return None
     return RemoteStatus(
         entry=replace(entry_from_manifest(manifest), default_branch=branch),
         version=Version.from_string(manifest.version),
         url=url,
         manifest=manifest,
     )
+
+
+def _load_repo_cache() -> dict:
+    try:
+        data = json.loads(REPO_LIST_CACHE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _save_repo_cache(cache: dict) -> None:
+    temporary = REPO_LIST_CACHE_PATH.with_name(REPO_LIST_CACHE_PATH.name + ".tmp")
+    try:
+        temporary.write_text(json.dumps(cache), encoding="utf-8")
+        os.replace(temporary, REPO_LIST_CACHE_PATH)
+    except OSError:
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
+
+
+def _fetch_listing_page(url: str, headers: dict[str, str], cache: dict, authenticated: bool) -> list:
+    """One page of the repository listing, asking GitHub whether it changed
+    since the copy kept in `cache` (If-None-Match); a 304 answer returns the
+    kept copy without spending any of the hourly request quota."""
+    key = f"{url}|{'token' if authenticated else 'anonymous'}"
+    kept = cache.get(key) if isinstance(cache.get(key), dict) else None
+    request_headers = dict(headers)
+    if kept and isinstance(kept.get("etag"), str) and isinstance(kept.get("payload"), list):
+        request_headers["If-None-Match"] = kept["etag"]
+    request = urllib.request.Request(url, headers=request_headers, method="GET")
+    try:
+        body, response_headers = _urlopen_with_retries(request, timeout=REQUEST_TIMEOUT_S, with_headers=True)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 304 and kept and isinstance(kept.get("payload"), list):
+            return kept["payload"]
+        raise
+    payload = json.loads(body.decode("utf-8", errors="replace"))
+    etag = response_headers.get("ETag") if response_headers is not None else None
+    if isinstance(payload, list) and etag:
+        cache[key] = {"etag": etag, "payload": payload}
+    return payload
 
 
 def discover_remote_projects(
@@ -304,12 +352,12 @@ def discover_remote_projects(
         headers["Authorization"] = f"Bearer {resolved_token}"
 
     candidates: list[tuple[str, str]] = []
+    cache = _load_repo_cache()
     page = 1
     while True:
         url = f"{GITHUB_API_BASE}/users/{owner}/repos?type=owner&per_page=100&page={page}"
-        request = urllib.request.Request(url, headers=headers, method="GET")
         try:
-            payload = json.loads(_urlopen_with_retries(request, timeout=REQUEST_TIMEOUT_S).decode("utf-8", errors="replace"))
+            payload = _fetch_listing_page(url, headers, cache, bool(resolved_token))
         except urllib.error.HTTPError as exc:
             # Found while diagnosing a real report of repeated GitHub
             # refreshes silently listing fewer and fewer projects (42 ->
@@ -331,6 +379,7 @@ def discover_remote_projects(
             break
         page += 1
 
+    _save_repo_cache(cache)
     discovered: list[RemoteStatus] = []
     errors: list[str] = []
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS, thread_name_prefix="hydra-discovery") as pool:
