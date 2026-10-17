@@ -26,7 +26,7 @@ import locale
 from . import settings
 
 #: (code, native display name with flag) - same order shown in the
-#: language combobox, same 7 codes the dashboard and every README already
+#: language combobox, same codes the dashboard and every README already
 #: use across this ecosystem.
 LANGUAGES: list[tuple[str, str]] = [
     ("en", "🇺🇸 English"),
@@ -36,6 +36,7 @@ LANGUAGES: list[tuple[str, str]] = [
     ("de", "🇩🇪 Deutsch"),
     ("zh", "🇨🇳 简体中文"),
     ("ja", "🇯🇵 日本語"),
+    ("pt", "🇵🇹 Português"),
 ]
 
 _LANG_CODES = {code for code, _ in LANGUAGES}
@@ -603,6 +604,80 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "about_runtime": "Python {python} · Tk {tk}",
         "about_close_button": "閉じる",
     },
+    "pt": {
+        "workspace_label": "Workspace: {path}",
+        "show_label": "Mostrar:",
+        "lang_label": "Idioma:",
+        "offline_checkbox": "Offline (ignorar a verificação do GitHub)",
+        "refresh_button": "Atualizar",
+        "col_project": "Projeto",
+        "col_maturity": "Maturidade",
+        "col_role": "Função",
+        "col_stack": "Stack",
+        "col_deploy": "Destino de implementação",
+        "col_local": "Local",
+        "col_github": "GitHub",
+        "col_state": "Estado",
+        "note_default": "Selecione um projeto para ver aqui as suas notas.",
+        "note_child_of": "filho de {parent}",
+        "note_tech": "Tecnologia: {tech}",
+        "note_build": "Build: {build}",
+        "notes_empty": "(ainda não há notas registadas para este projeto)",
+        "build_empty": "(não há nota de build para este projeto)",
+        "install_button": "Instalar selecionado",
+        "update_button": "Atualizar selecionado",
+        "skip_build_checkbox": "Ignorar o passo de build (apenas clone/pull)",
+        "status_ready": "Pronto.",
+        "status_scanning": "A analisar o workspace local...",
+        "status_ready_offline": "Pronto (offline - GitHub não verificado).",
+        "status_checking_github": "A verificar o GitHub...",
+        "status_checking_progress": "A verificar o GitHub... {done}/{total}",
+        "status_action_progress": "{verb} {name} - consulte o terminal a partir do qual esta aplicação foi iniciada para ver a saída em direto...",
+        "action_installing": "A instalar",
+        "action_updating": "A atualizar",
+        "msg_select_project_first": "Selecione primeiro um projeto na tabela.",
+        "msg_already_installed": "{name} já está instalado em\n{path}\n\nUse antes 'Atualizar selecionado'.",
+        "msg_not_installed_yet": "{name} ainda não está instalado.\n\nUse antes 'Instalar selecionado'.",
+        "msg_confirm_action": "{verb} {name} em\n{workspace}\n\nIsto executa `git` e o script de build do próprio projeto - a saída real vai para a consola/terminal desta aplicação, se existir. Continuar?",
+        "state_not_installed": "não instalado",
+        "state_unknown_local": "desconhecido (local)",
+        "state_installed_not_checked": "instalado (não verificado)",
+        "state_installed_github_unknown": "instalado, GitHub desconhecido",
+        "state_outdated": "DESATUALIZADO",
+        "state_ahead": "à frente do GitHub",
+        "state_up_to_date": "atualizado",
+        "deploy_all": "Os {count} projetos",
+        "deploy_cm5": "CM5 (módulo de computação)",
+        "deploy_user-pc": "PC do próprio utilizador",
+        "deploy_mobile": "Aplicação móvel",
+        "deploy_wearable": "Wearable",
+        "deploy_dev-server": "Servidor de desenvolvimento",
+        "maturity_production": "Produção",
+        "maturity_established": "Consolidado",
+        "maturity_functional": "Funcional",
+        "maturity_scaffolding": "Estrutura inicial",
+        "role_api": "API",
+        "role_ui": "UI",
+        "role_cli": "CLI",
+        "role_firmware": "Firmware",
+        "role_library": "Biblioteca",
+        "role_service": "Serviço",
+        "role_tool": "Ferramenta",
+        "menu_help": "Ajuda",
+        "menu_about": "Acerca de",
+        "about_title": "URTC UPDATER",
+        "about_tagline": "Detete, verifique e atualize o seu ecossistema local com segurança.",
+        "about_version": "Versão {version}",
+        "about_version_label": "Versão",
+        "about_author_label": "Autor",
+        "about_email_label": "E-mail",
+        "about_license_label": "Licença",
+        "about_description": "Instala e atualiza os repositórios do ecossistema URTC a partir de um conjunto real e detetado de manifestos de projeto - sem catálogo de projetos integrado.",
+        "about_copyright": "© 2026 JuanenRac (Electro Hobby 3D)",
+        "about_license": "GNU General Public License v3.0 (GPL-3.0)",
+        "about_runtime": "Python {python} · Tk {tk}",
+        "about_close_button": "Fechar",
+    },
 }
 
 
@@ -721,6 +796,35 @@ _VISUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
         "safety_title": "安全ゲート", "safety_summary": "• マニフェスト駆動の検出\n• 手動確認が必須\n• プロジェクトビルドは任意\n• 端末に完全な証跡を保持", "activity_log_title": "アクティビティログ", "status_caption": "システム状態",
         "log_workspace_changed": "ワークスペースを変更しました：{path}", "log_local_scan": "ローカルマニフェストをスキャン中...", "log_offline_ready": "オフラインスキャン完了：{projects} プロジェクト。", "log_github_check": "GitHub マニフェストを確認中...", "log_github_ready": "GitHub の確認完了：{projects} プロジェクト。", "log_action_started": "{verb} {name} を開始しました。", "log_action_finished": "{name}：{result}。", "log_result_ok": "完了", "log_result_failed": "要確認",
     },
+    "pt": {
+        "ui_subtitle": "Detete, verifique e atualize o seu ecossistema local com segurança.",
+        "local_ecosystem_title": "◉  Ecossistema local",
+        "workspace_caption": "RAIZ DO WORKSPACE",
+        "browse_button": "Escolher workspace",
+        "metric_detected": "projetos detetados",
+        "metric_installed": "instalados localmente",
+        "metric_updates": "atualizações disponíveis",
+        "registry_title": "▦  Registo de projetos",
+        "registry_hint": "Manifestos ativos agrupados pela família declarada do ecossistema.",
+        "safe_update_title": "✓  Atualização segura",
+        "safe_update_hint": "Selecione um projeto, reveja o seu estado e confirme a ação real.",
+        "selected_project_caption": "PROJETO SELECIONADO",
+        "selected_project_none": "Nenhum projeto selecionado",
+        "open_github_button": "Abrir no GitHub",
+        "safety_title": "BARREIRAS DE SEGURANÇA",
+        "safety_summary": "• Deteção por manifestos\n• Confirmação manual obrigatória\n• Build do projeto opcional\n• Terminal com evidência completa",
+        "activity_log_title": "REGISTO DE ATIVIDADE",
+        "status_caption": "ESTADO DO SISTEMA",
+        "log_workspace_changed": "Workspace alterado: {path}",
+        "log_local_scan": "A analisar os manifestos locais...",
+        "log_offline_ready": "Análise offline concluída: {projects} projetos.",
+        "log_github_check": "A verificar os manifestos de lançamento no GitHub...",
+        "log_github_ready": "Verificação do GitHub concluída: {projects} projetos.",
+        "log_action_started": "{verb} {name} iniciado.",
+        "log_action_finished": "{name}: {result}.",
+        "log_result_ok": "concluído",
+        "log_result_failed": "requer atenção",
+    },
 }
 
 for _language, _visual_copy in _VISUAL_TRANSLATIONS.items():
@@ -734,6 +838,7 @@ _QML_ACTION_COPY: dict[str, dict[str, str]] = {
     "de": {"status_busy": "IN ARBEIT", "status_online": "BEREIT", "local_footer": "Der Updater andert nie mehr als ein Projekt ohne deine Bestatigung.", "confirm_action_title": "Sicheres Update bestatigen", "confirm_action_body": "Ausgewahlte Aktion fur {project} ausfuhren? Das Projekt kann git und seinen Build aufrufen.", "confirm_cancel_button": "Abbrechen", "batch_actions_title": "SAMMELAKTIONEN", "install_all_button": "Alle fehlenden installieren ({count})", "update_all_button": "Alle veralteten aktualisieren ({count})", "confirm_batch_title": "Sammelaktion bestatigen", "confirm_batch_install_body": "Alle {count} fehlenden Projekte nacheinander installieren? Jedes Projekt validiert sein Manifest und fuhrt build-test aus.", "confirm_batch_update_body": "Alle {count} veralteten Projekte nacheinander aktualisieren? Jedes Projekt validiert den Kandidaten vor einem Fast-Forward-Update.", "checkpoint_batch_title": "UPDATE-CHECKPOINTS  |  {current}/{total} {project}", "status_batch_progress": "{verb} {total} bestaetigte Projekte nacheinander.", "log_batch_started": "Sammel-{verb} gestartet: {total} Projekte.", "log_batch_project": "Sammelprojekt {current}/{total}: {name}.", "batch_result_name": "Sammlung von {total} Projekten", "msg_batch_nothing_to_do": "Kein Projekt passt zu dieser Sammelaktion."},
     "zh": {"status_busy": "正在处理", "status_online": "就绪", "local_footer": "未经你的确认，更新器绝不会更改多个项目。", "confirm_action_title": "确认安全更新", "confirm_action_body": "对 {project} 执行所选操作？该项目可能调用 git 和自己的构建流程。", "confirm_cancel_button": "取消", "batch_actions_title": "批量操作", "install_all_button": "安装全部缺失项目 ({count})", "update_all_button": "更新全部过期项目 ({count})", "confirm_batch_title": "确认批量操作", "confirm_batch_install_body": "顺序安装全部 {count} 个缺失项目？每个项目都会验证清单并运行 build-test。", "confirm_batch_update_body": "顺序更新全部 {count} 个过期项目？每个项目都会在仅快进更新前验证候选版本。", "checkpoint_batch_title": "更新检查点  |  {current}/{total} {project}", "status_batch_progress": "正在顺序{verb} {total} 个已批准项目。", "log_batch_started": "已开始{verb}批量操作：{total} 个项目。", "log_batch_project": "批量项目 {current}/{total}: {name}。", "batch_result_name": "{total} 个项目的批量操作", "msg_batch_nothing_to_do": "没有项目符合此批量操作。"},
     "ja": {"status_busy": "処理中", "status_online": "準備完了", "local_footer": "確認なしに複数のプロジェクトを変更することはありません。", "confirm_action_title": "安全な更新を確認", "confirm_action_body": "{project} に選択した操作を実行しますか？ git とプロジェクト固有のビルドが呼ばれる場合があります。", "confirm_cancel_button": "キャンセル", "batch_actions_title": "一括アクション", "install_all_button": "不足分をすべてインストール ({count})", "update_all_button": "古い項目をすべて更新 ({count})", "confirm_batch_title": "一括アクションを確認", "confirm_batch_install_body": "不足している {count} プロジェクトを順番にインストールしますか？各プロジェクトはマニフェストを検証し build-test を実行します。", "confirm_batch_update_body": "古い {count} プロジェクトを順番に更新しますか？各プロジェクトは fast-forward のみの更新前に候補を検証します。", "checkpoint_batch_title": "更新チェックポイント  |  {current}/{total} {project}", "status_batch_progress": "承認済み {total} プロジェクトを順番に{verb}中です。", "log_batch_started": "一括{verb}を開始: {total} プロジェクト。", "log_batch_project": "一括プロジェクト {current}/{total}: {name}。", "batch_result_name": "{total} プロジェクトの一括処理", "msg_batch_nothing_to_do": "この一括アクションに該当するプロジェクトはありません。"},
+    "pt": {"status_busy": "A TRABALHAR", "status_online": "PRONTO", "local_footer": "O atualizador nunca altera mais do que um projeto sem a sua confirmação.", "confirm_action_title": "Confirmar atualização segura", "confirm_action_body": "Executar a ação selecionada para {project}? O projeto pode invocar git e o seu próprio fluxo de build.", "confirm_cancel_button": "Cancelar", "batch_actions_title": "AÇÕES EM LOTE", "install_all_button": "Instalar todos os em falta ({count})", "update_all_button": "Atualizar todos os desatualizados ({count})", "confirm_batch_title": "Confirmar ação em lote", "confirm_batch_install_body": "Instalar sequencialmente os {count} projetos em falta? Cada projeto valida o seu manifesto e executa o seu build-test.", "confirm_batch_update_body": "Atualizar sequencialmente os {count} projetos desatualizados? Cada projeto valida o seu candidato antes de uma atualização apenas fast-forward.", "checkpoint_batch_title": "CHECKPOINTS DE ATUALIZAÇÃO  |  {current}/{total} {project}", "status_batch_progress": "{verb} {total} projetos aprovados sequencialmente.", "log_batch_started": "Lote de {verb} iniciado: {total} projetos.", "log_batch_project": "Projeto do lote {current}/{total}: {name}.", "batch_result_name": "Lote de {total} projetos", "msg_batch_nothing_to_do": "Nenhum projeto corresponde a esta ação em lote."},
 }
 
 for _language, _qml_copy in _QML_ACTION_COPY.items():
@@ -800,6 +905,14 @@ _QML_CHECKPOINT_COPY: dict[str, dict[str, str]] = {
         "checkpoint_complete_detail": "承認された操作が正常に完了しました。", "checkpoint_failed": "承認された操作は安全に停止しました。",
         "about_qt_runtime": "Qt Quick / PySide6 デスクトップランタイム",
     },
+    "pt": {
+        "status_action_progress": "{verb} {name} - os checkpoints reais e a evidência dos comandos aparecem nesta janela.",
+        "checkpoint_title": "CHECKPOINTS DE ATUALIZAÇÃO", "checkpoint_waiting": "A aguardar uma ação aprovada.",
+        "checkpoint_preflight": "Verificação prévia", "checkpoint_source": "Atualização da origem", "checkpoint_validation": "Validação do manifesto",
+        "checkpoint_build": "Build-test", "checkpoint_build_skipped": "Build-test ignorado", "checkpoint_complete": "Concluído",
+        "checkpoint_complete_detail": "A ação aprovada terminou com sucesso.", "checkpoint_failed": "A ação aprovada foi interrompida em segurança.",
+        "about_qt_runtime": "Ambiente de secretária Qt Quick / PySide6",
+    },
 }
 
 for _language, _checkpoint_copy in _QML_CHECKPOINT_COPY.items():
@@ -818,6 +931,7 @@ _LOG_COPY: dict[str, dict[str, str]] = {
     "de": {"copy_log_button": "Kopieren", "log_file_prefix": "Protokolldatei:"},
     "zh": {"copy_log_button": "复制", "log_file_prefix": "日志文件："},
     "ja": {"copy_log_button": "コピー", "log_file_prefix": "ログファイル："},
+    "pt": {"copy_log_button": "Copiar", "log_file_prefix": "Ficheiro de registo:"},
 }
 
 for _language, _log_copy in _LOG_COPY.items():
