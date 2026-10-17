@@ -7,31 +7,31 @@ bumped manually only. See `bump_version.py`.
 
 ## [0.1.1] - Messages in every language, commit comparison, backup retention and station commands
 
-The checkpoints and failures of an install or update are message codes plus parameters, shown in the language of the window in all 8 languages (Portugal Portuguese for pt); the command line keeps printing the English text.
-A project whose version equals GitHub but whose remote has new commits is now detected with one git ls-remote per project: status shows NEW COMMITS, the window offers Update, and an update at the same version is accepted (only a lower version is refused).
-Previous installations are kept as name.backup-xxxxxxxx; after a successful update the newest 2 per project are kept (the backups_to_keep setting changes the number) and older ones are removed.
-New commands: clean-backups (removes old backups and the hidden staging folders a dead run left, with --keep and --dry-run), restore-backup (puts a kept installation back and keeps the one it replaces), update --preview (shows the candidate commit, author, signature state and the build or tool files it changes, without touching the checkout), check (notify only, exit code 10 when something can be updated, optional desktop notification) and evidence (verifies the evidence hash chain and exports it as JSON).
-Every evidence line is chained to the previous one by hash, so an edited, removed or reordered line is detected.
-Station profiles in the settings (--profile on the command line, followed by the window) limit the projects of a machine and whether batch actions are allowed.
-The repository listing is cached with its ETag and answered with 304 when unchanged, which does not use the hourly request quota.
-An exception that escapes an install or update no longer leaves its hidden staging folder behind, and the window log files are rotated (the newest 20 are kept).
-Removed the unused ecosystem catalog parser and two unreachable ecosystem checks; the default deployment target of a project entry is user-pc; an unused import was removed from the legacy window.
-README and CLI reference corrected: backup folder names, the real build-test contract, the status table, maturity, the test list, empty image references, and the new commands in all 8 languages.
+- The checkpoints and failures of an install or update are message codes plus parameters, shown in the language of the window in all 8 languages (Portugal Portuguese for pt); the command line keeps printing the English text.
+- A project whose version equals GitHub but whose remote has new commits is now detected with one git ls-remote per project: status shows NEW COMMITS, the window offers Update, and an update at the same version is accepted (only a lower version is refused).
+- Previous installations are kept as name.backup-xxxxxxxx; after a successful update the newest 2 per project are kept (the backups_to_keep setting changes the number) and older ones are removed.
+- New commands: clean-backups (removes old backups and the hidden staging folders a dead run left, with --keep and --dry-run), restore-backup (puts a kept installation back and keeps the one it replaces), update --preview (shows the candidate commit, author, signature state and the build or tool files it changes, without touching the checkout), check (notify only, exit code 10 when something can be updated, optional desktop notification) and evidence (verifies the evidence hash chain and exports it as JSON).
+- Every evidence line is chained to the previous one by hash, so an edited, removed or reordered line is detected.
+- Station profiles in the settings (--profile on the command line, followed by the window) limit the projects of a machine and whether batch actions are allowed.
+- The repository listing is cached with its ETag and answered with 304 when unchanged, which does not use the hourly request quota.
+- An exception that escapes an install or update no longer leaves its hidden staging folder behind, and the window log files are rotated (the newest 20 are kept).
+- Removed the unused ecosystem catalog parser and two unreachable ecosystem checks; the default deployment target of a project entry is user-pc; an unused import was removed from the legacy window.
+- README and CLI reference corrected: backup folder names, the real build-test contract, the status table, maturity, the test list, empty image references, and the new commands in all 8 languages.
 
 ## [0.1.0] - Workspace safety: one instance at a time, clean discovery, safer cleanup
 
-Only one install or update can run in a workspace at a time: an operating-system lock is held for the whole operation, so a window and a command line run (or two windows) can no longer fetch and promote the same checkout together; the second one is told to wait.
-The fetched commit is resolved to a single SHA once, and the signature check, manifest read and merge all use that SHA instead of the shared FETCH_HEAD name.
-Kept previous installations (name.backup-xxxxxxxx) and the updater hidden staging folders are no longer reported as invalid projects on every scan.
-A refused or failed fresh clone is now removed even when git left read-only files in it (Windows), so nothing is left behind in the workspace.
-Local data carried over to a new version now skips build folders at any depth (tools/node_modules, app/build, src/__pycache__) and keeps symlinks as links instead of copying what they point to.
-The program running right now is never replaced by an update (it is skipped in Update all and refused with a clear message).
-Every evidence line now records the time (UTC), updater version, host and user.
-Saved preferences are written to a temporary file and swapped in, so a cut during the write cannot truncate them.
-A very long Retry-After from GitHub is no longer waited out; the request fails with the answer instead of freezing the window.
-Raw URLs follow the repository real default branch instead of a fixed main.
-The default workspace is never inside a Python installation when the updater is installed as a package.
-Starting without any GUI available now exits with a non-zero code; run.sh works from a bare checkout (src on the path, python3 fallback); pytest finds the sources without PYTHONPATH.
+- Only one install or update can run in a workspace at a time: an operating-system lock is held for the whole operation, so a window and a command line run (or two windows) can no longer fetch and promote the same checkout together; the second one is told to wait.
+- The fetched commit is resolved to a single SHA once, and the signature check, manifest read and merge all use that SHA instead of the shared FETCH_HEAD name.
+- Kept previous installations (name.backup-xxxxxxxx) and the updater hidden staging folders are no longer reported as invalid projects on every scan.
+- A refused or failed fresh clone is now removed even when git left read-only files in it (Windows), so nothing is left behind in the workspace.
+- Local data carried over to a new version now skips build folders at any depth (tools/node_modules, app/build, src/__pycache__) and keeps symlinks as links instead of copying what they point to.
+- The program running right now is never replaced by an update (it is skipped in Update all and refused with a clear message).
+- Every evidence line now records the time (UTC), updater version, host and user.
+- Saved preferences are written to a temporary file and swapped in, so a cut during the write cannot truncate them.
+- A very long Retry-After from GitHub is no longer waited out; the request fails with the answer instead of freezing the window.
+- Raw URLs follow the repository real default branch instead of a fixed main.
+- The default workspace is never inside a Python installation when the updater is installed as a package.
+- Starting without any GUI available now exits with a non-zero code; run.sh works from a bare checkout (src on the path, python3 fallback); pytest finds the sources without PYTHONPATH.
 
 ## [0.0.9] - An installation that fails never leaves the window stuck, and Portuguese
 
