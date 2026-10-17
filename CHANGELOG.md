@@ -5,6 +5,21 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.1.0] - Workspace safety: one instance at a time, clean discovery, safer cleanup
+
+Only one install or update can run in a workspace at a time: an operating-system lock is held for the whole operation, so a window and a command line run (or two windows) can no longer fetch and promote the same checkout together; the second one is told to wait.
+The fetched commit is resolved to a single SHA once, and the signature check, manifest read and merge all use that SHA instead of the shared FETCH_HEAD name.
+Kept previous installations (name.backup-xxxxxxxx) and the updater hidden staging folders are no longer reported as invalid projects on every scan.
+A refused or failed fresh clone is now removed even when git left read-only files in it (Windows), so nothing is left behind in the workspace.
+Local data carried over to a new version now skips build folders at any depth (tools/node_modules, app/build, src/__pycache__) and keeps symlinks as links instead of copying what they point to.
+The program running right now is never replaced by an update (it is skipped in Update all and refused with a clear message).
+Every evidence line now records the time (UTC), updater version, host and user.
+Saved preferences are written to a temporary file and swapped in, so a cut during the write cannot truncate them.
+A very long Retry-After from GitHub is no longer waited out; the request fails with the answer instead of freezing the window.
+Raw URLs follow the repository real default branch instead of a fixed main.
+The default workspace is never inside a Python installation when the updater is installed as a package.
+Starting without any GUI available now exits with a non-zero code; run.sh works from a bare checkout (src on the path, python3 fallback); pytest finds the sources without PYTHONPATH.
+
 ## [0.0.9] - An installation that fails never leaves the window stuck, and Portuguese
 
 **Nothing escapes an install:**  returns a result with its message for any failure (a command that cannot be started, the installation folder open in another program, an unexpected error) instead of an exception that left the window with its buttons disabled for ever.

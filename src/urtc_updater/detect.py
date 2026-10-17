@@ -9,12 +9,24 @@
 # =============================================================================
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
 from .project_manifest import ECOSYSTEM_ID, MANIFEST_FILE, ManifestValidationError, parse_manifest
 from .registry import ProjectEntry, entry_from_manifest
 from .version_parse import Version
+
+
+#: Folders the updater itself creates next to a checkout (hidden staging
+#: clones and the kept previous installation, `<name>.backup-<8 hex>`):
+#: they carry a copy of a project's manifest under a different folder name,
+#: so they are never projects of their own.
+_BACKUP_NAME = re.compile(r"\.backup-[0-9a-f]{8}$")
+
+
+def is_updater_leftover(folder_name: str) -> bool:
+    return folder_name.startswith(".") or _BACKUP_NAME.search(folder_name) is not None
 
 
 @dataclass
@@ -52,7 +64,7 @@ def discover_workspace(workspace_root: Path) -> LocalDiscovery:
         return LocalDiscovery(projects=(), errors=(f"workspace does not exist: {workspace_root}",))
 
     for project_path in sorted(workspace_root.iterdir(), key=lambda path: path.name.casefold()):
-        if not project_path.is_dir():
+        if not project_path.is_dir() or is_updater_leftover(project_path.name):
             continue
         manifest_path = project_path / MANIFEST_FILE
         if not manifest_path.is_file():

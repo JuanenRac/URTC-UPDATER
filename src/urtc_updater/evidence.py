@@ -11,11 +11,16 @@ successful one can be checked later. Recording never raises: a problem
 writing the record must not turn a good update into a failed one."""
 from __future__ import annotations
 
+import getpass
 import json
 import logging
+import platform
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from . import __version__
 
 EVIDENCE_DIRECTORY = ".urtc-updater"
 EVIDENCE_FILE = "evidence.jsonl"
@@ -41,6 +46,13 @@ def installed_state(project_path: Path) -> dict[str, str | None]:
     return {"version": version, "commit": commit}
 
 
+def _current_user() -> str:
+    try:
+        return getpass.getuser()
+    except (OSError, KeyError, ImportError):
+        return ""
+
+
 def record_attempt(
     workspace_root: Path,
     *,
@@ -52,6 +64,10 @@ def record_attempt(
 ) -> Path | None:
     """Append one attempt to the evidence file; returns its path, or None if it could not be written."""
     line = {
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "updaterVersion": __version__,
+        "host": platform.node(),
+        "user": _current_user(),
         "project": project,
         "ok": ok,
         "versionBefore": before.get("version"),

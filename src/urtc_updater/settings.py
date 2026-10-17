@@ -17,6 +17,7 @@ already-configured language is never silently lost.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -53,10 +54,17 @@ def save_settings(**updates: Any) -> None:
     """
     current = load_settings()
     current.update(updates)
+    # Written to a sibling file and swapped in, so a cut during the write
+    # can never leave the saved preferences truncated.
+    temporary = SETTINGS_PATH.with_name(SETTINGS_PATH.name + ".tmp")
     try:
-        SETTINGS_PATH.write_text(json.dumps(current, indent=2), encoding="utf-8")
+        temporary.write_text(json.dumps(current, indent=2), encoding="utf-8")
+        os.replace(temporary, SETTINGS_PATH)
     except OSError:
-        pass
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
 
 
 def get_saved_workspace_root() -> Path | None:

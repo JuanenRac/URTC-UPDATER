@@ -32,7 +32,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 from . import __version__, i18n, settings
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
-from .install import install_or_update
+from .install import install_or_update, is_running_checkout
 from .registry import GITHUB_OWNER
 
 
@@ -445,6 +445,7 @@ class UpdaterBridge(QObject):
             targets = [
                 item for item in self._locals
                 if _state_key(item, self._remotes.get(item.entry.name)) == "state_outdated"
+                and not is_running_checkout(self._workspace_root / item.entry.name)
             ]
         else:
             return

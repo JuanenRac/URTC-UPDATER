@@ -683,7 +683,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
 
 # Visual updater shell introduced in v0.2.2.  Kept separately from the
 # original closed vocabulary above so that GUI wording can evolve without
-# making the core install/state translations hard to audit.
+# making the core install/state translations hard to review.
 _VISUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
     "en": {
         "ui_subtitle": "Discover, verify and update your local ecosystem safely.",

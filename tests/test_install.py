@@ -383,7 +383,7 @@ def test_update_carries_over_real_local_data_never_tracked_by_git(tmp_path: Path
     git("clone", str(remote), str(local), cwd=tmp_path)
     # A real, genuinely untracked file (never added/committed at all) -
     # the exact shape that reproduced the bug.
-    (local / "audit-local-settings.txt").write_text("real operator configuration\n", encoding="utf-8")
+    (local / "local-settings.txt").write_text("real operator configuration\n", encoding="utf-8")
     # A real, gitignored directory with real data inside it - the shape
     # every server-side project in this ecosystem actually uses
     # (data/settings.json, data/users.json, ...).
@@ -402,7 +402,7 @@ def test_update_carries_over_real_local_data_never_tracked_by_git(tmp_path: Path
     result = clone_or_pull(entry(), tmp_path)
 
     assert result.ok, result.message
-    assert (local / "audit-local-settings.txt").read_text(encoding="utf-8") == "real operator configuration\n"
+    assert (local / "local-settings.txt").read_text(encoding="utf-8") == "real operator configuration\n"
     assert (local / "data" / "settings.json").read_text(encoding="utf-8") == '{"real": "operator settings"}'
     assert not (local / "node_modules").exists(), "a build-artifact-like directory must never be carried over"
 

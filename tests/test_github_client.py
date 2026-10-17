@@ -255,7 +255,7 @@ def test_urlopen_with_retries_never_retries_a_definitive_http_error():
 
 
 def test_urlopen_with_retries_retries_a_secondary_rate_limit_then_succeeds():
-    # Found while auditing the code: GitHub's own
+    # GitHub's own
     # real secondary-rate-limit signal (403/429 + Retry-After) is short
     # and genuinely worth retrying within this same process, unlike the
     # hourly primary limit.
@@ -306,7 +306,7 @@ def test_retry_after_seconds_is_none_without_the_header_or_wrong_code():
 
 
 def test_describe_http_error_surfaces_the_real_rate_limit_reset_time():
-    # Found while auditing the code: every
+    # Every
     # HTTPError used to become the same opaque "HTTP {code}", including
     # GitHub's own primary rate limit.
     exc = _http_error(403, {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1700000000"})

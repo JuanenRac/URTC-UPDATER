@@ -42,6 +42,8 @@ class ProjectEntry:
     service_port: int | None = None
     service_health_path: str | None = None
     service_systemd_unit: str | None = None
+    #: The repository's real default branch (GitHub reports it when listing).
+    default_branch: str = GITHUB_BRANCH
 
 
 def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
@@ -65,13 +67,15 @@ def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
     )
 
 
-def github_raw_url(entry: ProjectEntry, *, owner: str = GITHUB_OWNER, branch: str = GITHUB_BRANCH) -> str:
+def github_raw_url(entry: ProjectEntry, *, owner: str = GITHUB_OWNER, branch: str | None = None) -> str:
     """Return the raw GitHub URL for a repository manifest."""
+    branch = branch or entry.default_branch
     return f"https://raw.githubusercontent.com/{owner}/{entry.name}/{branch}/{MANIFEST_FILE}"
 
 
-def github_native_version_url(entry: ProjectEntry, *, owner: str = GITHUB_OWNER, branch: str = GITHUB_BRANCH) -> str:
+def github_native_version_url(entry: ProjectEntry, *, owner: str = GITHUB_OWNER, branch: str | None = None) -> str:
     """Return the native version-source URL declared in the manifest."""
+    branch = branch or entry.default_branch
     return f"https://raw.githubusercontent.com/{owner}/{entry.name}/{branch}/{entry.version_file}"
 
 

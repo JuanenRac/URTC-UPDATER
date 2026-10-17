@@ -26,10 +26,11 @@ import sys
 import subprocess
 import os
 import time
+from contextlib import contextmanager
 from shutil import copy2, copytree, rmtree
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Iterator
 from uuid import uuid4
 
 from .evidence import installed_state, record_attempt
@@ -311,7 +312,7 @@ def _carry_over_local_data(old_path: Path, staging_path: Path, *, progress: Prog
     fix does not attempt)."""
     carried = 0
     for rel_path in _real_untracked_paths(old_path):
-        if rel_path.split("/")[0] in _NEVER_CARRIED_OVER_DIR_NAMES:
+        if any(part in _NEVER_CARRIED_OVER_DIR_NAMES for part in rel_path.replace("\\", "/").split("/")):
             continue
         source = old_path / rel_path
         if not source.exists():
@@ -319,7 +320,7 @@ def _carry_over_local_data(old_path: Path, staging_path: Path, *, progress: Prog
         destination = staging_path / rel_path
         destination.parent.mkdir(parents=True, exist_ok=True)
         if source.is_dir():
-            copytree(source, destination, dirs_exist_ok=True)
+            copytree(source, destination, dirs_exist_ok=True, symlinks=True)
         else:
             copy2(source, destination)
         carried += 1
@@ -415,20 +416,20 @@ def clone_or_pull(
             capture_output=progress is not None,
         )
         if result.returncode != 0:
-            rmtree(staging_path, ignore_errors=True)
+            _rmtree_best_effort(staging_path)
             return InstallResult(False, f"git clone failed (exit {result.returncode})", _command_output(result))
         refused = verify_revision(staging_path, "HEAD", current_policy())
         if refused:
-            rmtree(staging_path, ignore_errors=True)
+            _rmtree_best_effort(staging_path)
             return InstallResult(False, f"cloned candidate refused by the signature policy: {refused}")
         try:
             _checkpoint(progress, "validation", "Validating the fetched repository manifest before deployment.")
             _manifest_from_revision(staging_path, "HEAD", entry)
         except ManifestValidationError as exc:
-            rmtree(staging_path, ignore_errors=True)
+            _rmtree_best_effort(staging_path)
             return InstallResult(False, f"cloned checkout failed manifest validation: {exc}")
         if path.exists():
-            rmtree(staging_path, ignore_errors=True)
+            _rmtree_best_effort(staging_path)
             return InstallResult(False, f"{path} appeared while cloning - not replacing it")
         staging_path.replace(path)
         _checkpoint(progress, "validation", "Manifest accepted; staged checkout promoted without replacing other files.")
@@ -477,12 +478,21 @@ def clone_or_pull(
             f"git fetch failed (exit {result.returncode}) - remote unavailable or authentication failed?",
             _command_output(result),
         )
-    refused = verify_revision(path, "FETCH_HEAD", current_policy())
+    # Resolve the fetched commit exactly once and use that SHA for every
+    # later step (signature, manifest, merge): the name FETCH_HEAD is a
+    # shared file another process could rewrite between two reads.
+    resolved = subprocess.run(
+        ["git", "rev-parse", "FETCH_HEAD"], cwd=str(path), check=False, capture_output=True, text=True
+    )
+    candidate_sha = resolved.stdout.strip() if resolved.returncode == 0 else ""
+    if not candidate_sha:
+        return InstallResult(False, f"could not resolve the fetched candidate to a real commit; {path} was not modified")
+    refused = verify_revision(path, candidate_sha, current_policy())
     if refused:
         return InstallResult(False, f"remote candidate refused by the signature policy: {refused}")
     try:
         _checkpoint(progress, "validation", "Checking the candidate manifest and anti-rollback rule.")
-        candidate = _manifest_from_revision(path, "FETCH_HEAD", entry)
+        candidate = _manifest_from_revision(path, candidate_sha, entry)
     except ManifestValidationError as exc:
         return InstallResult(False, f"remote candidate failed manifest validation: {exc}")
     if _version_tuple(candidate) < _version_tuple(installed):
@@ -494,7 +504,7 @@ def clone_or_pull(
     if not verify_build:
         _checkpoint(progress, "validation", "Applying the accepted candidate with a fast-forward-only merge.")
         result = _run(
-            ["git", "merge", "--ff-only", "FETCH_HEAD"],
+            ["git", "merge", "--ff-only", candidate_sha],
             cwd=path,
             capture_output=progress is not None,
         )
@@ -518,12 +528,6 @@ def clone_or_pull(
     # clone` would otherwise point at `path` itself, not path's real
     # upstream - fetching "origin" there would silently fetch nothing
     # new and validate the WRONG, stale candidate).
-    candidate_sha = subprocess.run(
-        ["git", "rev-parse", "FETCH_HEAD"], cwd=str(path), check=False, capture_output=True, text=True
-    ).stdout.strip()
-    if not candidate_sha:
-        return InstallResult(False, f"could not resolve the fetched candidate to a real commit; {path} was not modified")
-
     staging_path = workspace_root / f".{entry.name}.update-{uuid4().hex}"
     _checkpoint(progress, "source", "Cloning the installed checkout into an isolated staging area for verification.")
     # --no-hardlinks: a plain `git clone --local` hardlinks object files
@@ -755,6 +759,70 @@ class InstallError(Exception):
     """A failure that has a message for the person (a command that cannot be started, say), not a bug."""
 
 
+_LOCK_DIRECTORY = ".urtc-updater"
+_LOCK_FILENAME = "lock"
+
+
+@contextmanager
+def workspace_lock(workspace_root: Path) -> Iterator[None]:
+    """Holds an exclusive, operating-system level lock on the workspace for
+    the duration of one install or update, so two instances (a window and a
+    command line run, or two windows) can never work on the same checkout at
+    once. The lock is released by the operating system if the process dies,
+    so a crash never leaves a stale lock behind. Raises InstallError when
+    another instance holds it."""
+    directory = workspace_root / _LOCK_DIRECTORY
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        handle = open(directory / _LOCK_FILENAME, "a+b")
+    except OSError as exc:
+        raise InstallError(f"could not create the workspace lock in {directory}: {exc}") from exc
+    busy = InstallError("another URTC-UPDATER instance is already installing or updating in this workspace - wait for it to finish")
+    try:
+        # A few short retries: the operating system may take a moment to
+        # release a lock whose previous holder has only just finished.
+        for attempt in range(6):
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    handle.seek(0)
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError:
+                if attempt == 5:
+                    raise busy from None
+                time.sleep(0.1)
+        try:
+            yield
+        finally:
+            try:
+                if os.name == "nt":
+                    import msvcrt
+                    handle.seek(0)
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
+    finally:
+        handle.close()
+
+
+def is_running_checkout(path: Path) -> bool:
+    """True when `path` is the checkout this very program is running from.
+    Replacing it while it runs cannot work (on Windows its files are open,
+    and its environment would be swapped underneath it)."""
+    try:
+        running = Path(__file__).resolve()
+        return running.is_relative_to(path.resolve())
+    except (OSError, ValueError):
+        return False
+
+
 def install_or_update(
     entry: ProjectEntry,
     workspace_root: Path,
@@ -800,6 +868,23 @@ def _install_or_update(
     own 2 promotion renames) before this run's own work begins - see
     recover_interrupted_promotions()'s own doc comment. A genuine no-op
     when nothing was pending, or when hydra-umc-sdk isn't installed."""
+    if is_running_checkout(workspace_root / entry.name):
+        return [InstallResult(
+            False,
+            f"{entry.name} is the program running right now and cannot replace itself - close it and update it "
+            "from a command line run of another copy, or fetch it by hand",
+        )]
+    with workspace_lock(workspace_root):
+        return _install_or_update_locked(entry, workspace_root, build=build, progress=progress)
+
+
+def _install_or_update_locked(
+    entry: ProjectEntry,
+    workspace_root: Path,
+    *,
+    build: bool,
+    progress: ProgressCallback | None,
+) -> list[InstallResult]:
     recover_interrupted_promotions(workspace_root)
     was_existing_checkout = (workspace_root / entry.name / ".git").is_dir()
     before = installed_state(workspace_root / entry.name)

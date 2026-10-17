@@ -35,7 +35,6 @@ from . import __version__, settings
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import install_or_update
-from .version_parse import Version
 
 
 def default_workspace_root() -> Path:
@@ -45,7 +44,14 @@ def default_workspace_root() -> Path:
     parent) - the standard layout this whole tool assumes throughout.
     Always overridable with --workspace for anything else (a CM5 install
     under a different path, a CI checkout, ...)."""
-    return Path(__file__).resolve().parents[3]
+    candidate = Path(__file__).resolve().parents[3]
+    # Only a source checkout (src/urtc_updater/ inside a folder holding this
+    # project's own manifest) has the sibling layout; installed as a normal
+    # package the parents point into the Python installation, which must
+    # never be used as a workspace.
+    if (Path(__file__).resolve().parents[2] / "urtc.project.json").is_file():
+        return candidate
+    return Path.cwd()
 
 
 def resolve_workspace_root() -> Path:
@@ -283,6 +289,7 @@ def main() -> int:
                 print("The Qt Quick GUI is not installed and tkinter is unavailable. "
                       "Use `--cli` on a headless system, or run the project build "
                       "to install the optional PySide6 GUI runtime.", file=sys.stderr)
+                return 2
             else:
                 print("Qt Quick GUI runtime is not installed; starting the legacy "
                       "Tkinter fallback. Run build.bat/build.sh to enable the new "

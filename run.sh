@@ -54,5 +54,9 @@ elif [ -f .venv/Scripts/activate ]; then
     source .venv/Scripts/activate
 fi
 
-python -m urtc_updater.main "$@"
+# Works from a bare checkout too: put src/ on the path when the package is not
+# installed, and fall back to python3 where "python" does not exist.
+export PYTHONPATH="$PWD/src${PYTHONPATH:+:$PYTHONPATH}"
+if command -v python >/dev/null 2>&1; then PYTHON=python; else PYTHON=python3; fi
+"$PYTHON" -m urtc_updater.main "$@"
 exit $?

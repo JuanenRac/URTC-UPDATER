@@ -48,7 +48,7 @@ from concurrent.futures import (
     ThreadPoolExecutor,
     as_completed,
 )
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .project_manifest import (
     ECOSYSTEM_ID,
@@ -97,6 +97,10 @@ GITHUB_RAW_BASE = "https://raw.githubusercontent.com"
 # own lifetime, only spend more of the rate limit.
 RETRY_MAX_ATTEMPTS = 3
 RETRY_BACKOFF_BASE_S = 0.5
+#: A longer Retry-After than this is not waited out (it would freeze the
+#: window or the command line for minutes without a word): the request
+#: fails with GitHub's own answer instead.
+RETRY_AFTER_MAX_S = 60.0
 
 
 def _retry_after_seconds(exc: urllib.error.HTTPError) -> float | None:
@@ -116,7 +120,7 @@ def _retry_after_seconds(exc: urllib.error.HTTPError) -> float | None:
         seconds = float(raw)
     except ValueError:
         return None
-    return seconds if seconds >= 0 else None
+    return seconds if 0 <= seconds <= RETRY_AFTER_MAX_S else None
 
 
 def is_primary_rate_limited(exc: urllib.error.HTTPError) -> bool:
@@ -133,7 +137,7 @@ def is_primary_rate_limited(exc: urllib.error.HTTPError) -> bool:
 
 def describe_http_error(exc: urllib.error.HTTPError) -> str:
     """A real, actionable message for an HTTPError - found while
-    auditing the code: every HTTPError used to
+    reading the code: every HTTPError used to
     become the same opaque `f"HTTP {code}"`, including GitHub's own
     PRIMARY rate limit (a 403/429 with `X-RateLimit-Remaining: 0`), which
     is genuinely transient and tells the caller exactly when it resets
@@ -271,7 +275,7 @@ def _fetch_discovered_manifest(owner: str, name: str, branch: str) -> RemoteStat
     if manifest.ecosystem != ECOSYSTEM_ID:
         return None
     return RemoteStatus(
-        entry=entry_from_manifest(manifest),
+        entry=replace(entry_from_manifest(manifest), default_branch=branch),
         version=Version.from_string(manifest.version),
         url=url,
         manifest=manifest,
@@ -332,7 +336,6 @@ def discover_remote_projects(
     with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS, thread_name_prefix="hydra-discovery") as pool:
         futures = {pool.submit(_fetch_discovered_manifest, owner, name, branch): name for name, branch in candidates}
         for future in as_completed(futures):
-            name = futures[future]
             try:
                 status = future.result()
             except RuntimeError as exc:
