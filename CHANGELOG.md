@@ -35,10 +35,10 @@ bumped manually only. See `bump_version.py`.
 
 ## [0.0.9] - An installation that fails never leaves the window stuck, and Portuguese
 
-**Nothing escapes an install:**  returns a result with its message for any failure (a command that cannot be started, the installation folder open in another program, an unexpected error) instead of an exception that left the window with its buttons disabled for ever.
-**Worker threads are logged:** an exception in a thread now reaches the log when the window runs without a console.
-**Read-only files do not block clean-up:** removing a staging clone makes read-only files writable first.
-**Portuguese (Portugal):** a language of the interface, and README_por.md, which every README links to from its language bar.
+- **Nothing escapes an install:**  returns a result with its message for any failure (a command that cannot be started, the installation folder open in another program, an unexpected error) instead of an exception that left the window with its buttons disabled for ever.
+- **Worker threads are logged:** an exception in a thread now reaches the log when the window runs without a console.
+- **Read-only files do not block clean-up:** removing a staging clone makes read-only files writable first.
+- **Portuguese (Portugal):** a language of the interface, and README_por.md, which every README links to from its language bar.
 
 ## [0.0.8] - Copy-log icon button
 
