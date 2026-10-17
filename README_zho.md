@@ -87,7 +87,7 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 - **单一解析实现**（`version_parse.py`）在本地读取和 GitHub 抓取之间共享，因此本地检出和 GitHub 抓取绝不会被两个独立漂移的正则表达式分别解读。
 - **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup-xxxxxxxx` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup-xxxxxxxx` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
 
-**仅限已签名提交（可选）：** 在 `~/.urtc_updater_settings.json` 中设置 `"require_signed_commits": true`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`）后，候选修订——新克隆的 `HEAD` 或更新时获取的 `FETCH_HEAD`——必须先通过 `git verify-commit`（GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH），然后才会读取其清单或构建其中的任何内容。被拒绝的候选不会改动已安装的检出。默认关闭，因为生态系统中的仓库尚未全部签名。
+**已签名提交（默认警告，可按需强制）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
 
 ## 3. 🧱 架构与设计决策
 

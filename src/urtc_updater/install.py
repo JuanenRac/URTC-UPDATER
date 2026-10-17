@@ -38,7 +38,7 @@ from .evidence import installed_state, record_attempt
 from .messages import coded
 from .project_manifest import ManifestValidationError, ProjectManifest, parse_manifest
 from .registry import ProjectEntry, github_repo_url
-from .signature import current_policy, verify_revision
+from .signature import current_policy, unsigned_reason, verify_revision
 
 # P01/the durable version of this module's own in-process
 # self-heal for the narrow gap between the 2 promotion renames below (see
@@ -192,6 +192,15 @@ def _rmtree_best_effort(path: Path) -> None:
 def _checkpoint(progress: ProgressCallback | None, phase: str, code: str, **params: object) -> None:
     if progress is not None:
         progress(phase, coded(code, **params))
+
+
+def _warn_if_unsigned(progress: ProgressCallback | None, repo: Path, revision: str, policy) -> None:   # noqa: ANN001 - SignaturePolicy
+    """In the default (warn) mode an unsigned revision is installed, and the steps of the window and of the command line say that it is not signed."""
+    if policy.required:
+        return
+    reason = unsigned_reason(repo, revision, policy)
+    if reason is not None:
+        _checkpoint(progress, "validation", "cp_unsigned_warning", commit=revision[:12], reason=reason)
 
 
 # well-known
@@ -424,10 +433,12 @@ def clone_or_pull(
         if result.returncode != 0:
             _rmtree_best_effort(staging_path)
             return InstallResult(False, coded("clone_failed", code=result.returncode), _command_output(result))
-        refused = verify_revision(staging_path, "HEAD", current_policy())
+        policy = current_policy()
+        refused = verify_revision(staging_path, "HEAD", policy)
         if refused:
             _rmtree_best_effort(staging_path)
             return InstallResult(False, coded("clone_refused_signature", reason=refused))
+        _warn_if_unsigned(progress, staging_path, "HEAD", policy)
         try:
             _checkpoint(progress, "validation", "cp_validate_fetched")
             _manifest_from_revision(staging_path, "HEAD", entry)
@@ -485,9 +496,11 @@ def clone_or_pull(
     candidate_sha = resolved.stdout.strip() if resolved.returncode == 0 else ""
     if not candidate_sha:
         return InstallResult(False, coded("unresolved", path=str(path)))
-    refused = verify_revision(path, candidate_sha, current_policy())
+    policy = current_policy()
+    refused = verify_revision(path, candidate_sha, policy)
     if refused:
         return InstallResult(False, coded("remote_refused_signature", reason=refused))
+    _warn_if_unsigned(progress, path, candidate_sha, policy)
     try:
         _checkpoint(progress, "validation", "cp_check_candidate")
         candidate = _manifest_from_revision(path, candidate_sha, entry)

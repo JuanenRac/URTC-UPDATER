@@ -146,7 +146,7 @@ seleccionada.
   - ver sección 3) si lo tiene. Esta herramienta nunca reimplementa los
   pasos de build propios de un proyecto.
 
-**Solo commits firmados (opcional):** con `"require_signed_commits": true` en `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=1`), la revisión candidata - el `HEAD` de un clon nuevo o el `FETCH_HEAD` descargado de una actualización - debe pasar `git verify-commit` (llavero GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) antes de leer su manifiesto o compilar nada de ella. Una candidata rechazada deja intacta la instalación existente. Desactivado por defecto, porque los repositorios del ecosistema aún no están todos firmados.
+**Commits firmados (avisar por defecto, exigir si se pide):** una revisión sin firma válida (`git verify-commit`: llavero GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) se instala igualmente, y los pasos de la ventana y de la línea de comandos dicen que no está firmada. Con `"signature_policy": "require"` en `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=1`; el antiguo `"require_signed_commits": true` significa lo mismo) el candidato - el `HEAD` de un clon nuevo o el `FETCH_HEAD` descargado de una actualización - debe pasar `git verify-commit` antes de leer su manifiesto o construir nada, y un candidato rechazado deja intacto el checkout instalado.
 
 ## 3. 🧱 ARQUITECTURA Y DECISIONES DE DISEÑO
 

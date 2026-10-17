@@ -293,7 +293,7 @@ an edited, removed or reordered line is detected. `evidence` verifies the chain
 
 `~/.urtc_updater_settings.json` (written atomically) holds the remembered
 choices: `lang`, `workspace_root`, `backups_to_keep` (default 2),
-`require_signed_commits` / `allowed_signers_file`, and station profiles:
+`signature_policy` (`warn`, the default: an unsigned revision is installed and the steps say so; `require`: it is refused; the older `require_signed_commits: true` means `require`) / `allowed_signers_file`, and station profiles:
 
 ```json
 {

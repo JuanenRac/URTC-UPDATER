@@ -5,6 +5,12 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.1.2] - An unsigned commit is warned about, not refused, unless the signature policy asks for it
+
+- The default signature policy is warn: a revision with no valid signature (git verify-commit) is installed or updated anyway, and the steps of the window and of the command line say in the chosen language that it is not signed.
+- The policy require stays available with signature_policy require in the settings, the older require_signed_commits or URTC_UPDATER_REQUIRE_SIGNED=1: the candidate must be verified before its manifest is read or anything is built.
+- Tests: the default mode, both ways of requiring, the warning in a fresh install and in an update, the refusal under require, and the message in all eight languages.
+
 ## [0.1.1] - Messages in every language, commit comparison, backup retention and station commands
 
 - The checkpoints and failures of an install or update are message codes plus parameters, shown in the language of the window in all 8 languages (Portugal Portuguese for pt); the command line keeps printing the English text.

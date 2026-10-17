@@ -90,7 +90,7 @@ def test_checkpoints_reach_the_window_as_messages_with_codes(tmp_path: Path, mon
     seen: list[tuple[str, object]] = []
     result = clone_or_pull(entry(), remote.workspace, progress=lambda phase, detail: seen.append((phase, detail)))
     assert result.ok, result.message
-    assert [detail.code for _phase, detail in seen] == ["cp_workspace", "cp_clone_staging", "cp_validate_fetched", "cp_clone_promoted"]
+    assert [detail.code for _phase, detail in seen] == ["cp_workspace", "cp_clone_staging", "cp_unsigned_warning", "cp_validate_fetched", "cp_clone_promoted"]   # the fixture remote is unsigned: the default policy warns
     assert localize("es", seen[1][1]).startswith("Clonando el repositorio")
     assert localize("zh", seen[0][1]) == i18n.TRANSLATIONS["zh"]["inst_cp_workspace"]
 

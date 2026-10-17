@@ -145,7 +145,7 @@ confirmação manual, build opcional e um rasto de atividade no ecrã; o registo
   projeto (a verificação sem versionamento - ver secção 3) que ele realmente
   tiver. Esta ferramenta nunca reimplementa os passos de build de um projeto.
 
-**Apenas commits assinados (opcional):** com `"require_signed_commits": true` em `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=1`), a revisão candidata - o `HEAD` de um clone novo ou o `FETCH_HEAD` obtido numa atualização - tem de passar `git verify-commit` (chaveiro GPG, ou SSH com `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) antes de o seu manifesto ser lido ou de qualquer coisa nela ser compilada. Um candidato recusado deixa o checkout instalado intacto. Desativado por predefinição, pois nem todos os repositórios do ecossistema estão ainda assinados.
+**Commits assinados (avisar por defeito, exigir a pedido):** uma revisão sem assinatura válida (`git verify-commit`: porta-chaves GPG, ou SSH com `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) é instalada na mesma, e os passos da janela e da linha de comandos dizem que não está assinada. Com `"signature_policy": "require"` em `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=1`; o antigo `"require_signed_commits": true` significa o mesmo) o candidato - o `HEAD` de um clone novo ou o `FETCH_HEAD` descarregado de uma atualização - tem de passar `git verify-commit` antes de ler o seu manifesto ou construir o que quer que seja, e um candidato recusado deixa intacto o checkout instalado.
 
 ## 3. 🧱 ARQUITETURA E DECISÕES DE DESIGN
 

@@ -140,7 +140,7 @@ optional build and an on-screen activity trail; the whole log is also written to
   actually has. This tool never reimplements a project's own build
   steps.
 
-**Signed commits only (optional):** with `"require_signed_commits": true` in `~/.urtc_updater_settings.json` (or `URTC_UPDATER_REQUIRE_SIGNED=1`), the candidate revision - a fresh clone's `HEAD` or an update's fetched `FETCH_HEAD` - must pass `git verify-commit` (GPG keyring, or SSH with `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) before its manifest is read or anything in it is built. A refused candidate leaves the installed checkout untouched. Off by default, since the ecosystem's repositories are not all signed yet.
+**Signed commits (warn by default, require on request):** a revision that carries no valid signature (`git verify-commit`: GPG keyring, or SSH with `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) is installed anyway, and the steps of the window and of the command line say that it is not signed. With `"signature_policy": "require"` in `~/.urtc_updater_settings.json` (or `URTC_UPDATER_REQUIRE_SIGNED=1`; the older `"require_signed_commits": true` means the same) the candidate - a fresh clone's `HEAD` or an update's fetched `FETCH_HEAD` - must pass `git verify-commit` before its manifest is read or anything in it is built, and a refused candidate leaves the installed checkout untouched.
 
 ## 3. 🧱 ARCHITECTURE & DESIGN DECISIONS
 

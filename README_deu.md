@@ -146,7 +146,7 @@ für die ausgewählte Zeile.
   vorhanden. Dieses Tool reimplementiert nie die eigenen Build-Schritte
   eines Projekts.
 
-**Nur signierte Commits (optional):** mit `"require_signed_commits": true` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=1`) muss die Kandidaten-Revision - das `HEAD` eines frischen Klons oder das geholte `FETCH_HEAD` eines Updates - `git verify-commit` bestehen (GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`), bevor ihr Manifest gelesen oder irgendetwas darin gebaut wird. Ein abgelehnter Kandidat lässt die installierte Kopie unverändert. Standardmäßig aus, da noch nicht alle Repositories des Ökosystems signiert sind.
+**Signierte Commits (standardmäßig warnen, auf Wunsch verlangen):** eine Revision ohne gültige Signatur (`git verify-commit`: GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) wird trotzdem installiert, und die Schritte im Fenster und in der Kommandozeile sagen, dass sie nicht signiert ist. Mit `"signature_policy": "require"` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=1`; das ältere `"require_signed_commits": true` bedeutet dasselbe) muss der Kandidat - das `HEAD` eines neuen Klons oder das geladene `FETCH_HEAD` eines Updates - `git verify-commit` bestehen, bevor sein Manifest gelesen oder irgendetwas gebaut wird; ein abgelehnter Kandidat lässt den installierten Checkout unberührt.
 
 ## 3. 🧱 ARCHITEKTUR UND DESIGN-ENTSCHEIDUNGEN
 
