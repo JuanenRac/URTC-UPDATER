@@ -26,7 +26,7 @@
 > **安装全部缺失项目**和**更新全部过期项目**是分别确认的顺序批量操作，使用相同的
 > 实时状态和安全流程。
 
-**诚实核查 - 今天真正能运行的部分：** **成熟度：可用（functional）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
+**诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
 
 ---
 
