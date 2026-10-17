@@ -5,6 +5,13 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.0.9] - An installation that fails never leaves the window stuck, and Portuguese README
+
+**Nothing escapes an install:**  returns a result with its message for any failure (a command that cannot be started, the installation folder open in another program, an unexpected error) instead of an exception that left the window with its buttons disabled for ever.
+**Worker threads are logged:** an exception in a thread now reaches the log when the window runs without a console.
+**Read-only files do not block clean-up:** removing a staging clone makes read-only files writable first.
+**Portuguese:** README_por.md, and the language bar of every README links to it.
+
 ## [0.0.8] - Copy-log icon button
 
 - **Copy-log button:** the activity log has a small copy icon (two sheets) that puts the whole log on the clipboard and flashes green when done.

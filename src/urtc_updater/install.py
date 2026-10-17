@@ -21,6 +21,8 @@
 # =============================================================================
 from __future__ import annotations
 
+import stat
+import sys
 import subprocess
 import os
 import time
@@ -143,7 +145,10 @@ def _run(
         # captured evidence instead, so provide one harmless newline and do
         # not leave a hidden child waiting forever for a keypress.
         kwargs["input"] = "\n"
-    return subprocess.run(cmd, **kwargs)  # type: ignore[arg-type]
+    try:
+        return subprocess.run(cmd, **kwargs)  # type: ignore[arg-type]
+    except FileNotFoundError as exc:
+        raise InstallError(f"'{cmd[0]}' was not found: install it (git for Windows, for example) or put it on the PATH - {exc}") from exc
 
 
 def _rmtree_best_effort(path: Path) -> None:
@@ -156,10 +161,23 @@ def _rmtree_best_effort(path: Path) -> None:
     always best-effort cleanup of OUR OWN temporary directory, never
     something that should fail the caller's own real result) or silently
     giving up on the very first attempt."""
+    def _writable_and_again(function, target, *_error):
+        # git writes its pack files read-only: on Windows deleting them fails until the flag is cleared, and a refused or failed candidate was left behind as a directory
+        try:
+            os.chmod(target, stat.S_IWRITE | stat.S_IREAD)
+            function(target)
+        except OSError:
+            pass
+
     for attempt in range(5):
         try:
-            rmtree(path)
-            return
+            if sys.version_info >= (3, 12):
+                rmtree(path, onexc=_writable_and_again)
+            else:
+                rmtree(path, onerror=_writable_and_again)
+            if not path.exists():
+                return
+            raise OSError(f"{path} could not be removed")
         except FileNotFoundError:
             return
         except OSError:
@@ -622,7 +640,12 @@ def clone_or_pull(
     journal = PromotionJournal(workspace_root / _JOURNAL_FILENAME) if _HAS_DURABLE_JOURNAL else None
     promotion_id = journal.begin(entry.name, path, staging_path, backup_path, health_check_url=health_check_url).promotion_id if journal else None
     _checkpoint(progress, "validation", "Promoting the verified candidate; the previous installation is kept as a backup.")
-    path.rename(backup_path)
+    try:
+        path.rename(backup_path)
+    except OSError as exc:
+        # Something has a file of the installation open (the tool running, a terminal inside the folder, an editor): nothing was changed and the candidate is thrown away.
+        _rmtree_best_effort(staging_path)
+        return InstallResult(False, f"the installation at {path} could not be set aside (is it open in a running program or a terminal?): {exc}", build_result.output)
     if journal:
         journal.advance(promotion_id, PromotionPhase.BACKED_UP)
     try:
@@ -728,7 +751,31 @@ def _run_build_script_at(path: Path, *, progress: ProgressCallback | None = None
     return InstallResult(True, f"{script.name} completed successfully.", _command_output(result))
 
 
+class InstallError(Exception):
+    """A failure that has a message for the person (a command that cannot be started, say), not a bug."""
+
+
 def install_or_update(
+    entry: ProjectEntry,
+    workspace_root: Path,
+    *,
+    build: bool = True,
+    progress: ProgressCallback | None = None,
+) -> list[InstallResult]:
+    """The same flow, with nothing escaping: any failure is a result with its message. The window runs this in a thread, and an exception that left it would never emit its
+    result - the buttons stayed disabled for ever and nothing was written down."""
+    try:
+        return _install_or_update(entry, workspace_root, build=build, progress=progress)
+    except InstallError as exc:
+        return [InstallResult(False, str(exc))]
+    except Exception as exc:  # noqa: BLE001 - the whole point is that nothing gets out
+        import logging
+        import traceback
+        logging.getLogger("urtc_updater.gui").error("unexpected error installing %s: %s", entry.name, traceback.format_exc())
+        return [InstallResult(False, f"unexpected error: {exc}", traceback.format_exc())]
+
+
+def _install_or_update(
     entry: ProjectEntry,
     workspace_root: Path,
     *,

@@ -66,6 +66,9 @@ def _setup_file_logging() -> Path:
         sys.__excepthook__(exc_type, exc_value, exc_tb)
 
     sys.excepthook = _log_unhandled
+    # sys.excepthook does not see the exceptions of threads: without this a worker that fails leaves nothing in the log when the window runs under pythonw
+    import threading
+    threading.excepthook = lambda args: _log_unhandled(args.exc_type, args.exc_value, args.exc_traceback)
     return log_path
 
 
