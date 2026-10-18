@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - Station profiles: profiles.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Named station profiles: which projects a machine installs and whether
 batches are allowed on it.

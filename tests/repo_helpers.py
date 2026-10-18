@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/repo_helpers.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """A real bare repository, a seed clone to push from, and a workspace
 checkout, shared by the tests that need a remote."""

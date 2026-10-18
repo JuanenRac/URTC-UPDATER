@@ -9,7 +9,7 @@
 ### 📦 URTC エコシステム全体の検出、インストール、手動更新
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0">
+  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
@@ -39,7 +39,7 @@
 
 | | |
 |---|---|
-| バージョン | `0.1.3` |
+| バージョン | `0.1.4` |
 | 成熟度 | 確立 |
 | 技術 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 対象 | 利用者の PC |
@@ -86,11 +86,11 @@ GUI、`--cli` で完全な CLI が利用可能——実際の CM5 本体上、�
 ```
 $ urtc-updater --cli status
 Workspace root: /home/user/GitHub
-PROJECT       MATURITY     ROLE      STACK       LOCAL     GITHUB    STATE
+PROJECT       MATURITY     ROLE      STACK           LOCAL     GITHUB    STATE
 -------------------------------------------------------------------------------
-URTC          production   firmware  firmware-c  0.3.0     0.3.1     OUTDATED
-URTC-FLASHER  functional   tool      python-qt   0.2.1     0.2.1     up to date
-URTC-TESTER   functional   tool      python-qt   0.2.2     0.2.2     NEW COMMITS
+URTC          functional   firmware  firmware-c      0.3.0     0.3.1     OUTDATED
+URTC-FLASHER  functional   tool      python-qtquick  0.2.1     0.2.1     up to date
+URTC-TESTER   functional   tool      python-qtquick  0.2.2     0.2.2     NEW COMMITS
 
 3/3 installed, 1 outdated, 1 with new commits at the same version
 Run `urtc-updater update <project>` to update one by hand - never automatic, see this tool's own README.
@@ -111,6 +111,8 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 - **ローカル検出**：発見されたプロジェクトそれぞれについて、そのプロジェクトと完全に同じ名前のディレクトリがワークスペースルート下に存在するかを確認します（標準的なエコシステムのレイアウト——すべてのプロジェクトを兄弟ディレクトリとして配置する、`build-frontend.sh`/HYDRA-UMC-SUITE 自身の検出ロジックが既に前提としているのと同じ形）。存在する場合、そのプロジェクト*自身*の同じバージョンファイルのローカルコピーを読み取ります。
 - **単一の解析実装**（`version_parse.py`）が、ローカル読み取りと GitHub 取得の間で共有されているため、ローカルのチェックアウトと GitHub からの取得が、2 つの独立して食い違っていく正規表現によって別々に解釈されることは決してありません。
 - **インストール/更新**：`git clone`（インストール）はその後、別のステップとしてビルドします。既存のチェックアウトの更新は代わりに「検証による原子性」です——候補はクローンされ、ファストフォワードでマージされ(強制リセットは決して行わないため、実際のローカルの編集は破棄されるのではなく明確に失敗します)、まず完全に独立したステージング用クローンの中でビルド・検証されます——実際にインストールされているものが実際に触られるのは(2 回連続のディレクトリのリネームによって、以前のインストールは削除されずに `<name>.backup-xxxxxxxx` として保持されます)、そのステージングビルドが本当に成功した場合だけです。ビルドの失敗、分岐した/汚れたチェックアウト、クラッシュ、あるいは最終的な昇格の前のどの時点でのディスクフルも、以前のインストールを完全に無傷のまま、稼働可能な状態に保ちます——詳細は `install.py` 自身の `clone_or_pull` の docstring を参照してください。ステージング用クローン自身の git リモートは、作成された直後に実際の GitHub アップストリームへ復元されます(そうしないと、単なるローカルクローンは古いインストールパスを指したままになり、昇格された時点で今後のすべての更新を静かに終わらせてしまいます)。また、インストール済みチェックアウト自身の実際のローカルデータ(git が未追跡または無視対象とみなすもの——`data/settings.json` などで、再生成可能なビルド成果物は除く)は、ビルドの前にステージング用クローンへ持ち込まれるため、プロジェクト自身の実際の運用状態は、保持された `.backup-xxxxxxxx` チェックアウトに取り残されることなく、更新を乗り越えます。いずれにせよ、そのプロジェクトが実際に持っている `build-test.sh`/`build-test.bat`(バージョンを上げない非破壊チェック——第 3 節参照)があれば、それを実行します。本ツールは、プロジェクト自身のビルド手順を再実装することは決してありません。
+
+**build-test が返してよい答え：** 終了コード 0 は検証済み、それ以外はすべて失敗を意味します。ただし 75 は、検証が*利用できない*（必要なツールがインストールされていない）ことを意味します。その場合はそのように報告され、更新は拒否されます。設定で `validation_unavailable` を `accept` にする（または `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`）と許可できます。build-test はツリーを見つけたままの状態で残すべきです。git が追跡するファイルを変更した場合、昇格の前にそのファイルはコミット済みの内容に戻され、手順にどのファイルかが表示されます。
 
 **署名付きコミット（既定は警告のみ。要求するのはオプトインで、既定では無効）:** 有効な署名のないリビジョン（`git verify-commit`：GPG キーリング、または `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` を使う SSH）でもインストールされ、ウィンドウとコマンドラインの手順に署名がないことが表示されます。`~/.urtc_updater_settings.json` に `"signature_policy": "require"`（または `URTC_UPDATER_REQUIRE_SIGNED=1`。従来の `"require_signed_commits": true` も同じ意味）を設定すると、候補（新規クローンの `HEAD`、または更新で取得した `FETCH_HEAD`）はマニフェストを読む前、何かをビルドする前に `git verify-commit` に合格する必要があり、拒否された候補はインストール済みのチェックアウトに触れません。
 

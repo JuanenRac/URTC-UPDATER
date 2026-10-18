@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - Log file rotation: logs.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Keeps the folder of window log files from growing without limit.
 

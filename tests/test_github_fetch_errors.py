@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_github_fetch_errors.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Reading one project's remote version: every way the request can fail is
 reported on that project alone, never raised, and the scan of the whole

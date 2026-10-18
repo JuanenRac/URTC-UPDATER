@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_messages.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Install and update messages: codes plus parameters, translated in every language."""
 from __future__ import annotations

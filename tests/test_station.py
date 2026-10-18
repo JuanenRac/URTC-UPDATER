@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_station.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Evidence hash chain and export, station profiles, the notify-only check,
 desktop notifications, log rotation and the cached repository listing."""

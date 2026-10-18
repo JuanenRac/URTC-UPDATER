@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - Translatable install/update messages: messages.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Messages that carry a code and parameters next to their English text.
 

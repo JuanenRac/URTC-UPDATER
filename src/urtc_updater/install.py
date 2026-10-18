@@ -2,7 +2,7 @@
 # URTC-UPDATER - Clone/pull + delegate to each project's own build
 # script: install.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 #
 # Deliberately does NOT reimplement per-stack build logic (npm/cargo/go/
 # gradlew/flutter/pip, 7 different toolchains across the ecosystem). Every
@@ -125,11 +125,18 @@ BUILD_TEST_SCRIPT_WINDOWS = "build-test.bat"
 ProgressCallback = Callable[[str, str], None]
 
 
+#: Exit code of a build-test that could not validate because a tool it needs is not installed (the BSD EX_TEMPFAIL value). It means
+#: "validation unavailable", which is not the same as "validation failed": a repository that wants this state uses it, and the person decides.
+BUILD_TEST_UNAVAILABLE_EXIT = 75
+
+
 @dataclass
 class InstallResult:
     ok: bool
     message: str
     output: str = ""
+    #: True when a build-test reported that it could not validate (see BUILD_TEST_UNAVAILABLE_EXIT), as opposed to having failed.
+    unavailable: bool = False
 
 
 def _run(
@@ -588,9 +595,13 @@ def clone_or_pull(
 
     _checkpoint(progress, "build", "cp_build_isolated")
     build_result = _run_build_script_at(staging_path, progress=progress)
+    if not build_result.ok and build_result.unavailable and accepts_unavailable_validation():
+        _checkpoint(progress, "build", "cp_build_unavailable_accepted")
+        build_result = InstallResult(True, build_result.message, build_result.output)
     if not build_result.ok:
         _rmtree_best_effort(staging_path)
         return InstallResult(False, coded("candidate_build_failed", path=str(path), detail=build_result.message), build_result.output)
+    restore_tracked_changes(staging_path, progress=progress)
 
     # The one real promotion step: swap the previous installation aside
     # (kept, never deleted - see this function's own docstring) and move
@@ -726,9 +737,36 @@ def _run_build_script_at(path: Path, *, progress: ProgressCallback | None = None
 
     _checkpoint(progress, "build", "cp_run_script", script=script.name)
     result = _run(cmd, cwd=path, capture_output=progress is not None)
+    if result.returncode == BUILD_TEST_UNAVAILABLE_EXIT:
+        return InstallResult(False, coded("script_unavailable", script=script.name), _command_output(result), unavailable=True)
     if result.returncode != 0:
         return InstallResult(False, coded("script_failed", script=script.name, code=result.returncode), _command_output(result))
     return InstallResult(True, coded("script_ok", script=script.name), _command_output(result))
+
+
+def accepts_unavailable_validation() -> bool:
+    """Whether an install may go on when the build-test says it cannot validate (a missing tool). Off unless the person turned it on:
+    the setting validation_unavailable set to accept, or URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1."""
+    from .settings import load_settings
+
+    return load_settings().get("validation_unavailable") == "accept" or os.environ.get("URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION") == "1"
+
+
+def restore_tracked_changes(path: Path, *, progress: ProgressCallback | None = None) -> list[str]:
+    """A build-test is meant to leave the tree as it found it. When it changed a file that git tracks, the file is put back to the committed
+    content (so the checkout stays clean and the next update is not refused for local changes), and the checkpoint says which ones. Returns the paths."""
+    status = _run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=path, capture_output=True)
+    if status.returncode != 0:
+        return []
+    changed = [line[3:].strip().strip('"') for line in (status.stdout or "").splitlines() if line.strip()]
+    if not changed:
+        return []
+    restored = _run(["git", "checkout", "--", "."], cwd=path, capture_output=True)
+    if restored.returncode != 0:
+        return []
+    shown = ", ".join(changed[:5]) + (", ..." if len(changed) > 5 else "")
+    _checkpoint(progress, "build", "cp_build_restored_files", count=len(changed), files=shown)
+    return changed
 
 
 class InstallError(Exception):
@@ -871,7 +909,12 @@ def _install_or_update_locked(
                 _rmtree_best_effort(stray)
         raise
     if results[0].ok and build and not was_existing_checkout:
-        results.append(run_build_script(entry, workspace_root, progress=progress))
+        built = run_build_script(entry, workspace_root, progress=progress)
+        if not built.ok and built.unavailable and accepts_unavailable_validation():
+            _checkpoint(progress, "build", "cp_build_unavailable_accepted")
+            built = InstallResult(True, built.message, built.output)
+        results.append(built)
+        restore_tracked_changes(workspace_root / entry.name, progress=progress)
     elif results[0].ok and build:
         _checkpoint(progress, "build", "cp_build_already")
     elif results[0].ok:

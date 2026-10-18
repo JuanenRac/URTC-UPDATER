@@ -2,7 +2,7 @@
 # =============================================================================
 # URTC-UPDATER - tools/build_test.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Run a non-versioning build check for this repository.
 
@@ -59,6 +59,17 @@ def main() -> int:
 
     if stack in {"python", "python-bare"}:
         compile_python_sources()
+        # The tests of this repository need no network and no board. pytest is a development tool that a user of the updater may not have: without it the
+        # run says the tests were SKIPPED, which is not a failed validation (nothing is installed from here).
+        tests_dir = ROOT / "tests"
+        if tests_dir.is_dir():
+            environment = dict(os.environ)
+            environment["PYTHONPATH"] = str(ROOT / "src")
+            probe = subprocess.run([sys.executable, "-m", "pytest", "--version"], capture_output=True, text=True, env=environment)
+            if probe.returncode != 0:
+                print("PYTEST_TESTS=SKIPPED pytest is not installed")
+            else:
+                run(sys.executable, "-m", "pytest", "-q", str(tests_dir), env=environment)
     elif stack == "node":
         npm = "npm.cmd" if os.name == "nt" else "npm"
         # Reuse an existing local dependency tree so a running editor/linter
@@ -83,7 +94,7 @@ def main() -> int:
         if os.name != "nt":
             (ROOT / "gradlew").chmod((ROOT / "gradlew").stat().st_mode | 0o111)
         environment = dict(os.environ)
-        environment["HYDRA_UMC_CI"] = "1"
+        environment["URTC_CI"] = "1"
         run(
             str(wrapper_path), "assembleDebug", "-PhydraUmcReadOnly=true",
             env=environment,
@@ -105,13 +116,13 @@ def main() -> int:
         if not script.is_file():
             fail("firmware project is missing build_firmware.sh")
         environment = dict(os.environ)
-        environment["HYDRA_UMC_CI"] = "1"
+        environment["URTC_CI"] = "1"
         if os.name == "nt":
             # WSL does not reliably inherit a Python child environment;
             # pass the read-only CI flag as an explicit WSL command argument.
             run(
                 "wsl.exe", "--distribution", "Ubuntu-24.04", "--",
-                "env", "HYDRA_UMC_CI=1", "bash", "build_firmware.sh",
+                "env", "URTC_CI=1", "bash", "build_firmware.sh",
             )
         else:
             run("bash", "build_firmware.sh", env=environment)

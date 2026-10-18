@@ -5,6 +5,19 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.1.4] - A build-test that cannot validate is not a failed one, and the tree a build-test touched is put back
+
+- A build-test that exits with code 75 is reported as validation unavailable (a tool it needs is missing) and not as a failed build. The install or update is refused unless the person accepts it with validation_unavailable set to accept in the settings (or URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1); the steps say so, in the eight languages.
+- When the build-test changes a file that git tracks, the file is put back to the committed content before the staging clone is promoted and right after a fresh install, so the checkout stays clean and the next update is not refused for local changes; the steps name the files.
+- Repository discovery no longer asks forks or archived repositories for a manifest.
+- tools/build_test.py runs the tests of this repository after the syntax check when pytest is installed, and says so when it is not.
+- CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, SUPPORT.md, LICENSE.md, the issue forms and the pull request template were added, and tools/ci_validate.py requires the four documents.
+- The status example of the README uses the real stack name and maturity; the manifest notes no longer quote a test count; bump_manifest_version.py prints URTC instead of the name of another ecosystem.
+- The README (all eight languages) describes the exit code 75 and the restored files, and lists the documents above.
+- The CI workflow no longer carries steps for stacks this repository does not have.
+- The CI runs the tests with PySide6 installed and the offscreen platform, on Linux and on Windows, so the tests of the Qt bridge run there instead of being skipped.
+- The license is GPL-3.0-or-later everywhere: LICENSE.md, source headers, script banners, About texts and README (eight languages).
+
 ## [0.1.3] - URTC-DOCS in the list of related projects
 
 - The Related Projects section of the README, in all 8 languages, lists URTC-DOCS, the documentation and cross-repository tooling hub of the ecosystem.

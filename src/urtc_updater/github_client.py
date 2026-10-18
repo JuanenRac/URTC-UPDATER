@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - GitHub version lookup: github_client.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 #
 # Fetches each project's universal manifest directly from GitHub raw content.
 #
@@ -373,6 +373,9 @@ def discover_remote_projects(
             raise RuntimeError(f"unexpected GitHub repository-list response for {owner}")
         for item in payload:
             if isinstance(item, dict) and isinstance(item.get("name"), str):
+                # A fork or an archived repository never joins the ecosystem; asking for its manifest would only add a request that answers 404.
+                if item.get("fork") is True or item.get("archived") is True:
+                    continue
                 branch = item.get("default_branch")
                 candidates.append((item["name"], branch if isinstance(branch, str) and branch else "main"))
         if len(payload) < 100:

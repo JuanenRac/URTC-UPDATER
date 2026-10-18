@@ -9,7 +9,7 @@
 ### 📦 Detetar, Instalar e Atualizar Manualmente Todo o Ecossistema URTC
 
 <p align="center">
-  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="GPL 3.0">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="CLI core apenas com stdlib">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="GUI desktop PySide6 Qt Quick">
@@ -44,7 +44,7 @@
 
 | | |
 |---|---|
-| Versão | `0.1.3` |
+| Versão | `0.1.4` |
 | Maturidade | Estabelecido |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | O PC de quem o usa |
@@ -88,11 +88,11 @@ nunca um número fixo gravado neste documento):
 ```
 $ urtc-updater --cli status
 Workspace root: /home/user/GitHub
-PROJECT       MATURITY     ROLE      STACK       LOCAL     GITHUB    STATE
+PROJECT       MATURITY     ROLE      STACK           LOCAL     GITHUB    STATE
 -------------------------------------------------------------------------------
-URTC          production   firmware  firmware-c  0.3.0     0.3.1     OUTDATED
-URTC-FLASHER  functional   tool      python-qt   0.2.1     0.2.1     up to date
-URTC-TESTER   functional   tool      python-qt   0.2.2     0.2.2     NEW COMMITS
+URTC          functional   firmware  firmware-c      0.3.0     0.3.1     OUTDATED
+URTC-FLASHER  functional   tool      python-qtquick  0.2.1     0.2.1     up to date
+URTC-TESTER   functional   tool      python-qtquick  0.2.2     0.2.2     NEW COMMITS
 
 3/3 installed, 1 outdated, 1 with new commits at the same version
 Run `urtc-updater update <project>` to update one by hand - never automatic, see this tool's own README.
@@ -155,6 +155,8 @@ confirmação manual, build opcional e um rasto de atividade no ecrã; o registo
   Em ambos os casos executa o `build-test.sh`/`build-test.bat` do próprio
   projeto (a verificação sem versionamento - ver secção 3) que ele realmente
   tiver. Esta ferramenta nunca reimplementa os passos de build de um projeto.
+
+**O que o build-test pode responder:** o código de saída 0 significa validado e qualquer outro significa falhado, exceto o 75, que significa que a validação está *indisponível* (falta uma ferramenta de que precisa). É comunicado como tal e a atualização é recusada, a não ser que a aceite definindo `validation_unavailable` como `accept` nas definições (ou `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`). Um build-test deve deixar a árvore como a encontrou: se alterar um ficheiro que o git segue, o ficheiro volta ao conteúdo confirmado antes da promoção e os passos dizem qual.
 
 **Commits assinados (por defeito apenas avisa; exigi-los é opcional e está desativado por defeito):** uma revisão sem assinatura válida (`git verify-commit`: porta-chaves GPG, ou SSH com `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) é instalada na mesma, e os passos da janela e da linha de comandos dizem que não está assinada. Com `"signature_policy": "require"` em `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=1`; o antigo `"require_signed_commits": true` significa o mesmo) o candidato - o `HEAD` de um clone novo ou o `FETCH_HEAD` descarregado de uma atualização - tem de passar `git verify-commit` antes de ler o seu manifesto ou construir o que quer que seja, e um candidato recusado deixa intacto o checkout instalado.
 

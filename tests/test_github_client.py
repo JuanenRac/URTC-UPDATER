@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - GitHub client tests: malformed catalog + retries
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Real fixture-server tests for the remote catalog discovery path, plus
 direct unit tests for the new transient-network retry/backoff logic.
@@ -183,6 +183,27 @@ def test_discover_remote_projects_isolates_one_malformed_manifest_from_the_rest(
     # ...and a repo with no manifest at all is neither a project nor an
     # error - a real 404 there just means "not part of this ecosystem".
     assert not any("NoManifestHere" in error for error in discovery.errors)
+
+
+def test_discover_remote_projects_does_not_ask_forks_or_archived_repositories_for_a_manifest(monkeypatch):
+    repo_list = json.dumps(
+        [
+            {"name": "GoodProject", "default_branch": "main"},
+            {"name": "SomeFork", "default_branch": "main", "fork": True},
+            {"name": "OldProject", "default_branch": "main", "archived": True},
+        ]
+    ).encode()
+    routes = {
+        "/users/JuanenRac/repos?type=owner&per_page=100&page=1": (200, repo_list),
+        "/JuanenRac/GoodProject/main/urtc.project.json": (200, json.dumps(valid_manifest("GoodProject")).encode()),
+        "/JuanenRac/SomeFork/main/urtc.project.json": (200, json.dumps(valid_manifest("SomeFork")).encode()),
+        "/JuanenRac/OldProject/main/urtc.project.json": (200, json.dumps(valid_manifest("OldProject")).encode()),
+    }
+    with fixture_server(routes) as base_url:
+        monkeypatch.setattr(github_client, "GITHUB_API_BASE", base_url)
+        monkeypatch.setattr(github_client, "GITHUB_RAW_BASE", base_url)
+        discovery = discover_remote_projects()
+    assert [status.entry.name for status in discovery.projects] == ["GoodProject"]
 
 
 # ---------------------------------------------------------------------------

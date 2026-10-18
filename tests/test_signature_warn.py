@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_signature_warn.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """The default signature policy is "warn": an unsigned revision is installed or updated and the steps say that it is not signed; "require" refuses it."""
 from __future__ import annotations

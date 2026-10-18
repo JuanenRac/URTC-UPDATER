@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_install_refusals.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Install and update refusals, each against real local git repositories: a
 remote that cannot be reached, a manifest that is broken or names another

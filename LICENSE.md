@@ -1,0 +1,8 @@
+# Licensing Model: URTC-UPDATER 📜
+
+This project follows a **Hybrid Licensing Model**:
+
+1. **Software** (the code in `src/`, `tools/` and the build scripts): licensed under the **GNU General Public License v3.0 or later (GPL-3.0-or-later)**.
+2. **Documentation** (`docs/` and the READMEs): licensed under **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**.
+
+See the `LICENSE` file for the full text of the primary license.

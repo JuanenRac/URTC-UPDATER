@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/conftest.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Every test runs with the commit-signature policy explicitly OFF unless it
 turns it on itself, so a developer whose own ~/.urtc_updater_settings.json

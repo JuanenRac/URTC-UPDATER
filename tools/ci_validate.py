@@ -2,7 +2,7 @@
 # =============================================================================
 # URTC - ci_validate.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Run the dependency-free, non-destructive CI baseline for one repository."""
 
@@ -30,6 +30,10 @@ REQUIRED_DOCUMENTS = (
     "README_jpn.md",
     "CHANGELOG.md",
     "LICENSE",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "SUPPORT.md",
 )
 REQUIRED_BUILD_TEST_FILES = (
     "build-test.bat",

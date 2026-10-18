@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_backups.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Retention of kept previous installations, the clean-backups command,
 restoring one, and the preview of an update."""

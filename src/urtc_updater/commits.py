@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - Comparing a checkout with its remote by commit: commits.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """Detects new commits that do not come with a version bump.
 

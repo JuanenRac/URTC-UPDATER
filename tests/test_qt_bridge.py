@@ -1,7 +1,7 @@
 # =============================================================================
 # URTC-UPDATER - tests/test_qt_bridge.py
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
-# GPL-3.0 - see LICENSE
+# GPL-3.0-or-later - see LICENSE
 # =============================================================================
 """The QML bridge's own logic (state per row, checkpoint and failure text in
 the window's language), run headless with Qt's offscreen platform. Skipped
