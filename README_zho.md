@@ -26,9 +26,11 @@
 > **安装全部缺失项目**和**更新全部过期项目**是分别确认的顺序批量操作，使用相同的
 > 实时状态和安全流程。
 
-**诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
+**诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established，仅有一次有记录的完整运行，并非持续使用）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
 
 ---
+
+> **安全与安防现状:**本生态系统不是经认证的安全系统,目前也不存在已组装的 URTC 电路板。引导程序使用 CRC32 和共享密钥的 HMAC-SHA256 校验固件映像,而非非对称签名(计划中);已发布的应用映像使用公开的开发密钥签名(`signing_key_kind: dev`),因此任何人都可以生成引导程序接受的映像;尚未向任何真实电路板发送过任何内容。在依赖此处任何说法来保障人身安全之前,请先阅读[安全基线](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/SECURITY_BASELINE.md)和[威胁模型](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/THREAT_MODEL.md)。
 
 ## 📋 速览
 
@@ -97,7 +99,7 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 - **单一解析实现**（`version_parse.py`）在本地读取和 GitHub 抓取之间共享，因此本地检出和 GitHub 抓取绝不会被两个独立漂移的正则表达式分别解读。
 - **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup-xxxxxxxx` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup-xxxxxxxx` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
 
-**已签名提交（默认警告，可按需强制）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
+**已签名提交（默认仅警告；强制要求属于可选项，默认关闭）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
 
 ## 3. 🧱 架构与设计决策
 
