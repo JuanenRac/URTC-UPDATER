@@ -36,7 +36,7 @@
 
 | | |
 |---|---|
-| 版本 | `0.1.4` |
+| 版本 | `0.1.5` |
 | 成熟度 | 成熟 |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
@@ -160,6 +160,7 @@ URTC-UPDATER/
 ├── build.sh / build.bat    # venv + 可编辑安装 + 编译检查
 ├── run.sh / run.bat        # 默认 GUI / CLI 入口
 ├── run-gui.vbs             # 无控制台窗口的 Windows 图形启动器
+├── bump.py                 # 显式的版本递增命令（编译从不递增）
 ├── bump_version.py         # 生态系统统一的里程表式版本递增（pyproject.toml + __init__.py）
 └── bump_manifest_version.py # 将 urtc.project.json 的版本与原生版本同步(--sync)
 ```

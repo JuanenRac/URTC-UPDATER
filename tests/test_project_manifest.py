@@ -194,3 +194,64 @@ def test_rejects_a_service_health_path_without_a_port():
     data["service"] = {"health_path": "/healthz", "systemd_unit": "hydra-umc-example.service"}
     with pytest.raises(ManifestValidationError, match="service.health_path requires service.port"):
         parse_manifest(json.dumps(data))
+
+
+def _v11_manifest() -> dict[str, object]:
+    data = valid_manifest()
+    data["schema_version"] = "1.1"
+    data["deployment_target"] = "mcu"
+    data["components"] = [
+        {"name": "MAIN_FIRMWARE", "kind": "app", "version": "0.3.6", "target": "stm32f303cc"},
+        {"name": "MAIN_BOOTLOADER", "kind": "bootloader", "version": "0.4.0", "target": "stm32f303cc",
+         "source": {"file": "src/boot/common.h", "prefix": "BOOTLOADER_VERSION"}},
+    ]
+    return data
+
+
+def test_a_v1_0_manifest_keeps_validating_and_has_no_components():
+    manifest = parse_manifest(json.dumps(valid_manifest()))
+    assert manifest.schema_version == "1.0"
+    assert manifest.components == ()
+
+
+def test_parses_a_v1_1_manifest_with_components_and_the_mcu_target():
+    manifest = parse_manifest(json.dumps(_v11_manifest()))
+    assert manifest.deployment_target == "mcu"
+    assert [(c.name, c.kind, c.version, c.target) for c in manifest.components] == [
+        ("MAIN_FIRMWARE", "app", "0.3.6", "stm32f303cc"),
+        ("MAIN_BOOTLOADER", "bootloader", "0.4.0", "stm32f303cc"),
+    ]
+    assert manifest.components[1].source_prefix == "BOOTLOADER_VERSION"
+
+
+def test_a_v1_0_manifest_cannot_use_components_or_the_mcu_target():
+    data = _v11_manifest()
+    data["schema_version"] = "1.0"
+    with pytest.raises(ManifestValidationError, match="components needs schema_version"):
+        parse_manifest(json.dumps(data))
+    data = valid_manifest()
+    data["deployment_target"] = "mcu"
+    with pytest.raises(ManifestValidationError, match="unsupported deployment_target"):
+        parse_manifest(json.dumps(data))
+
+
+@pytest.mark.parametrize("change, message", [
+    (lambda c: c[0].update(kind="firmware"), "unsupported kind"),
+    (lambda c: c[0].update(version="1.x"), "MAJOR.MINOR.PATCH"),
+    (lambda c: c[0].pop("target"), "missing field"),
+    (lambda c: c[0].update(extra=1), "unknown field"),
+    (lambda c: c[1].update(name="MAIN_FIRMWARE"), "unique"),
+    (lambda c: c[0].update(source={"file": "../x.h", "prefix": "P"}), "repository-relative"),
+])
+def test_rejects_a_malformed_component(change, message):
+    data = _v11_manifest()
+    change(data["components"])
+    with pytest.raises(ManifestValidationError, match=message):
+        parse_manifest(json.dumps(data))
+
+
+def test_rejects_an_unknown_schema_version():
+    data = valid_manifest()
+    data["schema_version"] = "2.0"
+    with pytest.raises(ManifestValidationError, match="schema_version"):
+        parse_manifest(json.dumps(data))

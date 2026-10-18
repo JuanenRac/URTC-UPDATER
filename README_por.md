@@ -44,7 +44,7 @@
 
 | | |
 |---|---|
-| Versão | `0.1.4` |
+| Versão | `0.1.5` |
 | Maturidade | Estabelecido |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | O PC de quem o usa |
@@ -237,6 +237,7 @@ URTC-UPDATER/
 ├── build.sh / build.bat    # venv + editable install + compile-check
 ├── run.sh / run.bat        # GUI default / CLI entry point
 ├── run-gui.vbs             # Windows graphical launcher with no console window
+├── bump.py                 # Comando explícito para subir a versão (compilar nunca a sobe)
 ├── bump_version.py         # Ecosystem-wide odometer bump (pyproject.toml + __init__.py)
 └── bump_manifest_version.py # Syncs urtc.project.json's version to the native one (--sync)
 ```

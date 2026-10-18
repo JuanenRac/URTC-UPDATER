@@ -90,3 +90,23 @@ def test_resolve_workspace_root_falls_back_to_the_real_default_when_nothing_save
 
     monkeypatch.setattr(settings, "get_saved_workspace_root", lambda: None)
     assert main_module.resolve_workspace_root() == main_module.default_workspace_root()
+
+
+def test_install_and_update_accept_the_explicit_unavailable_validation_flag() -> None:
+    parser = build_parser()
+    assert parser.parse_args(["install", "X"]).accept_unavailable_validation is False
+    assert parser.parse_args(["install", "X", "--accept-unavailable-validation"]).accept_unavailable_validation is True
+    assert parser.parse_args(["update", "X", "--accept-unavailable-validation"]).accept_unavailable_validation is True
+
+
+def test_the_flag_is_what_turns_the_acceptance_on(monkeypatch, tmp_path) -> None:
+    from urtc_updater import install, settings
+
+    # setenv first so that the teardown restores the original state after the command sets the variable itself
+    monkeypatch.setenv("URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION", "0")
+    monkeypatch.setattr(settings, "load_settings", lambda: {})
+    assert not install.accepts_unavailable_validation()
+    args = build_parser().parse_args(["install", "NoSuchProject", "--workspace", str(tmp_path), "--accept-unavailable-validation"])
+    monkeypatch.setattr(main_module, "discover_remote_projects", lambda *a, **k: RemoteDiscovery(projects=(), errors=()))
+    main_module._install_or_update(args, expect_installed=False)
+    assert install.accepts_unavailable_validation()

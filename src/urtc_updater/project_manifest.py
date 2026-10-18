@@ -21,15 +21,34 @@ from typing import Any
 
 MANIFEST_FILE = "urtc.project.json"
 SCHEMA_VERSION = "1.0"
+#: Schema 1.1 adds the optional ``components[]`` list and the ``mcu`` deployment target; a 1.0 manifest keeps validating unchanged.
+SCHEMA_VERSION_COMPONENTS = "1.1"
+SUPPORTED_SCHEMA_VERSIONS = frozenset({SCHEMA_VERSION, SCHEMA_VERSION_COMPONENTS})
 ECOSYSTEM_ID = "URTC"
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:\.\d+)?$")
 VALID_ROLES = frozenset({"api", "ui", "cli", "firmware", "library", "service", "tool"})
 VALID_MATURITY = frozenset({"scaffolding", "functional", "established", "production"})
 VALID_DEPLOYMENT_TARGETS = frozenset({"cm5", "user-pc", "mobile", "wearable", "dev-server"})
+#: Targets that only a schema 1.1 manifest may use.
+VALID_DEPLOYMENT_TARGETS_1_1 = VALID_DEPLOYMENT_TARGETS | {"mcu"}
+VALID_COMPONENT_KINDS = frozenset({"app", "bootloader"})
 
 
 class ManifestValidationError(ValueError):
     """A manifest is syntactically valid JSON but violates the v1 contract."""
+
+
+@dataclass(frozen=True)
+class ManifestComponent:
+    """One independently versioned part of a project (for example the application and the bootloader of a microcontroller board)."""
+
+    name: str
+    kind: str
+    version: str
+    target: str
+    #: Optional repository-relative file that carries this version, and the macro prefix inside it (used by the repository's own checks).
+    source_file: str | None = None
+    source_prefix: str | None = None
 
 
 @dataclass(frozen=True)
@@ -64,6 +83,8 @@ class ProjectManifest:
     # `journalctl -u` targets for this project, alongside the live-status
     # probe above. Absent for anything not deployed as a systemd service.
     service_systemd_unit: str | None = None
+    #: Schema 1.1: the independently versioned components (empty for a 1.0 manifest or a project without any).
+    components: tuple[ManifestComponent, ...] = ()
 
 
 def _require_string(data: dict[str, Any], field: str) -> str:
@@ -96,7 +117,7 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
     # isn't self-evident from the enum alone (e.g. "dev-server" is not
     # the same physical role as "cm5") - optional because most
     # deployment_target values need no such note.
-    optional_fields = {"service", "deployment_target_note"}
+    optional_fields = {"service", "deployment_target_note", "components"}
     unknown = sorted(set(data) - expected_fields - optional_fields)
     missing = sorted(expected_fields - set(data))
     if missing:
@@ -105,10 +126,12 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
         raise ManifestValidationError("unknown field(s): " + ", ".join(unknown))
 
     schema_version = _require_string(data, "schema_version")
-    if schema_version != SCHEMA_VERSION:
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
         raise ManifestValidationError(
-            f"schema_version must be {SCHEMA_VERSION!r}, got {schema_version!r}"
+            f"schema_version must be {SCHEMA_VERSION!r} or {SCHEMA_VERSION_COMPONENTS!r}, got {schema_version!r}"
         )
+    if "components" in data and schema_version == SCHEMA_VERSION:
+        raise ManifestValidationError(f"components needs schema_version {SCHEMA_VERSION_COMPONENTS!r}")
 
     ecosystem = _require_string(data, "ecosystem")
     if ecosystem != ECOSYSTEM_ID:
@@ -141,7 +164,8 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
         raise ManifestValidationError("technologies must be a non-empty unique string array")
 
     deployment_target = _require_string(data, "deployment_target")
-    if deployment_target not in VALID_DEPLOYMENT_TARGETS:
+    valid_targets = VALID_DEPLOYMENT_TARGETS if schema_version == SCHEMA_VERSION else VALID_DEPLOYMENT_TARGETS_1_1
+    if deployment_target not in valid_targets:
         raise ManifestValidationError(
             f"unsupported deployment_target: {deployment_target!r}"
         )
@@ -200,7 +224,48 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
         service_port=service_port,
         service_health_path=service_health_path,
         service_systemd_unit=service_systemd_unit,
+        components=_parse_components(data.get("components")),
     )
+
+
+def _parse_components(raw: Any) -> tuple[ManifestComponent, ...]:
+    """Validate the optional schema 1.1 ``components`` list."""
+    if raw is None:
+        return ()
+    if not isinstance(raw, list) or not raw:
+        raise ManifestValidationError("components must be a non-empty array when present")
+    components: list[ManifestComponent] = []
+    for index, item in enumerate(raw):
+        where = f"components[{index}]"
+        if not isinstance(item, dict):
+            raise ManifestValidationError(f"{where} must be an object")
+        unknown = sorted(set(item) - {"name", "kind", "version", "target", "source"})
+        if unknown:
+            raise ManifestValidationError(f"unknown field(s) in {where}: " + ", ".join(unknown))
+        missing = sorted({"name", "kind", "version", "target"} - set(item))
+        if missing:
+            raise ManifestValidationError(f"missing field(s) in {where}: " + ", ".join(missing))
+        name = _require_string(item, "name")
+        kind = _require_string(item, "kind")
+        if kind not in VALID_COMPONENT_KINDS:
+            raise ManifestValidationError(f"unsupported kind in {where}: {kind!r}")
+        version = _require_string(item, "version")
+        if not VERSION_RE.fullmatch(version):
+            raise ManifestValidationError(f"{where}.version must use MAJOR.MINOR.PATCH")
+        target = _require_string(item, "target")
+        source_file = source_prefix = None
+        if "source" in item:
+            source = item["source"]
+            if not isinstance(source, dict) or set(source) != {"file", "prefix"}:
+                raise ManifestValidationError(f"{where}.source must contain exactly file and prefix")
+            source_file = _require_string(source, "file")
+            if source_file.startswith(("/", "\\")) or ".." in source_file.replace("\\", "/").split("/"):
+                raise ManifestValidationError(f"{where}.source.file must be a repository-relative path")
+            source_prefix = _require_string(source, "prefix")
+        components.append(ManifestComponent(name, kind, version, target, source_file, source_prefix))
+    if len({component.name for component in components}) != len(components):
+        raise ManifestValidationError("component names must be unique")
+    return tuple(components)
 
 
 def _parse_service(raw_service: Any) -> tuple[int | None, str | None, str | None]:

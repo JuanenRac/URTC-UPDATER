@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.4` |
+| Version | `0.1.5` |
 | Maturity | Established |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
@@ -108,13 +108,13 @@ optional build and an on-screen activity trail; the whole log is also written to
 
 ## 2. 🔄 HOW A CHECK/UPDATE ACTUALLY WORKS
 
-- **Version source**: this ecosystem's own "odometer" auto-bump
-  convention (every real build increments a version number that lives
+- **Version source**: this ecosystem's own "odometer"
+  convention (every explicit `bump.py` step increments a version number that lives
   IN a source file - `pyproject.toml`, `Cargo.toml`, `version.go`,
   `package.json`, `version.properties`, `pubspec.yaml`, or a firmware
   `#define`, depending on the project's stack) has never created a git
   tag or a GitHub Release for that bump. So this tool reads the SAME
-  file every project's own `bump_version.py`/build script already
+  file every project's own `bump_version.py`/`bump.py` step already
   writes, straight off the repo's default branch via GitHub's raw
   content host - not the Releases API, which would report every project
   as having no releases at all.
@@ -230,7 +230,8 @@ URTC-UPDATER/
 ├── build.sh / build.bat    # venv + editable install + compile-check
 ├── run.sh / run.bat        # GUI default / CLI entry point
 ├── run-gui.vbs             # Windows graphical launcher with no console window
-├── bump_version.py         # Ecosystem-wide odometer bump (pyproject.toml + __init__.py)
+├── bump.py                 # Explicit version bump command (building never bumps)
+├── bump_version.py         # Ecosystem-wide odometer bump (pyproject.toml + __init__.py), called by bump.py
 └── bump_manifest_version.py # Syncs urtc.project.json's version to the native one (--sync)
 ```
 

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .project_manifest import MANIFEST_FILE, ProjectManifest
+from .project_manifest import ManifestComponent, MANIFEST_FILE, ProjectManifest
 
 
 GITHUB_OWNER = "JuanenRac"
@@ -44,6 +44,8 @@ class ProjectEntry:
     service_systemd_unit: str | None = None
     #: The repository's real default branch (GitHub reports it when listing).
     default_branch: str = GITHUB_BRANCH
+    #: Independently versioned components declared by a schema 1.1 manifest (empty otherwise).
+    components: tuple[ManifestComponent, ...] = ()
 
 
 def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
@@ -64,6 +66,7 @@ def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
         service_port=manifest.service_port,
         service_health_path=manifest.service_health_path,
         service_systemd_unit=manifest.service_systemd_unit,
+        components=manifest.components,
     )
 
 

@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -186,6 +187,11 @@ def cmd_status(args: argparse.Namespace) -> int:
                     "github_version": str(remotes[ls.entry.name].version) if ls.entry.name in remotes and remotes[ls.entry.name].version else None,
                     "state": _state_label(ls, remotes.get(ls.entry.name), commit_map.get(ls.entry.name)),
                     "commit_state": commit_map.get(ls.entry.name),
+                    "deployment_target": ls.entry.deploy,
+                    "components": [
+                        {"name": c.name, "kind": c.kind, "version": c.version, "target": c.target}
+                        for c in (remotes[ls.entry.name].entry.components if ls.entry.name in remotes else ls.entry.components)
+                    ],
                 }
                 for ls in locals_
             ],
@@ -331,6 +337,9 @@ def cmd_update(args: argparse.Namespace) -> int:
 
 
 def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> int:
+    if getattr(args, "accept_unavailable_validation", False):
+        # An explicit, per-run opt-in: the install still refuses by default.
+        os.environ["URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION"] = "1"
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     local_discovery = discover_workspace(workspace_root)
     local_by_name = {status.entry.name: status.entry for status in local_discovery.projects}
@@ -421,6 +430,10 @@ def build_parser() -> argparse.ArgumentParser:
     install_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
     install_p.add_argument("--no-build", action="store_true", help="Clone only - skip running the project's own build script.")
     install_p.add_argument("--profile", help="Refuse a project outside this station profile.")
+    install_p.add_argument(
+        "--accept-unavailable-validation", action="store_true",
+        help="Go on when the project's build check says it cannot validate here (a missing tool). Without this flag such an install is refused.",
+    )
     install_p.set_defaults(func=cmd_install)
 
     update_p = subparsers.add_parser("update", help="Pull and rebuild ONE project that's already installed.")
@@ -431,6 +444,10 @@ def build_parser() -> argparse.ArgumentParser:
     update_p.add_argument(
         "--preview", action="store_true",
         help="Show the candidate commit, its author, signature state and the build/tool files it changes, then stop without updating.",
+    )
+    update_p.add_argument(
+        "--accept-unavailable-validation", action="store_true",
+        help="Go on when the project's build check says it cannot validate here (a missing tool). Without this flag such an install is refused.",
     )
     update_p.set_defaults(func=cmd_update)
 
