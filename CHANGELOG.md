@@ -5,6 +5,12 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every real build, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.1.3] - URTC-DOCS in the list of related projects
+
+- The Related Projects section of the README, in all 8 languages, lists URTC-DOCS, the documentation and cross-repository tooling hub of the ecosystem.
+- The sentence about how many repositories are discovered no longer gives a number that would go stale; the status table is the source of the count.
+- Build version synchronized with `urtc.project.json` and the repository-native version source.
+
 ## [0.1.2] - An unsigned commit is warned about, not refused, unless the signature policy asks for it
 
 - The default signature policy is warn: a revision with no valid signature (git verify-commit) is installed or updated anyway, and the steps of the window and of the command line say in the chosen language that it is not signed.

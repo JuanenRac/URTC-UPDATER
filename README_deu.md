@@ -307,6 +307,7 @@ bleibt das alte Tkinter-Fenster nur ein Kompatibilitäts-Fallback.
 **URTC** (Universal Robot Tool Controller) ist eine echte physische Werkzeugwechsel-Plattform desselben Autors (JuanenRac / Electro Hobby 3D). Jedes Repository hat seine eigene Version, seine eigenen Tests und sein eigenes README; das ist die ganze Familie:
 
 * **[URTC](https://github.com/JuanenRac/URTC)** - Firmware fuer die physische Universal-Robot-Tool-Controller-Platine, 25+ Werkzeugprofile ueber CAN-Bus
+* **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - Die Architektur, die Schnittstellen, die Sicherheitsbasis, die Faehigkeitenmatrix und der erzeugte Projektkatalog des Oekosystems sowie die Werkzeuge, die alle Repositories vergleichen
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - Desktop-GUI-Flash-Tool fuer URTC-Platinen, CAN-OTA plus vollstaendiges SWD/JTAG
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - Firmware fuer ein Werkzeug-Montagerack mit echter Werkzeug-ID-Dekodierung und Smart-Idle-Vorheizung
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - Desktop-Live-CAN-Bus-Diagnosetool fuer URTC-Platinen, ein Panel pro Werkzeugprofil

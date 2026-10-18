@@ -41,7 +41,7 @@ URTC-UPDATER is a small tool - windowed GUI by default, full CLI with
 (any workspace checked out the same way) that answers three questions
 for every other real project it discovers via each sibling checkout's
 own `urtc.project.json` manifest - the count itself is never hardcoded
-here, since it grows as the ecosystem does (six repositories today):
+here, since it grows as the ecosystem does:
 
 1. **What's actually installed here, and what version is it?**
 2. **What's the latest version published on GitHub?**
@@ -280,6 +280,7 @@ older Tkinter shell is only a compatibility fallback.
 **URTC** (Universal Robot Tool Controller) is a real physical tool-changer platform by the same author (JuanenRac / Electro Hobby 3D). Each repository has its own version, its own tests and its own README; this is the whole family:
 
 - **[URTC](https://github.com/JuanenRac/URTC)** — firmware for the physical Universal Robot Tool Controller PCB, 25+ tool profiles over CAN bus.
+- **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** — the architecture, interfaces, security baseline, capability matrix and generated project catalogue of the ecosystem, plus the tools that compare all the repositories.
 - **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** — desktop GUI flashing tool for URTC boards, CAN-OTA plus full-chip SWD/JTAG.
 - **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** — firmware for a board-mounting rack with real tool-ID decoding and Smart Idle pre-heating logic.
 - **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** — desktop live CAN-bus diagnostic tool for URTC boards, one panel per tool profile.

@@ -198,6 +198,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 **URTC**(通用机器人工具控制器)是同一作者(JuanenRac / Electro Hobby 3D)打造的真实物理换刀平台。每个仓库都有自己的版本、自己的测试和自己的 README;这是完整的项目家族:
 
 * **[URTC](https://github.com/JuanenRac/URTC)** - 物理通用机器人工具控制器 PCB 的固件,基于 CAN 总线的 25+ 工具配置
+* **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - 生态的架构、接口、安全基线、能力矩阵和生成的项目目录,以及对所有仓库进行比较的工具
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 板卡的桌面刷写工具,CAN-OTA 加完整芯片 SWD/JTAG
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 工具挂架固件,具备真实的工具 ID 解码和 Smart Idle 预热逻辑
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 板卡的桌面实时 CAN 总线诊断工具,每个工具配置一个面板

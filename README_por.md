@@ -45,8 +45,7 @@ completo com `--cli` - pensada para correr na máquina Windows/Linux/macOS do
 próprio programador (qualquer workspace obtido da mesma forma) e que responde
 a três perguntas sobre cada outro projeto real que deteta através do
 manifesto `urtc.project.json` do respetivo checkout irmão - o número em si
-nunca está fixado aqui, pois cresce com o ecossistema (seis repositórios
-atualmente):
+nunca está fixado aqui, pois cresce com o ecossistema:
 
 1. **O que está realmente instalado aqui e em que versão?**
 2. **Qual é a última versão publicada no GitHub?**
@@ -289,6 +288,7 @@ compatibilidade.
 O **URTC** (Universal Robot Tool Controller) é uma plataforma real de troca de ferramentas física do mesmo autor (JuanenRac / Electro Hobby 3D). Cada repositório tem a sua própria versão, os seus próprios testes e o seu próprio README; esta é a família completa:
 
 - **[URTC](https://github.com/JuanenRac/URTC)** — firmware da PCB física do Universal Robot Tool Controller, mais de 25 perfis de ferramenta sobre barramento CAN.
+- **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** — a arquitetura, as interfaces, a base de segurança, a matriz de capacidades e o catálogo de projetos gerado do ecossistema, mais as ferramentas que comparam todos os repositórios.
 - **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** — ferramenta desktop com GUI para gravar placas URTC, CAN-OTA mais SWD/JTAG de chip completo.
 - **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** — firmware de um rack de montagem de placas com descodificação real do ID da ferramenta e lógica de pré-aquecimento Smart Idle.
 - **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** — ferramenta desktop de diagnóstico em direto do barramento CAN para placas URTC, um painel por perfil de ferramenta.
