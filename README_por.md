@@ -38,6 +38,16 @@
 
 ---
 
+## 📋 Num relance
+
+| | |
+|---|---|
+| Versão | `0.1.3` |
+| Maturidade | Estabelecido |
+| Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
+| Destino | O PC de quem o usa |
+| Em hardware real | Não aplicável: nada aqui corre em hardware |
+
 ## 1. 🛠️ VISÃO TÉCNICA GERAL
 
 O URTC-UPDATER é uma pequena ferramenta - GUI em janela por predefinição, CLI

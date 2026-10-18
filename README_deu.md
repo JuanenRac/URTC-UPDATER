@@ -34,6 +34,16 @@
 
 ---
 
+## 📋 Auf einen Blick
+
+| | |
+|---|---|
+| Version | `0.1.3` |
+| Reifegrad | Etabliert |
+| Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
+| Ziel | Der PC der Person, die es benutzt |
+| Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
+
 ## 1. 🛠️ TECHNISCHER ÜBERBLICK
 
 URTC-UPDATER ist ein kleines Tool - Fenster-GUI standardmäßig, volle
