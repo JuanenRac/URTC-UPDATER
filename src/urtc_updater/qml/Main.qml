@@ -282,6 +282,114 @@ ApplicationWindow {
     }
 
     Dialog {
+        id: securityDialog
+        objectName: "securityDialog"
+        modal: true
+        anchors.centerIn: parent
+        width: 520
+        padding: 22
+        property bool requireSigned: false
+        property bool confirmBuild: false
+        onAboutToShow: {
+            requireSigned = backend.securityRequireSigned
+            confirmBuild = backend.securityConfirmBuild
+        }
+        background: Rectangle { color: window.panel; radius: 16; border.color: window.border; border.width: 1 }
+        contentItem: ColumnLayout {
+            spacing: 14
+            LabelText { text: ui("security_title"); font.pixelSize: 18; font.bold: true }
+            LabelText { text: ui("security_intro"); color: window.textMuted; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            GameCheck { id: requireSignedCheck; text: ui("security_require_signed"); checked: securityDialog.requireSigned; onToggled: securityDialog.requireSigned = checked; Layout.fillWidth: true }
+            LabelText { text: ui("security_require_signed_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true; Layout.leftMargin: 34 }
+            GameCheck { id: confirmBuildCheck; text: ui("security_confirm_build"); checked: securityDialog.confirmBuild; onToggled: securityDialog.confirmBuild = checked; Layout.fillWidth: true }
+            LabelText { text: ui("security_confirm_build_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true; Layout.leftMargin: 34 }
+            RowLayout {
+                Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
+                GameButton { text: ui("security_close_button"); accent: "#27445d"; onClicked: securityDialog.close() }
+                GameButton {
+                    text: ui("security_save_button")
+                    onClicked: {
+                        var lowered = backend.securityLowering(securityDialog.requireSigned, securityDialog.confirmBuild)
+                        if (lowered.length > 0) {
+                            lowerDialog.items = lowered
+                            lowerDialog.open()
+                        } else {
+                            backend.saveSecurity(securityDialog.requireSigned, securityDialog.confirmBuild)
+                            securityDialog.close()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Dialog {
+        id: lowerDialog
+        objectName: "lowerDialog"
+        modal: true
+        anchors.centerIn: parent
+        width: 460
+        padding: 22
+        property string items: ""
+        background: Rectangle { color: window.panel; radius: 16; border.color: window.amber; border.width: 1 }
+        contentItem: ColumnLayout {
+            spacing: 14
+            LabelText { text: ui("security_lowering_title"); font.pixelSize: 18; font.bold: true; color: window.amber }
+            LabelText { text: ui("security_lowering_body").replace("{items}", lowerDialog.items); color: window.textMuted; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            RowLayout {
+                Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
+                GameButton { text: ui("confirm_cancel_button"); accent: "#27445d"; onClicked: lowerDialog.close() }
+                GameButton {
+                    text: ui("security_lowering_confirm_button"); accent: "#8a5a2a"
+                    onClicked: {
+                        backend.saveSecurity(securityDialog.requireSigned, securityDialog.confirmBuild)
+                        lowerDialog.close()
+                        securityDialog.close()
+                    }
+                }
+            }
+        }
+    }
+
+    Dialog {
+        id: buildDialog
+        objectName: "buildDialog"
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        anchors.centerIn: parent
+        width: 560
+        padding: 22
+        property bool answered: false
+        onOpened: answered = false
+        onClosed: { if (!answered) backend.answerBuild(false) }
+        background: Rectangle { color: window.panel; radius: 16; border.color: window.amber; border.width: 1 }
+        contentItem: ColumnLayout {
+            spacing: 14
+            LabelText { text: backend.buildRequestTitle; font.pixelSize: 18; font.bold: true; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            LabelText { text: ui("build_confirm_body"); color: window.textMuted; wrapMode: Text.WordWrap; Layout.fillWidth: true }
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: detailsText.implicitHeight + 20
+                radius: 8; color: "#07111e"; border.width: 1; border.color: window.border
+                LabelText { id: detailsText; anchors.fill: parent; anchors.margins: 10; text: backend.buildRequestDetails; wrapMode: Text.WrapAnywhere; font.pixelSize: 12 }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
+                GameButton { text: ui("build_confirm_decline"); accent: "#27445d"; onClicked: { buildDialog.answered = true; backend.answerBuild(false); buildDialog.close() } }
+                GameButton { text: ui("build_confirm_run"); accent: window.green; onClicked: { buildDialog.answered = true; backend.answerBuild(true); buildDialog.close() } }
+            }
+        }
+    }
+
+    Connections {
+        target: backend
+        function onBuildConfirmRequested() { buildDialog.open() }
+    }
+
+    Dialog {
         id: aboutDialog
         modal: true
         anchors.centerIn: parent
@@ -419,6 +527,7 @@ ApplicationWindow {
                     LabelText { text: backend.busy ? ui("status_busy") : ui("status_online"); color: window.textMuted; font.pixelSize: 11; font.bold: true }
                 }
             }
+            GameButton { text: ui("security_menu"); Layout.preferredWidth: 152; accent: "#5a4a22"; Layout.alignment: Qt.AlignRight; onClicked: securityDialog.open() }
             GameButton { text: ui("menu_about"); Layout.preferredWidth: 152; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
         }
 

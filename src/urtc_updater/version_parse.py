@@ -56,14 +56,23 @@ class Version:
         return self._key() <= other._key()
 
 
-def parse_version(text: str, pattern) -> Version | None:
+def parse_version(text: str, pattern, *, four_part: bool = False) -> Version | None:
     """Extract a Version using a manifest-declared pattern: one 3-group
     regex, or a dict of 3
-    separate 1-group regexes keyed major/minor/patch). Returns None rather
+    separate 1-group regexes keyed major/minor/patch, plus an optional
+    `build`). Returns None rather
     than raising on no match - a project whose version file moved, got
     renamed, or simply doesn't exist yet locally is a normal, expected
     state for detect.py/github_client.py to report as "unknown", not a
-    crash."""
+    crash.
+
+    The `build` field of a dict pattern is part of the version when it is not 0,
+    or when the caller says the project's versions have four parts
+    (`four_part=True`, taken from a manifest version written with four numbers).
+    A BUILD of 0 in the header of a project whose versions have three parts is
+    not a fourth component: it neither changes the order nor is printed. (An
+    earlier rule counted the field only from 0.8.0 on - a number that belonged
+    to one ecosystem and was wrong for the others.)"""
     if isinstance(pattern, dict):
         parts: dict[str, int] = {}
         for key in ("major", "minor", "patch"):
@@ -71,9 +80,9 @@ def parse_version(text: str, pattern) -> Version | None:
             if not match:
                 return None
             parts[key] = int(match.group(1))
-        if "build" in pattern and (parts["major"], parts["minor"], parts["patch"]) >= (0, 8, 0):
+        if "build" in pattern:
             build = re.search(pattern["build"], text, re.MULTILINE)
-            if build:
+            if build and (int(build.group(1)) != 0 or four_part):
                 return Version(parts["major"], parts["minor"], parts["patch"], int(build.group(1)), has_build=True)
         return Version(parts["major"], parts["minor"], parts["patch"])
 

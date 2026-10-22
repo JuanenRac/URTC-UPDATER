@@ -46,25 +46,60 @@ def load_settings() -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
-def save_settings(**updates: Any) -> None:
-    """Merges `updates` into whatever is already saved and writes the
-    real, combined result back - best-effort, matching `i18n.py`'s own
-    non-fatal-on-failure convention (a read-only home directory or a
-    permissions issue must never crash the GUI over a saved preference).
-    """
-    current = load_settings()
-    current.update(updates)
+def settings_state() -> str:
+    """"missing" when there is no settings file, "ok" when it holds a JSON object, "corrupt" when it exists but cannot be read as one (truncated, not JSON, not an
+    object). The signature policy treats "corrupt" as "signatures required": a damaged file must not silently turn a protection off."""
+    try:
+        raw = SETTINGS_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return "missing"
+    except (OSError, UnicodeDecodeError):
+        return "corrupt"
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return "corrupt"
+    return "ok" if isinstance(data, dict) else "corrupt"
+
+
+def _write_atomically(data: dict[str, Any]) -> None:
     # Written to a sibling file and swapped in, so a cut during the write
     # can never leave the saved preferences truncated.
     temporary = SETTINGS_PATH.with_name(SETTINGS_PATH.name + ".tmp")
     try:
-        temporary.write_text(json.dumps(current, indent=2), encoding="utf-8")
+        temporary.write_text(json.dumps(data, indent=2), encoding="utf-8")
         os.replace(temporary, SETTINGS_PATH)
     except OSError:
         try:
             temporary.unlink()
         except OSError:
             pass
+
+
+def save_settings(**updates: Any) -> None:
+    """Merges `updates` into whatever is already saved and writes the
+    real, combined result back - best-effort, matching `i18n.py`'s own
+    non-fatal-on-failure convention (a read-only home directory or a
+    permissions issue must never crash the GUI over a saved preference).
+
+    A settings file that cannot be read is left alone: merging into the empty
+    dictionary it reads as would erase the security options it may hold.
+    """
+    if settings_state() == "corrupt":
+        return
+    current = load_settings()
+    current.update(updates)
+    _write_atomically(current)
+
+
+def replace_settings(data: dict[str, Any]) -> None:
+    """Writes `data` as the whole settings file. An unreadable file that was there is first kept next to it as `.corrupt`, so nothing a person wrote is lost."""
+    if settings_state() == "corrupt":
+        try:
+            os.replace(SETTINGS_PATH, SETTINGS_PATH.with_name(SETTINGS_PATH.name + ".corrupt"))
+        except OSError:
+            pass
+    _write_atomically(data)
 
 
 def get_saved_workspace_root() -> Path | None:

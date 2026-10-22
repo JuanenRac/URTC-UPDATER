@@ -34,7 +34,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__, commits, profiles, settings
+from . import __version__, commits, profiles, security, settings
 from .detect import LocalStatus, discover_workspace
 from .evidence import export_evidence, verify_chain
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
@@ -328,6 +328,71 @@ def cmd_evidence(args: argparse.Namespace) -> int:
     return 1 if problems else 0
 
 
+def _terminal_confirmer(request: security.BuildRequest) -> bool:
+    """Asks in the terminal before the build check of a candidate runs. Without a terminal there is nobody to ask: the answer is no."""
+    if not sys.stdin.isatty():
+        return False
+    print(f"About to run {request.script} of {request.project} with your permissions.", file=sys.stderr)
+    print(f"  Commit:    {request.commit}", file=sys.stderr)
+    print(f"  Author:    {request.author or 'unknown'}", file=sys.stderr)
+    print(f"  Signature: {request.signature}", file=sys.stderr)
+    changed = ", ".join(request.changed_scripts) if request.changed_scripts else "none"
+    print(f"  Build and tool files that changed: {changed}", file=sys.stderr)
+    try:
+        answer = input("Run the build check? [y/N] ")
+    except EOFError:
+        return False
+    return answer.strip().lower() in {"y", "yes"}
+
+
+def _apply_security_arguments(args: argparse.Namespace) -> None:
+    """Turns the security flags of the command line into the environment variables the rest of the tool reads, installs the terminal question and says so when a flag turns
+    off a protection that the saved settings have on."""
+    for flag, variable in (("require_signed", security.ENV_REQUIRE_SIGNED), ("confirm_build", security.ENV_CONFIRM_BUILD)):
+        value = getattr(args, flag, None)
+        if value is not None:
+            os.environ[variable] = "1" if value else "0"
+    if getattr(args, "yes", False):
+        os.environ[security.ENV_ASSUME_YES] = "1"
+    security.set_confirmer(_terminal_confirmer)
+    for warning in security.lowering_warnings():
+        print(str(warning), file=sys.stderr)
+
+
+def _on_off(value: bool) -> str:
+    return "on" if value else "off"
+
+
+def cmd_security(args: argparse.Namespace) -> int:
+    """Shows the two security options, or changes them in the settings file. Turning one off asks first (or needs --yes)."""
+    saved_signed, saved_confirm = security.saved_require_signed(), security.saved_confirm_build()
+    new_signed = saved_signed if args.require_signed is None else args.require_signed == "on"
+    new_confirm = saved_confirm if args.confirm_build is None else args.confirm_build == "on"
+    if args.require_signed is None and args.confirm_build is None:
+        state = settings.settings_state()
+        print(f"Require signed commits:           {_on_off(saved_signed)} (saved)  {_on_off(security.effective_require_signed())} (in force now)")
+        print(f"Ask before the build check:       {_on_off(saved_confirm)} (saved)  {_on_off(security.effective_confirm_build())} (in force now)")
+        if state == "corrupt":
+            print(f"The settings file {settings.SETTINGS_PATH} cannot be read: signatures are required until it is fixed or removed.", file=sys.stderr)
+        print("Both are off by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD (1 or 0).")
+        return 0
+    lowering = security.lowering_of_change(require_signed=new_signed, confirm_build=new_confirm)
+    if lowering:
+        for warning in lowering:
+            print(str(warning), file=sys.stderr)
+        print("Turning a protection off means updates run code from the repositories with fewer checks.", file=sys.stderr)
+        if not args.yes:
+            if not sys.stdin.isatty():
+                print("Not changed: confirm in a terminal, or repeat the command with --yes.", file=sys.stderr)
+                return 1
+            if input("Turn it off anyway? [y/N] ").strip().lower() not in {"y", "yes"}:
+                print("Not changed.")
+                return 1
+    security.save_security(require_signed=new_signed, confirm_build=new_confirm)
+    print(f"Saved: signed commits {_on_off(new_signed)}, ask before the build check {_on_off(new_confirm)}.")
+    return 0
+
+
 def cmd_install(args: argparse.Namespace) -> int:
     return _install_or_update(args, expect_installed=False)
 
@@ -340,6 +405,7 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
     if getattr(args, "accept_unavailable_validation", False):
         # An explicit, per-run opt-in: the install still refuses by default.
         os.environ["URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION"] = "1"
+    _apply_security_arguments(args)
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     local_discovery = discover_workspace(workspace_root)
     local_by_name = {status.entry.name: status.entry for status in local_discovery.projects}
@@ -409,6 +475,20 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
     return 0 if ok else 1
 
 
+def _add_security_arguments(subparser: argparse.ArgumentParser) -> None:
+    group = subparser.add_mutually_exclusive_group()
+    group.add_argument("--require-signed", dest="require_signed", action="store_true", default=None,
+                       help="Refuse a candidate commit that has no valid GPG or SSH signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the saved setting).")
+    group.add_argument("--no-require-signed", dest="require_signed", action="store_false",
+                       help="Do not require signed commits in this run (a warning is shown when the saved setting requires them).")
+    other = subparser.add_mutually_exclusive_group()
+    other.add_argument("--confirm-build", dest="confirm_build", action="store_true", default=None,
+                       help="Ask before the build check of the candidate runs, showing its commit, author, signature and changed build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the saved setting).")
+    other.add_argument("--no-confirm-build", dest="confirm_build", action="store_false",
+                       help="Do not ask before the build check in this run (a warning is shown when the saved setting asks).")
+    subparser.add_argument("--yes", "-y", action="store_true", help="Answer yes to the question before the build check without asking, for scripts.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="urtc-updater --cli",
@@ -434,6 +514,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--accept-unavailable-validation", action="store_true",
         help="Go on when the project's build check says it cannot validate here (a missing tool). Without this flag such an install is refused.",
     )
+    _add_security_arguments(install_p)
     install_p.set_defaults(func=cmd_install)
 
     update_p = subparsers.add_parser("update", help="Pull and rebuild ONE project that's already installed.")
@@ -449,6 +530,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--accept-unavailable-validation", action="store_true",
         help="Go on when the project's build check says it cannot validate here (a missing tool). Without this flag such an install is refused.",
     )
+    _add_security_arguments(update_p)
     update_p.set_defaults(func=cmd_update)
 
     check_p = subparsers.add_parser(
@@ -476,6 +558,15 @@ def build_parser() -> argparse.ArgumentParser:
     restore_p.add_argument("--backup", help="Folder name of the backup to restore (default: the newest).")
     restore_p.add_argument("--list", action="store_true", help="Only list the kept previous installations of the project.")
     restore_p.set_defaults(func=cmd_restore_backup)
+
+    security_p = subparsers.add_parser(
+        "security",
+        help="Show or change the security options: require signed commits, ask before the build check (both off by default; turning one off asks first).",
+    )
+    security_p.add_argument("--require-signed", choices=["on", "off"], help="Save whether a candidate commit must carry a valid signature.")
+    security_p.add_argument("--confirm-build", choices=["on", "off"], help="Save whether to ask before the build check of a candidate runs.")
+    security_p.add_argument("--yes", "-y", action="store_true", help="Do not ask before saving a lower level.")
+    security_p.set_defaults(func=cmd_security)
 
     evidence_p = subparsers.add_parser("evidence", help="Verify the hash chain of the evidence log, optionally exporting it as one JSON file.")
     evidence_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")

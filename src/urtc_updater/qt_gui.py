@@ -29,7 +29,7 @@ from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
-from . import __version__, i18n, profiles, settings
+from . import __version__, i18n, profiles, security, settings
 from .commits import NEW_COMMITS, commit_states
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
@@ -112,6 +112,8 @@ class UpdaterBridge(QObject):
     operationChanged = Signal()
     languageChanged = Signal()
     deployOptionsChanged = Signal()
+    securityChanged = Signal()
+    _buildConfirmRequested = Signal(str, str, str, str, str)
     _remoteResult = Signal(object, object, object)
     _actionResult = Signal(str, object)
     _operationCheckpoint = Signal(str, object, str)
@@ -151,6 +153,15 @@ class UpdaterBridge(QObject):
         self._batchProject.connect(self._on_batch_project)
         self._logLines.connect(self._on_log_lines)
         self._restoreDone.connect(self._on_restore_done)
+        # The question before the build check of a candidate (security.py) is answered in the window: the worker thread waits while the dialog is open.
+        self._build_event = threading.Event()
+        self._build_answer = False
+        self._buildConfirmRequested.connect(self._on_build_confirm_requested)
+        security.set_confirmer(self._ask_build)
+        for warning in security.lowering_warnings():
+            self._append_activity(localize(self._lang, warning))
+        if security.effective_require_signed() != security.saved_require_signed() or security.effective_confirm_build() != security.saved_confirm_build():
+            self._append_activity(self.text("log_security_env_override"))
         self.refresh(False)
 
     @staticmethod
@@ -343,6 +354,64 @@ class UpdaterBridge(QObject):
             })
         return visible
 
+    # -- Security options ----------------------------------------------------
+    @Property(bool, notify=securityChanged)
+    def securityRequireSigned(self) -> bool:
+        return security.saved_require_signed()
+
+    @Property(bool, notify=securityChanged)
+    def securityConfirmBuild(self) -> bool:
+        return security.saved_confirm_build()
+
+    @Slot(bool, bool, result=str)
+    def securityLowering(self, require_signed: bool, confirm_build: bool) -> str:
+        """The protections that saving these values would turn off, in the language of the window; an empty text when none."""
+        items = []
+        for warning in security.lowering_of_change(require_signed=require_signed, confirm_build=confirm_build):
+            items.append(self._t("security_item_signed" if warning.code == "security_lowered_signed" else "security_item_confirm"))
+        return ", ".join(items)
+
+    @Slot(bool, bool)
+    def saveSecurity(self, require_signed: bool, confirm_build: bool) -> None:
+        security.save_security(require_signed=require_signed, confirm_build=confirm_build)
+        on, off = self._t("security_on"), self._t("security_off")
+        self._append_activity(self._t("security_saved", signed=on if require_signed else off, confirm=on if confirm_build else off))
+        self.securityChanged.emit()
+
+    def _ask_build(self, request: security.BuildRequest) -> bool:
+        """Called from the worker thread of an install or update: shows the dialog and waits for the answer. No answer in ten minutes is a no."""
+        self._build_event.clear()
+        self._build_answer = False
+        scripts = ", ".join(request.changed_scripts) if request.changed_scripts else self._t("build_confirm_none")
+        self._buildConfirmRequested.emit(request.project, request.commit, request.author or "?", request.signature, scripts)
+        if not self._build_event.wait(600):
+            return False
+        return self._build_answer
+
+    @Slot(str, str, str, str, str)
+    def _on_build_confirm_requested(self, project: str, commit: str, author: str, signature: str, scripts: str) -> None:
+        self._build_request_project = project
+        self._build_request_details = self._t("build_confirm_details", commit=commit, author=author, signature=signature, scripts=scripts)
+        self.securityChanged.emit()
+        self.buildConfirmRequested.emit()
+
+    buildConfirmRequested = Signal()
+
+    @Property(str, notify=securityChanged)
+    def buildRequestTitle(self) -> str:
+        return self._t("build_confirm_title", project=getattr(self, "_build_request_project", ""))
+
+    @Property(str, notify=securityChanged)
+    def buildRequestDetails(self) -> str:
+        return getattr(self, "_build_request_details", "")
+
+    @Slot(bool)
+    def answerBuild(self, allowed: bool) -> None:
+        if self._build_event.is_set():
+            return  # the first answer of a request is the answer; a later one (the dialog closing) changes nothing
+        self._build_answer = bool(allowed)
+        self._build_event.set()
+
     # -- Localisation / selection ---------------------------------------
     @Slot(str, result=str)
     def text(self, key: str) -> str:
@@ -359,6 +428,7 @@ class UpdaterBridge(QObject):
         self._lang = language
         i18n.save_lang_preference(language)
         self.languageChanged.emit()
+        self.securityChanged.emit()
         self.deployOptionsChanged.emit()
         self.projectsChanged.emit()
         self.summaryChanged.emit()

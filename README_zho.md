@@ -103,6 +103,8 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 
 **已签名提交（默认仅警告；强制要求属于可选项，默认关闭）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
 
+**安全选项（两者默认都关闭；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则什么都不运行（脚本可用 `--yes` 代为回答）。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
+
 ## 3. 🧱 架构与设计决策
 
 - **默认 Qt Quick GUI，`--cli` 用于无桌面环境。** `main.py` 会在导入可选 PySide6

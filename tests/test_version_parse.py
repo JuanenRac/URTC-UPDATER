@@ -44,15 +44,46 @@ def test_parse_version_reads_the_optional_fourth_group():
     assert str(parse_version('version = "0.7.9"', FOUR_PATTERN)) == "0.7.9"
 
 
-def test_separate_field_patterns_read_the_build_field_only_from_the_threshold():
-    fields = {
+def _fields():
+    return {
         key: "^version" + name + BACKSLASH + "s*=" + BACKSLASH + "s*(" + BACKSLASH + "d+)"
         for key, name in (("major", "Major"), ("minor", "Minor"), ("patch", "Patch"), ("build", "Build"))
     }
-    below = "versionMajor=0\nversionMinor=7\nversionPatch=9\nversionBuild=0\n"
-    above = "versionMajor=0\nversionMinor=8\nversionPatch=0\nversionBuild=4\n"
-    assert str(parse_version(below, fields)) == "0.7.9"
-    assert str(parse_version(above, fields)) == "0.8.0.4"
+
+
+def test_a_build_of_zero_in_a_three_part_project_is_not_a_fourth_component():
+    # The firmware headers of URTC declare a BUILD field that is always 0: the version is 0.3.8, not 0.3.8.0, whatever the number.
+    text = "versionMajor=0\nversionMinor=3\nversionPatch=8\nversionBuild=0\n"
+    assert str(parse_version(text, _fields())) == "0.3.8"
+    assert parse_version(text, _fields()) == Version.from_string("0.3.8")
+    above = "versionMajor=0\nversionMinor=8\nversionPatch=0\nversionBuild=0\n"
+    assert str(parse_version(above, _fields())) == "0.8.0"
+
+
+def test_a_build_that_is_not_zero_is_a_component_at_any_version():
+    for major, minor, patch in ((0, 3, 8), (0, 7, 9), (0, 8, 0), (1, 0, 0)):
+        text = f"versionMajor={major}\nversionMinor={minor}\nversionPatch={patch}\nversionBuild=4\n"
+        parsed = parse_version(text, _fields())
+        assert str(parsed) == f"{major}.{minor}.{patch}.4", (major, minor, patch)
+        assert parsed > Version.from_string(f"{major}.{minor}.{patch}")
+
+
+def test_a_project_with_four_part_versions_prints_the_zero_build():
+    text = "versionMajor=0\nversionMinor=8\nversionPatch=0\nversionBuild=0\n"
+    assert str(parse_version(text, _fields(), four_part=True)) == "0.8.0.0"
+    assert parse_version(text, _fields(), four_part=True) == parse_version(text, _fields())
+
+
+def test_there_is_no_version_below_which_the_build_field_is_ignored():
+    # The old rule dropped a non-zero BUILD for anything below 0.8.0.
+    text = "versionMajor=0\nversionMinor=3\nversionPatch=9\nversionBuild=2\n"
+    assert parse_version(text, _fields()).build == 2
+
+
+def test_a_pattern_without_a_build_field_never_has_one():
+    fields = {key: value for key, value in _fields().items() if key != "build"}
+    text = "versionMajor=0\nversionMinor=9\nversionPatch=1\nversionBuild=7\n"
+    assert str(parse_version(text, fields, four_part=True)) == "0.9.1"
 
 
 def test_the_manifest_version_pattern_accepts_both_shapes():

@@ -38,6 +38,7 @@ from .evidence import installed_state, record_attempt
 from .messages import coded
 from .project_manifest import ManifestValidationError, ProjectManifest, parse_manifest
 from .registry import ProjectEntry, github_repo_url
+from .security import BuildRequest, decide_build, effective_confirm_build
 from .signature import current_policy, unsigned_reason, verify_revision
 
 # P01/the durable version of this module's own in-process
@@ -140,9 +141,11 @@ class InstallResult:
 
 
 def _run(
-    cmd: list[str], cwd: Path, *, capture_output: bool = False
+    cmd: list[str], cwd: Path, *, capture_output: bool = False, env: dict[str, str] | None = None
 ) -> subprocess.CompletedProcess[str]:
     kwargs: dict[str, object] = {"cwd": str(cwd), "check": False}
+    if env is not None:
+        kwargs["env"] = env
     if capture_output:
         kwargs.update({"capture_output": True, "text": True})
     # The GUI is started with pythonw on Windows. Do not let git or a child
@@ -593,6 +596,10 @@ def clone_or_pull(
         _rmtree_best_effort(staging_path)
         return InstallResult(False, coded("staging_merge_failed", code=result.returncode, path=str(path)), _command_output(result))
 
+    refused_build = _confirm_build(entry, staging_path, candidate_sha, _git_text(path, "rev-parse", "HEAD"), progress)
+    if refused_build is not None:
+        _rmtree_best_effort(staging_path)
+        return refused_build
     _checkpoint(progress, "build", "cp_build_isolated")
     build_result = _run_build_script_at(staging_path, progress=progress)
     if not build_result.ok and build_result.unavailable and accepts_unavailable_validation():
@@ -704,6 +711,19 @@ def clone_or_pull(
     )
 
 
+#: Environment variable through which the build check of a project is told which Python to use.
+BUILD_PYTHON_VARIABLE = "URTC_PYTHON"
+
+
+def build_environment() -> dict[str, str]:
+    """The environment of a build check: the one of the updater, plus URTC_PYTHON naming the interpreter that runs the updater (unless the person already set it).
+    The scripts of the projects use it instead of whatever `python3` or `py -3` the system finds first, so the check runs with the interpreter whose packages the
+    updater knows about; a project that does not know the variable keeps using its own choice."""
+    environment = dict(os.environ)
+    environment.setdefault(BUILD_PYTHON_VARIABLE, sys.executable)
+    return environment
+
+
 def find_build_test_script(path: Path) -> Path | None:
     import os
     name = BUILD_TEST_SCRIPT_WINDOWS if os.name == "nt" else BUILD_TEST_SCRIPT_POSIX
@@ -718,6 +738,43 @@ def run_build_script(
     progress: ProgressCallback | None = None,
 ) -> InstallResult:
     return _run_build_script_at(workspace_root / entry.name, progress=progress)
+
+
+def _git_text(path: Path, *args: str) -> str:
+    result = subprocess.run(["git", *args], cwd=str(path), check=False, capture_output=True, text=True)
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def _confirm_build(
+    entry: ProjectEntry,
+    path: Path,
+    candidate_sha: str,
+    previous: str | None,
+    progress: ProgressCallback | None,
+) -> InstallResult | None:
+    """Asks before the build check of a candidate runs, when that option is on. Returns None to go ahead, or the refusal.
+
+    `path` holds the candidate commit `candidate_sha` (the installed checkout of an update, whose objects include it; or the new clone). `previous` is the commit the
+    installation had, to list the build and tool scripts that changed; None for a first install, where every build script is new."""
+    if not effective_confirm_build():
+        return None
+    script = find_build_test_script(path)
+    script_name = script.name if script is not None else (BUILD_TEST_SCRIPT_WINDOWS if os.name == "nt" else BUILD_TEST_SCRIPT_POSIX)
+    sha = candidate_sha or _git_text(path, "rev-parse", "HEAD")
+    author = _git_text(path, "log", "-1", "--format=%an <%ae>", sha) if sha else ""
+    if previous:
+        changed = tuple(_git_text(path, "diff", "--name-only", f"{previous}..{sha}", "--", *_BUILD_PATHSPECS).split())
+    else:
+        changed = ()
+    policy = current_policy()
+    reason = unsigned_reason(path, sha, policy) if sha else "no commit"
+    request = BuildRequest(entry.name, script_name, sha[:12], author, "signed" if reason is None else reason, changed)
+    decision = decide_build(request)
+    if not decision.allowed:
+        _checkpoint(progress, "validation", "cp_build_not_confirmed", project=entry.name)
+        return InstallResult(False, coded("build_not_confirmed" if decision.how == "declined" else "build_nobody_to_ask", project=entry.name))
+    _checkpoint(progress, "validation", "cp_build_confirmed" if decision.how == "confirmed" else "cp_build_assumed_yes", project=entry.name)
+    return None
 
 
 def _run_build_script_at(path: Path, *, progress: ProgressCallback | None = None) -> InstallResult:
@@ -736,7 +793,7 @@ def _run_build_script_at(path: Path, *, progress: ProgressCallback | None = None
         cmd = ["bash", str(script)]
 
     _checkpoint(progress, "build", "cp_run_script", script=script.name)
-    result = _run(cmd, cwd=path, capture_output=progress is not None)
+    result = _run(cmd, cwd=path, capture_output=progress is not None, env=build_environment())
     if result.returncode == BUILD_TEST_UNAVAILABLE_EXIT:
         return InstallResult(False, coded("script_unavailable", script=script.name), _command_output(result), unavailable=True)
     if result.returncode != 0:
@@ -909,7 +966,8 @@ def _install_or_update_locked(
                 _rmtree_best_effort(stray)
         raise
     if results[0].ok and build and not was_existing_checkout:
-        built = run_build_script(entry, workspace_root, progress=progress)
+        refused_build = _confirm_build(entry, workspace_root / entry.name, "", None, progress)
+        built = refused_build if refused_build is not None else run_build_script(entry, workspace_root, progress=progress)
         if not built.ok and built.unavailable and accepts_unavailable_validation():
             _checkpoint(progress, "build", "cp_build_unavailable_accepted")
             built = InstallResult(True, built.message, built.output)

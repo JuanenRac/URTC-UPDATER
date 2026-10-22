@@ -116,6 +116,8 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 
 **署名付きコミット（既定は警告のみ。要求するのはオプトインで、既定では無効）:** 有効な署名のないリビジョン（`git verify-commit`：GPG キーリング、または `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` を使う SSH）でもインストールされ、ウィンドウとコマンドラインの手順に署名がないことが表示されます。`~/.urtc_updater_settings.json` に `"signature_policy": "require"`（または `URTC_UPDATER_REQUIRE_SIGNED=1`。従来の `"require_signed_commits": true` も同じ意味）を設定すると、候補（新規クローンの `HEAD`、または更新で取得した `FETCH_HEAD`）はマニフェストを読む前、何かをビルドする前に `git verify-commit` に合格する必要があり、拒否された候補はインストール済みのチェックアウトに触れません。
 
+**セキュリティオプション（どちらも既定はオフ。ウィンドウのセキュリティボタン、`security` コマンド、設定ファイル、環境変数、コマンドラインから変更できます）：** 署名付きコミットを必須にするほかに、候補の*ビルド確認の実行前に確認する*こともできます（`"confirm_before_build": true`、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。候補を取得して検証し、プロジェクト、コミット、作成者、署名、変更されたビルド／ツールスクリプトを表示し、あなたが答えるまで何も実行しません。確認できるウィンドウもターミナルもない場合は何も実行しません（スクリプト用には `--yes` が代わりに答えます）。`--require-signed` / `--no-require-signed` と `--confirm-build` / `--no-confirm-build` は 1 回の実行にだけ有効で、保存済みの設定でオンの保護をオフにする実行はその旨を表示します。ウィンドウと `urtc-updater --cli security --require-signed off` は、低いレベルを保存する前に確認します。存在するのに読み取れない設定ファイルは、修復または削除されるまで「署名必須」として扱われます。ビルド確認には、更新ツールを実行しているインタープリタ `URTC_PYTHON` も渡されるため、プロジェクトはシステムが最初に見つけた Python ではなく、その Python でテストします。
+
 ## 3. 🧱 アーキテクチャと設計上の決定
 
 - **標準は Qt Quick GUI、ヘッドレス向けは `--cli`。** `main.py` は任意の PySide6

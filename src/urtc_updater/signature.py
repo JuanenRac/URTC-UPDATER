@@ -17,6 +17,10 @@ carries no valid GPG or SSH signature (`git verify-commit`):
   is read or anything in it is built. A refused candidate leaves the
   installed checkout untouched.
 
+A settings file that exists but cannot be read counts as "required" (the safe side)
+until it is fixed or removed; the environment variable can still say otherwise.
+The other protection, confirming before the build check, is in `security.py`.
+
 Require signatures in `~/.urtc_updater_settings.json`:
 
     {"signature_policy": "require",
@@ -35,13 +39,16 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from .settings import load_settings
+from . import security
+from .settings import load_settings, settings_state
 
 
 @dataclass(frozen=True)
 class SignaturePolicy:
     required: bool = False
     allowed_signers_file: str | None = None
+    #: True when the settings file exists but cannot be read: signatures are then required (unless the environment says otherwise) until it is fixed or removed.
+    settings_unreadable: bool = False
 
     @property
     def mode(self) -> str:
@@ -53,16 +60,11 @@ def current_policy() -> SignaturePolicy:
     """The policy in force: the environment variables win over the saved
     settings, so a CI job or a one-off run can require signatures without
     touching the user's settings file."""
-    settings = load_settings()
-    env_required = os.environ.get("URTC_UPDATER_REQUIRE_SIGNED", "").strip().lower()
-    if env_required in {"1", "true", "yes"}:
-        required = True
-    elif env_required in {"0", "false", "no"}:
-        required = False
-    else:
-        required = settings.get("signature_policy") == "require" or settings.get("require_signed_commits") is True
-    signers = os.environ.get("URTC_UPDATER_ALLOWED_SIGNERS") or settings.get("allowed_signers_file")
-    return SignaturePolicy(required, signers if isinstance(signers, str) and signers else None)
+    saved = load_settings()
+    unreadable = settings_state() == "corrupt"
+    required = security.effective_require_signed()
+    signers = os.environ.get("URTC_UPDATER_ALLOWED_SIGNERS") or saved.get("allowed_signers_file")
+    return SignaturePolicy(required, signers if isinstance(signers, str) and signers else None, unreadable and required)
 
 
 def unsigned_reason(repo: Path, revision: str, policy: SignaturePolicy) -> str | None:
@@ -89,4 +91,7 @@ def verify_revision(repo: Path, revision: str, policy: SignaturePolicy) -> str |
     asks `unsigned_reason` to warn)."""
     if not policy.required:
         return None
-    return unsigned_reason(repo, revision, policy)
+    reason = unsigned_reason(repo, revision, policy)
+    if reason is not None and policy.settings_unreadable:
+        reason += " (the settings file could not be read, so signatures are required until it is fixed or removed)"
+    return reason

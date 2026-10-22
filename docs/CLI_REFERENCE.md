@@ -94,7 +94,7 @@ DEMO-PROJECT-A  functional   service   python      1.2.3     -         installed
 1/1 installed, 0 outdated (GitHub not checked)
 ```
 
-### `install <PROJECT-NAME> [--workspace PATH] [--no-build] [--profile NAME]`
+### `install <PROJECT-NAME> [--workspace PATH] [--no-build] [--profile NAME] [--require-signed|--no-require-signed] [--confirm-build|--no-confirm-build] [--yes]`
 
 ```
 $ urtc-updater --cli install -h
@@ -128,7 +128,7 @@ $ echo $?
 1
 ```
 
-### `update <PROJECT-NAME> [--workspace PATH] [--no-build] [--profile NAME] [--preview]`
+### `update <PROJECT-NAME> [--workspace PATH] [--no-build] [--profile NAME] [--preview] [--require-signed|--no-require-signed] [--confirm-build|--no-confirm-build] [--yes]`
 
 ```
 $ urtc-updater --cli update -h
@@ -266,6 +266,22 @@ update: the installation being replaced is itself kept (as a new backup, so the
 swap can be undone), nothing is deleted, a failure between the two renames puts
 the original back, and the program running right now is never replaced.
 
+### `security [--require-signed on|off] [--confirm-build on|off] [--yes]`
+
+Shows the two security options, or saves them in the settings file. Both are **off by default**:
+
+```text
+$ urtc-updater --cli security
+Require signed commits:           off (saved)  off (in force now)
+Ask before the build check:       off (saved)  off (in force now)
+Both are off by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD (1 or 0).
+```
+
+- *Require signed commits*: the candidate commit must carry a valid GPG or SSH signature before its manifest is read or anything in it is built.
+- *Ask before the build check*: after the candidate is fetched and validated, the project, commit, author, signature and the build or tool scripts that changed are shown, and nothing is run until the answer is yes. In a terminal the question is `Run the build check? [y/N]`; the window shows a dialog. With no terminal and no window the build check is not run (exit `1`, "there is nobody to ask"); `--yes`, or `URTC_UPDATER_ASSUME_YES=1`, answers yes for scripts.
+
+Saving a **lower** level than the saved one (turning an option off) prints a warning and asks `Turn it off anyway? [y/N]`; without a terminal it needs `--yes` and otherwise changes nothing (exit `1`). The same flags exist on `install` and `update` for one run (`--require-signed` / `--no-require-signed`, `--confirm-build` / `--no-confirm-build`, `--yes`); they win over the settings and the environment variables, and a run that turns off a protection that the saved settings have on says so on standard error.
+
 ### `evidence [--workspace PATH] [--export FILE]`
 
 ```
@@ -293,7 +309,9 @@ an edited, removed or reordered line is detected. `evidence` verifies the chain
 
 `~/.urtc_updater_settings.json` (written atomically) holds the remembered
 choices: `lang`, `workspace_root`, `backups_to_keep` (default 2),
-`signature_policy` (`warn`, the default: an unsigned revision is installed and the steps say so; `require`: it is refused; the older `require_signed_commits: true` means `require`) / `allowed_signers_file`, and station profiles:
+`signature_policy` (`warn`, the default: an unsigned revision is installed and the steps say so; `require`: it is refused; the older `require_signed_commits: true` means `require`) / `allowed_signers_file`, `confirm_before_build` (`false`, the default; `true`: ask before the build check of a candidate runs) and the station profiles (below). A settings file that exists but cannot be read counts as `require` (signatures required) until it is fixed or removed; saving the language does not overwrite it, and saving the security options keeps it next to the new file as `.corrupt`. Environment variables win over the file: `URTC_UPDATER_REQUIRE_SIGNED`, `URTC_UPDATER_CONFIRM_BUILD` (`1`/`0`), `URTC_UPDATER_ASSUME_YES`, `URTC_UPDATER_ALLOWED_SIGNERS`. The build check of every project is run with `URTC_PYTHON` set to the interpreter that runs the updater (unless it is already set), and the build scripts of the URTC projects use it.
+
+Station profiles:
 
 ```json
 {
