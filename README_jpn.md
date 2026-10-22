@@ -155,7 +155,7 @@ URTC-UPDATER/
 │   ├── profiles.py         # 名前付きのステーションプロファイル
 │   ├── notify.py           # 通知のみのチェック用デスクトップ通知
 │   ├── logs.py             # ウィンドウのログファイルのローテーション
-│   ├── i18n.py             # 実際の完全なGUI翻訳(7言語)
+│   ├── i18n.py             # 実際の完全なGUI翻訳(8言語)
 │   ├── qt_gui.py           # 実際の検出/更新サービスへの Qt Quick ブリッジ
 │   ├── qml/Main.qml        # テーマ、チェックポイント、About を持つデスクトップ画面
 │   ├── gui.py              # PySide6 がない場合の Tkinter 互換フォールバック
