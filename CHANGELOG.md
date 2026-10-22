@@ -5,6 +5,11 @@ version number follows this ecosystem's "odometer" scheme: PATCH +1 on
 every explicit bump, rolling into MINOR past 9 (`0.0.9` -> `0.1.0`); MAJOR is
 bumped manually only. See `bump_version.py`.
 
+## [0.1.6] - Preview an update and restore the previous version from the window
+
+- The window can preview an update (candidate commit, author, signature state and the build or tool scripts it would change) without touching the checkout, and can put the newest kept previous installation back after a confirmation. Both texts exist in the eight languages, and the README of each language says so.
+- The manifest declares how far the project has been shown to work (`evidence`) and `tools/ci_validate.py` checks it.
+
 ## [0.1.5] - Manifest schema 1.1, an unavailable validation is refused unless accepted, and an explicit bump
 
 - Manifest schema 1.1: `urtc.project.json` may declare `components[]` (name, kind app or bootloader, version, target and an optional source file and prefix) and the deployment target `mcu`. A 1.0 manifest keeps validating unchanged, and a 1.0 manifest that uses components or `mcu` is refused. The parsed components reach the project entries and `status --json` (`deployment_target` and `components`).

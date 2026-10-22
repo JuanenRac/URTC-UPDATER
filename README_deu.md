@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.5` |
+| Version | `0.1.6` |
 | Reifegrad | Etabliert |
 | Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Ziel | Der PC der Person, die es benutzt |
@@ -296,7 +296,7 @@ bleibt das alte Tkinter-Fenster nur ein Kompatibilitäts-Fallback.
 ## 🧹 AUFRÄUMEN UND STATIONSBEFEHLE
 
 - **Aufbewahrte frühere Installationen.** Jede Aktualisierung behält die ersetzte Installation in `<Name>.backup-xxxxxxxx`. Pro Projekt bleiben die 2 neuesten erhalten (`"backups_to_keep"` in `~/.urtc_updater_settings.json` ändert die Zahl), ältere werden nach einer erfolgreichen Aktualisierung entfernt. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` entfernt sie auf Wunsch, zusammen mit jedem versteckten temporären Ordner, den ein abgestürzter Lauf hinterlassen hat.
-- **Eine wiederherstellen.** `urtc-updater --cli restore-backup <PROJEKT> [--backup ORDNER] [--list]` stellt eine aufbewahrte Installation wieder her. Die ersetzte Installation bleibt ebenfalls erhalten, der Tausch lässt sich also rückgängig machen.
+- **Eine wiederherstellen.** `urtc-updater --cli restore-backup <PROJEKT> [--backup ORDNER] [--list]` stellt eine aufbewahrte Installation wieder her. Die ersetzte Installation bleibt ebenfalls erhalten, der Tausch lässt sich also rückgängig machen. Das Fenster bietet neben Auswahl aktualisieren dieselben zwei Aktionen: Vorschau des Updates (was es bringen würde, ohne etwas zu ändern) und Vorherige Version wiederherstellen.
 - **Gleiche Version, neue Commits.** Die Version ändert sich nur bei einem Release-Build; `status` vergleicht deshalb auch den Commit jedes installierten Projekts mit dem des Remotes (`git ls-remote`) und zeigt `NEW COMMITS`, wenn GitHub Arbeit hat, die der Kopie fehlt. Das Fenster zeigt denselben Zustand und bietet die Aktualisierung an.
 - **Ansehen vor dem Bestätigen.** `urtc-updater --cli update <PROJEKT> --preview` lädt den Kandidaten und zeigt Commit, Autor, Version, Signaturstatus und die Build- oder Werkzeugdateien, die er ändert, ohne die Kopie anzufassen.
 - **Nur benachrichtigen.** `urtc-updater --cli check [--notify] [--quiet]` listet auf, was aktualisiert werden könnte, und ändert nichts. Es endet mit Code 10, wenn etwas aktualisiert werden kann, damit eine geplante Aufgabe eine Person benachrichtigen kann; `--notify` zeigt zusätzlich eine Desktop-Benachrichtigung.

@@ -21,7 +21,7 @@ from repo_helpers import NAME, entry, manifest_text  # noqa: E402
 from urtc_updater import commits, i18n, qt_gui  # noqa: E402
 from urtc_updater.detect import LocalStatus  # noqa: E402
 from urtc_updater.github_client import RemoteStatus  # noqa: E402
-from urtc_updater.install import InstallResult  # noqa: E402
+from urtc_updater.install import InstallError, InstallResult, UpdatePreview  # noqa: E402
 from urtc_updater.messages import coded  # noqa: E402
 from urtc_updater.version_parse import Version  # noqa: E402
 
@@ -123,3 +123,56 @@ def test_a_station_profile_limits_the_projects_and_batches(tmp_path: Path, monke
 def test_without_a_profile_batches_are_allowed(bridge):
     bridge._locals = [_local(installed=False)]
     assert bridge.canInstallAll is True
+
+
+def _preview(scripts=()):
+    return UpdatePreview(
+        commit="0123456789abcdef", author="Someone", version="1.1.0", installed_version="1.0.0",
+        signature="not required", changed_scripts=list(scripts), diffstat="",
+    )
+
+
+def test_the_preview_is_shown_in_the_window_language_and_changes_nothing(bridge, monkeypatch):
+    monkeypatch.setattr(qt_gui, "preview_update", lambda entry_, root: _preview(["build.sh"]))
+    lines = bridge.preview_lines(_local())
+    assert "0123456789ab" in lines[0] and "1.0.0 -> 1.1.0" in lines[0]
+    assert lines[0].startswith(NAME) and "Someone" in lines[0]
+    assert "build.sh" in lines[1]
+    assert i18n.TRANSLATIONS["pt"]["log_preview_scripts"].split("{scripts}")[0].format(name=NAME) in lines[1]
+
+
+def test_a_preview_without_changed_scripts_says_so(bridge, monkeypatch):
+    monkeypatch.setattr(qt_gui, "preview_update", lambda entry_, root: _preview())
+    lines = bridge.preview_lines(_local())
+    assert lines[1] == i18n.TRANSLATIONS["pt"]["log_preview_no_scripts"].format(name=NAME)
+
+
+def test_a_failed_preview_gives_the_reason_translated(bridge, monkeypatch):
+    def fail(entry_, root):
+        raise InstallError(coded("not_git", path="x"))
+
+    monkeypatch.setattr(qt_gui, "preview_update", fail)
+    lines = bridge.preview_lines(_local())
+    assert len(lines) == 1
+    assert lines[0].startswith(NAME) and i18n.t("pt", "inst_not_git", path="x") in lines[0]
+
+
+def test_restore_needs_a_kept_installation_and_reports_the_result(bridge, monkeypatch):
+    monkeypatch.setattr(qt_gui, "list_backups", lambda root, name=None: {})
+    assert bridge.restore_result(_local()) == [i18n.TRANSLATIONS["pt"]["msg_no_backup"].format(name=NAME)]
+    monkeypatch.setattr(qt_gui, "list_backups", lambda root, name=None: {NAME: [Path("kept")]})
+    calls = []
+    monkeypatch.setattr(qt_gui, "restore_backup", lambda name, root: calls.append(name) or InstallResult(True, "Restored."))
+    lines = bridge.restore_result(_local())
+    assert calls == [NAME] and lines == [f"{NAME}: Restored."]
+
+
+def test_the_restore_button_needs_an_installed_project_with_a_kept_installation(bridge, monkeypatch):
+    bridge._locals = [_local()]
+    bridge._selected = NAME
+    monkeypatch.setattr(qt_gui, "list_backups", lambda root, name=None: {})
+    assert bridge.canRestore is False
+    monkeypatch.setattr(qt_gui, "list_backups", lambda root, name=None: {NAME: [Path("kept")]})
+    assert bridge.canRestore is True
+    bridge._locals = [_local(installed=False)]
+    assert bridge.canRestore is False

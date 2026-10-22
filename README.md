@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.5` |
+| Version | `0.1.6` |
 | Maturity | Established |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
@@ -270,7 +270,7 @@ older Tkinter shell is only a compatibility fallback.
 ## 🧹 HOUSEKEEPING AND STATION COMMANDS
 
 - **Kept previous installations.** Every update keeps the installation it replaced in `<name>.backup-xxxxxxxx`. The newest 2 per project are kept (`"backups_to_keep"` in `~/.urtc_updater_settings.json` changes the number) and older ones are removed after a successful update. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` removes them on demand, together with any hidden staging folder a crashed run left behind.
-- **Restoring one.** `urtc-updater --cli restore-backup <PROJECT> [--backup FOLDER] [--list]` puts a kept installation back. The installation being replaced is kept too, so the swap can be undone.
+- **Restoring one.** `urtc-updater --cli restore-backup <PROJECT> [--backup FOLDER] [--list]` puts a kept installation back. The installation being replaced is kept too, so the swap can be undone. The window offers the same two actions next to Update selected: Preview update (what the update would bring, without changing anything) and Restore previous version.
 - **Same version, new commits.** The version only moves on a release build, so `status` also compares each installed project's commit with the remote one (`git ls-remote`) and shows `NEW COMMITS` when GitHub has work the checkout lacks. The window shows the same state and offers Update.
 - **Looking before approving.** `urtc-updater --cli update <PROJECT> --preview` fetches the candidate and shows its commit, author, version, signature state and the build or tool files it changes, without touching the checkout.
 - **Notify only.** `urtc-updater --cli check [--notify] [--quiet]` lists what could be updated and changes nothing. It exits with code 10 when something can be updated, so a scheduled task can notify a person; `--notify` also shows a desktop notification.

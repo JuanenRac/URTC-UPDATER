@@ -33,7 +33,7 @@ from . import __version__, i18n, profiles, settings
 from .commits import NEW_COMMITS, commit_states
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
-from .install import install_or_update, is_running_checkout
+from .install import InstallError, install_or_update, is_running_checkout, list_backups, preview_update, restore_backup
 from .logs import prune_logs
 from .messages import localize
 from .registry import GITHUB_OWNER
@@ -116,6 +116,8 @@ class UpdaterBridge(QObject):
     _actionResult = Signal(str, object)
     _operationCheckpoint = Signal(str, object, str)
     _batchProject = Signal(int, int, str)
+    _logLines = Signal(object)
+    _restoreDone = Signal(str, object)
 
     def __init__(self, workspace_root: Path, log_file_path: Path | None = None):
         super().__init__()
@@ -147,6 +149,8 @@ class UpdaterBridge(QObject):
         self._actionResult.connect(self._on_action_result)
         self._operationCheckpoint.connect(self._on_operation_checkpoint)
         self._batchProject.connect(self._on_batch_project)
+        self._logLines.connect(self._on_log_lines)
+        self._restoreDone.connect(self._on_restore_done)
         self.refresh(False)
 
     @staticmethod
@@ -265,6 +269,19 @@ class UpdaterBridge(QObject):
     @Property(bool, notify=summaryChanged)
     def canInstallAll(self) -> bool:
         return self.missingCount > 0 and self._batch_allowed()
+
+    @Property(bool, notify=selectionChanged)
+    def canPreview(self) -> bool:
+        """The update preview is offered for the same rows as the update itself."""
+        return self.canUpdate
+
+    @Property(bool, notify=selectionChanged)
+    def canRestore(self) -> bool:
+        """A kept previous installation exists for the selected, installed project."""
+        selected = self._selected_status()
+        if selected is None or not selected.installed:
+            return False
+        return bool(list_backups(self._workspace_root, selected.entry.name).get(selected.entry.name))
 
     @Property(bool, notify=summaryChanged)
     def canUpdateAll(self) -> bool:
@@ -463,6 +480,87 @@ class UpdaterBridge(QObject):
             )
 
         threading.Thread(target=worker, daemon=True, name="urtc-updater-action").start()
+
+    def preview_lines(self, selected: LocalStatus) -> list[str]:
+        """What updating the project would bring, as activity lines in the window's language.
+        Fetches the candidate commit and changes nothing in the checkout."""
+        name = selected.entry.name
+        try:
+            preview = preview_update(selected.entry, self._workspace_root)
+        except InstallError as exc:
+            reason = localize(self._lang, exc.args[0] if exc.args else exc)
+            return [self._t("log_preview_failed", name=name, reason=reason)]
+        lines = [
+            self._t(
+                "log_preview_result", name=name, commit=preview.commit[:12], author=preview.author,
+                installed=preview.installed_version, version=preview.version, signature=preview.signature,
+            )
+        ]
+        if preview.changed_scripts:
+            lines.append(self._t("log_preview_scripts", name=name, scripts=", ".join(preview.changed_scripts)))
+        else:
+            lines.append(self._t("log_preview_no_scripts", name=name))
+        return lines
+
+    @Slot()
+    def previewSelected(self) -> None:
+        if self._busy:
+            return
+        selected = self._selected_status()
+        if selected is None:
+            self._append_activity(self.text("msg_select_project_first"))
+            return
+        if not selected.installed:
+            self._append_activity(self.text("msg_not_installed_yet").format(name=selected.entry.name))
+            return
+        self._set_busy(True, self._t("log_preview_started", name=selected.entry.name))
+        self._append_activity(self._t("log_preview_started", name=selected.entry.name))
+
+        def worker() -> None:
+            lines = self.preview_lines(selected)
+            self._logLines.emit(lines)
+
+        threading.Thread(target=worker, daemon=True, name="urtc-updater-preview").start()
+
+    def restore_result(self, selected: LocalStatus) -> list[str]:
+        """Puts the newest kept previous installation back; the lines to show."""
+        name = selected.entry.name
+        if not list_backups(self._workspace_root, name).get(name):
+            return [self._t("msg_no_backup", name=name)]
+        result = restore_backup(name, self._workspace_root)
+        return [self._t("log_restore_finished", name=name, message=localize(self._lang, result.message))]
+
+    @Slot()
+    def restoreSelected(self) -> None:
+        if self._busy:
+            return
+        selected = self._selected_status()
+        if selected is None:
+            self._append_activity(self.text("msg_select_project_first"))
+            return
+        if not selected.installed:
+            self._append_activity(self.text("msg_not_installed_yet").format(name=selected.entry.name))
+            return
+        self._set_busy(True, self._t("log_restore_started", name=selected.entry.name))
+        self._append_activity(self._t("log_restore_started", name=selected.entry.name))
+
+        def worker() -> None:
+            self._restoreDone.emit(selected.entry.name, self.restore_result(selected))
+
+        threading.Thread(target=worker, daemon=True, name="urtc-updater-restore").start()
+
+    @Slot(object)
+    def _on_log_lines(self, lines: object) -> None:
+        for line in list(lines):  # type: ignore[call-overload]
+            self._append_activity(line)
+        self._set_busy(False, self.text("status_ready"))
+
+    @Slot(str, object)
+    def _on_restore_done(self, name: str, lines: object) -> None:
+        for line in list(lines):  # type: ignore[call-overload]
+            self._append_activity(line)
+        self._set_busy(False, self.text("status_ready"))
+        self.refresh(False)
 
     @Slot(str, bool)
     def performBatch(self, action: str, skip_build: bool) -> None:

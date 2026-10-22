@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Versione | `0.1.5` |
+| Versione | `0.1.6` |
 | Maturità | Consolidato |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destinazione | Il PC di chi lo usa |
@@ -295,7 +295,7 @@ Tkinter resta solo un fallback di compatibilità.
 ## 🧹 MANUTENZIONE E COMANDI DI POSTAZIONE
 
 - **Installazioni precedenti conservate.** Ogni aggiornamento conserva l'installazione sostituita in `<nome>.backup-xxxxxxxx`. Vengono tenute le 2 più recenti per progetto (`"backups_to_keep"` in `~/.urtc_updater_settings.json` cambia il numero) e quelle più vecchie vengono rimosse dopo un aggiornamento riuscito. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` le rimuove su richiesta, insieme a ogni cartella temporanea nascosta lasciata da un'esecuzione interrotta.
-- **Ripristinarne una.** `urtc-updater --cli restore-backup <PROGETTO> [--backup CARTELLA] [--list]` rimette a posto un'installazione conservata. Anche l'installazione sostituita viene conservata, quindi lo scambio si può annullare.
+- **Ripristinarne una.** `urtc-updater --cli restore-backup <PROGETTO> [--backup CARTELLA] [--list]` rimette a posto un'installazione conservata. Anche l'installazione sostituita viene conservata, quindi lo scambio si può annullare. La finestra offre le stesse due azioni accanto ad Aggiorna selezionato: Anteprima dell'aggiornamento (cosa porterebbe, senza modificare nulla) e Ripristina la versione precedente.
 - **Stessa versione, nuovi commit.** La versione cambia solo in un build di rilascio, quindi `status` confronta anche il commit di ogni progetto installato con quello remoto (`git ls-remote`) e mostra `NEW COMMITS` quando GitHub ha lavoro che la copia non ha. La finestra mostra lo stesso stato e offre l'aggiornamento.
 - **Guardare prima di approvare.** `urtc-updater --cli update <PROGETTO> --preview` scarica il candidato e mostra il suo commit, autore, versione, stato della firma e i file di build o di strumenti che modifica, senza toccare la copia.
 - **Solo avviso.** `urtc-updater --cli check [--notify] [--quiet]` elenca ciò che si potrebbe aggiornare e non cambia nulla. Termina con codice 10 quando c'è qualcosa da aggiornare, così un'attività pianificata può avvisare una persona; `--notify` mostra anche una notifica desktop.

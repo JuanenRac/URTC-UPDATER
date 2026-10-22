@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "ecosystem": "URTC",
   "name": "URTC-UPDATER",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "role": "tool",
   "stack": "python",
   "technologies": [
@@ -13,6 +13,7 @@
   ],
   "deployment_target": "user-pc",
   "maturity": "established",
+  "evidence": "host-test",
   "family": "Ecosystem Operations",
   "parent": null,
   "native_version": {

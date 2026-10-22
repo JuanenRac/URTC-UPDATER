@@ -36,7 +36,7 @@
 
 | | |
 |---|---|
-| 版本 | `0.1.5` |
+| 版本 | `0.1.6` |
 | 成熟度 | 成熟 |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
@@ -195,7 +195,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 ## 🧹 维护与工作站命令
 
 - **保留的旧安装。** 每次更新都会把被替换的安装保留在 `<名称>.backup-xxxxxxxx` 中。每个项目保留最新的 2 份（在 `~/.urtc_updater_settings.json` 中设置 `"backups_to_keep"` 可更改数量），更新成功后会移除更旧的。`urtc-updater --cli clean-backups [--keep N] [--dry-run]` 可按需移除它们，同时移除因运行中断而遗留的隐藏暂存文件夹。
-- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。
+- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。 窗口中在“更新所选项”旁边提供同样的两个操作：预览更新（不更改任何内容，查看更新会带来什么）和恢复上一个版本。
 - **版本相同，但有新提交。** 版本号只在发布构建时变化，所以 `status` 还会把每个已安装项目的提交与远程提交（`git ls-remote`）比较，当 GitHub 上有该副本没有的内容时显示 `NEW COMMITS`。窗口显示同样的状态并提供更新。
 - **批准前先看。** `urtc-updater --cli update <项目> --preview` 会获取候选版本并显示其提交、作者、版本、签名状态以及它更改的构建或工具文件，而不触碰该副本。
 - **仅通知。** `urtc-updater --cli check [--notify] [--quiet]` 列出可以更新的内容，但不做任何更改。有可更新内容时以代码 10 退出，便于计划任务通知相关人员；`--notify` 还会显示桌面通知。

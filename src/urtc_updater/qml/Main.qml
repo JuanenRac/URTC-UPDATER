@@ -256,6 +256,7 @@ ApplicationWindow {
             LabelText { text: confirmDialog.batch ? ui("confirm_batch_title") : ui("confirm_action_title"); font.pixelSize: 18; font.bold: true }
             LabelText {
                 text: {
+                    if (!confirmDialog.batch && confirmDialog.action === "restore") return ui("confirm_restore_body").replace("{project}", backend.selectedProject)
                     if (!confirmDialog.batch) return ui("confirm_action_body").replace("{project}", backend.selectedProject)
                     var count = confirmDialog.action === "install" ? backend.missingCount : backend.updateCount
                     var key = confirmDialog.action === "install" ? "confirm_batch_install_body" : "confirm_batch_update_body"
@@ -268,9 +269,10 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 GameButton { text: ui("confirm_cancel_button"); accent: "#27445d"; onClicked: confirmDialog.close() }
                 GameButton {
-                    text: confirmDialog.action === "install" ? ui("install_button") : ui("update_button")
+                    text: confirmDialog.action === "install" ? ui("install_button") : (confirmDialog.action === "restore" ? ui("restore_button") : ui("update_button"))
                     onClicked: {
-                        if (confirmDialog.batch) backend.performBatch(confirmDialog.action, skipBuild.checked)
+                        if (confirmDialog.action === "restore") backend.restoreSelected()
+                        else if (confirmDialog.batch) backend.performBatch(confirmDialog.action, skipBuild.checked)
                         else backend.performSelected(confirmDialog.action, skipBuild.checked)
                         confirmDialog.close()
                     }
@@ -541,6 +543,11 @@ ApplicationWindow {
                         }
                         GameButton { text: ui("install_button"); enabled: !backend.busy && backend.canInstall; Layout.fillWidth: true; accent: window.blue; onClicked: { confirmDialog.batch = false; confirmDialog.action = "install"; confirmDialog.open() } }
                         GameButton { text: ui("update_button"); enabled: !backend.busy && backend.canUpdate; Layout.fillWidth: true; accent: window.green; onClicked: { confirmDialog.batch = false; confirmDialog.action = "update"; confirmDialog.open() } }
+                        RowLayout {
+                            Layout.fillWidth: true; spacing: 9
+                            GameButton { text: ui("preview_button"); enabled: !backend.busy && backend.canPreview; Layout.fillWidth: true; Layout.preferredWidth: 1; accent: "#2c6f8f"; onClicked: backend.previewSelected() }
+                            GameButton { text: ui("restore_button"); enabled: !backend.busy && backend.canRestore; Layout.fillWidth: true; Layout.preferredWidth: 1; accent: "#8a5a2a"; onClicked: { confirmDialog.batch = false; confirmDialog.action = "restore"; confirmDialog.open() } }
+                        }
                         GameCheck { id: skipBuild; text: ui("skip_build_checkbox"); Layout.fillWidth: true }
                         GameButton { text: ui("open_github_button"); enabled: backend.selectedProject !== ui("selected_project_none"); Layout.fillWidth: true; accent: "#264966"; onClicked: backend.openSelectedGithub() }
                         Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: window.border }
