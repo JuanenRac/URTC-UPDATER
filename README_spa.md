@@ -325,6 +325,7 @@ antigua ventana Tkinter es solo un fallback de compatibilidad.
 * **[URTC](https://github.com/JuanenRac/URTC)** - Firmware del PCB físico Universal Robot Tool Controller, 25+ perfiles de herramienta sobre bus CAN
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - La arquitectura, las interfaces, la base de seguridad, la matriz de capacidades y el catalogo de proyectos generado del ecosistema, mas las herramientas que comparan todos los repositorios
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - Herramienta de escritorio para flashear placas URTC, CAN-OTA más SWD/JTAG de chip completo
+* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - una pasarela delante del bus CAN que solo deja pasar identificadores de una lista, limita su tasa y pide una clave de sesión.
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - Firmware para un rack de montaje de herramientas con decodificacion real de ID y precalentamiento Smart Idle
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - Herramienta de diagnostico CAN en vivo para placas URTC, un panel por perfil de herramienta
 * **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - Firmware mas un companero de vision real en Python para un cabezal de inspeccion termica/RGB

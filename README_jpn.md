@@ -233,6 +233,7 @@ update <name>`。
 * **[URTC](https://github.com/JuanenRac/URTC)** - 物理的な Universal Robot Tool Controller 基板のファームウェア、CAN バス経由の25以上のツールプロファイル
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - エコシステムのアーキテクチャ、インターフェース、セキュリティ基準、能力マトリクス、生成されたプロジェクトカタログ、そしてすべてのリポジトリを比較するツール
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 基板用デスクトップGUIフラッシュツール、CAN-OTA に加えてフルチップ SWD/JTAG
+* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - CAN バスの手前に置き、一覧にある識別子だけを通し、レートを制限し、セッション鍵を求めるゲートウェイ。
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 実際のツールID デコードと Smart Idle 予熱ロジックを備えたツール搭載ラックのファームウェア
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 基板用デスクトップライブ CAN バス診断ツール、ツールプロファイルごとに1パネル
 * **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - ファームウェアと、サーマル/RGB検査ツールヘッド用の実際の Python ビジョンコンパニオン

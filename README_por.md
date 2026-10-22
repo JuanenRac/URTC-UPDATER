@@ -307,6 +307,7 @@ O **URTC** (Universal Robot Tool Controller) é uma plataforma real de troca de 
 - **[URTC](https://github.com/JuanenRac/URTC)** — firmware da PCB física do Universal Robot Tool Controller, mais de 25 perfis de ferramenta sobre barramento CAN.
 - **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** — a arquitetura, as interfaces, a base de segurança, a matriz de capacidades e o catálogo de projetos gerado do ecossistema, mais as ferramentas que comparam todos os repositórios.
 - **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** — ferramenta desktop com GUI para gravar placas URTC, CAN-OTA mais SWD/JTAG de chip completo.
+- **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** — uma gateway à frente do barramento CAN que só deixa passar identificadores de uma lista, limita a sua taxa e pede uma chave de sessão.
 - **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** — firmware de um rack de montagem de placas com descodificação real do ID da ferramenta e lógica de pré-aquecimento Smart Idle.
 - **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** — ferramenta desktop de diagnóstico em direto do barramento CAN para placas URTC, um painel por perfil de ferramenta.
 - **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** — firmware mais um companheiro de visão real em Python para uma cabeça de ferramenta de inspeção térmica/RGB.

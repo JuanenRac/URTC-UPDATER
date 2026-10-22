@@ -323,6 +323,7 @@ fallback de compatibilité uniquement.
 * **[URTC](https://github.com/JuanenRac/URTC)** - Firmware du PCB physique Universal Robot Tool Controller, 25+ profils d'outils sur bus CAN
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - L'architecture, les interfaces, le socle de securite, la matrice des capacites et le catalogue de projets genere de l'ecosysteme, ainsi que les outils qui comparent tous les depots
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - Outil de bureau pour flasher les cartes URTC, CAN-OTA plus SWD/JTAG complet
+* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - une passerelle devant le bus CAN qui ne laisse passer que les identifiants d'une liste, limite leur débit et exige une clé de session.
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - Firmware pour un rack de montage d'outils avec decodage reel d'ID et prechauffage Smart Idle
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - Outil de diagnostic CAN en direct pour cartes URTC, un panneau par profil d'outil
 * **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - Firmware plus un compagnon de vision reel en Python pour une tete d'inspection thermique/RGB

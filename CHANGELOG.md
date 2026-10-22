@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- The README lists URTC-GATEWAY, the new gateway in front of the CAN bus, among the related projects.
+
 ## [0.1.7] - Security options you can turn on and off, and a settings file that fails on the safe side
 
 - `tools/ci_validate.py` fails when a versioned file has the name of a Windows path (a colon, the character a file system uses to store one, or a first folder named like a drive or a user profile): a path handed to WSL without translation once put build output inside a repository. The same check (`tools/_tracked_names.py`) is in every URTC repository.

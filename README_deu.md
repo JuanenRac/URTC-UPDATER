@@ -326,6 +326,7 @@ bleibt das alte Tkinter-Fenster nur ein Kompatibilitäts-Fallback.
 * **[URTC](https://github.com/JuanenRac/URTC)** - Firmware fuer die physische Universal-Robot-Tool-Controller-Platine, 25+ Werkzeugprofile ueber CAN-Bus
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - Die Architektur, die Schnittstellen, die Sicherheitsbasis, die Faehigkeitenmatrix und der erzeugte Projektkatalog des Oekosystems sowie die Werkzeuge, die alle Repositories vergleichen
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - Desktop-GUI-Flash-Tool fuer URTC-Platinen, CAN-OTA plus vollstaendiges SWD/JTAG
+* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - ein Gateway vor dem CAN-Bus, das nur Kennungen einer Liste durchlässt, ihre Rate begrenzt und einen Sitzungsschlüssel verlangt.
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - Firmware fuer ein Werkzeug-Montagerack mit echter Werkzeug-ID-Dekodierung und Smart-Idle-Vorheizung
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - Desktop-Live-CAN-Bus-Diagnosetool fuer URTC-Platinen, ein Panel pro Werkzeugprofil
 * **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - Firmware plus ein echter Python-Vision-Begleiter fuer einen Thermal-/RGB-Inspektionskopf
