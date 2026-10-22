@@ -7,6 +7,7 @@ bumped manually only. See `bump_version.py`.
 
 ## [Unreleased]
 
+- The banner follows the animated style of the ecosystem banners, with the name, the kind and the technologies of the project.
 - **The manifest parser accepts the optional `evidence` field** (`host-test`, `simulator`, `bench` or `field`) that the URTC repositories now declare next to their maturity; without it every URTC project was rejected as an invalid manifest and disappeared from the dashboard and from the list of projects to update.
 
 ## [0.1.6] - Preview an update and restore the previous version from the window
