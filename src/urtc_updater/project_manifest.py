@@ -32,6 +32,8 @@ VALID_DEPLOYMENT_TARGETS = frozenset({"cm5", "user-pc", "mobile", "wearable", "d
 #: Targets that only a schema 1.1 manifest may use.
 VALID_DEPLOYMENT_TARGETS_1_1 = VALID_DEPLOYMENT_TARGETS | {"mcu"}
 VALID_COMPONENT_KINDS = frozenset({"app", "bootloader"})
+#: What backs the maturity of a project (optional field ``evidence``): host tests only, a simulator, a bench with the real board, or the field.
+VALID_EVIDENCE = ("host-test", "simulator", "bench", "field")
 
 
 class ManifestValidationError(ValueError):
@@ -85,6 +87,8 @@ class ProjectManifest:
     service_systemd_unit: str | None = None
     #: Schema 1.1: the independently versioned components (empty for a 1.0 manifest or a project without any).
     components: tuple[ManifestComponent, ...] = ()
+    #: Optional: what backs the maturity (host-test, simulator, bench or field); None when the manifest does not say.
+    evidence: str | None = None
 
 
 def _require_string(data: dict[str, Any], field: str) -> str:
@@ -117,7 +121,7 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
     # isn't self-evident from the enum alone (e.g. "dev-server" is not
     # the same physical role as "cm5") - optional because most
     # deployment_target values need no such note.
-    optional_fields = {"service", "deployment_target_note", "components"}
+    optional_fields = {"service", "deployment_target_note", "components", "evidence"}
     unknown = sorted(set(data) - expected_fields - optional_fields)
     missing = sorted(expected_fields - set(data))
     if missing:
@@ -203,6 +207,10 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
     if not isinstance(build, str):
         raise ManifestValidationError("build must be a string")
 
+    evidence = data.get("evidence")
+    if evidence is not None and evidence not in VALID_EVIDENCE:
+        raise ManifestValidationError("evidence must be one of " + ", ".join(VALID_EVIDENCE) + f", got {evidence!r}")
+
     service_port, service_health_path, service_systemd_unit = _parse_service(data.get("service"))
 
     return ProjectManifest(
@@ -225,6 +233,7 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
         service_health_path=service_health_path,
         service_systemd_unit=service_systemd_unit,
         components=_parse_components(data.get("components")),
+        evidence=evidence,
     )
 
 

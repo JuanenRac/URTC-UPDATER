@@ -255,3 +255,21 @@ def test_rejects_an_unknown_schema_version():
     data["schema_version"] = "2.0"
     with pytest.raises(ManifestValidationError, match="schema_version"):
         parse_manifest(json.dumps(data))
+
+
+def test_accepts_the_optional_evidence_field_the_urtc_manifests_declare():
+    manifest = valid_manifest()
+    assert parse_manifest(json.dumps(manifest), expected_name="HYDRA-UMC-EXAMPLE").evidence is None
+    for level in ("host-test", "simulator", "bench", "field"):
+        manifest["evidence"] = level
+        assert parse_manifest(json.dumps(manifest), expected_name="HYDRA-UMC-EXAMPLE").evidence == level
+
+
+def test_rejects_an_evidence_level_that_does_not_exist():
+    manifest = valid_manifest()
+    manifest["evidence"] = "lab"
+    with pytest.raises(ManifestValidationError, match="evidence must be one of"):
+        parse_manifest(json.dumps(manifest), expected_name="HYDRA-UMC-EXAMPLE")
+    manifest["evidence"] = ["bench"]
+    with pytest.raises(ManifestValidationError):
+        parse_manifest(json.dumps(manifest), expected_name="HYDRA-UMC-EXAMPLE")
