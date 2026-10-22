@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.6` |
+| Version | `0.1.7` |
 | Reifegrad | Etabliert |
 | Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Ziel | Der PC der Person, die es benutzt |

@@ -39,7 +39,7 @@
 
 | | |
 |---|---|
-| バージョン | `0.1.6` |
+| バージョン | `0.1.7` |
 | 成熟度 | 確立 |
 | 技術 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 対象 | 利用者の PC |

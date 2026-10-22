@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.6` |
+| Version | `0.1.7` |
 | Maturité | Établi |
 | Technologie | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Cible | Le PC de la personne qui l'utilise |

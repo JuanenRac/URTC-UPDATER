@@ -36,7 +36,7 @@
 
 | | |
 |---|---|
-| 版本 | `0.1.6` |
+| 版本 | `0.1.7` |
 | 成熟度 | 成熟 |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |

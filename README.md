@@ -40,7 +40,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.6` |
+| Version | `0.1.7` |
 | Maturity | Established |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
