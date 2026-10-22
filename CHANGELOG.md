@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The build scripts work when the python first on the PATH makes a venv with no activate script** (for example the python that ESP-IDF installs): the venv is made with the `py` launcher when there is one and its own python, or its folder first on the PATH, is used instead of the activate script.
+
 - The README lists URTC-GATEWAY, the new gateway in front of the CAN bus, among the related projects.
 
 ## [0.1.7] - Security options you can turn on and off, and a settings file that fails on the safe side

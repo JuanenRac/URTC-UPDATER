@@ -55,33 +55,40 @@ echo       Done.
 echo.
 
 echo [2/5] Creating/activating virtual environment...
-if not exist .venv (
-    python -m venv .venv
+REM The venv is made with the py launcher when there is one (the python that is first on the PATH may be a stripped one, for example the one of ESP-IDF, whose
+REM venv has no activate script), and the scripts below use the python of the venv directly instead of activating it.
+set "PYMAKE=python"
+where py >nul 2>nul && set "PYMAKE=py -3"
+if not exist .venv\Scripts\python.exe (
+    %PYMAKE% -m venv .venv
     if errorlevel 1 goto :error
 )
-call .venv\Scripts\activate.bat
-if errorlevel 1 goto :error
+if not exist .venv\Scripts\python.exe (
+    echo ERROR: .venv has no python.exe; delete the .venv folder and run this again.
+    goto :error
+)
+set "VPY=%CD%\.venv\Scripts\python.exe"
 echo       Done.
 echo.
 
 echo [3/5] Installing project (editable, with dev and QML GUI extras) into the venv...
-python -m pip install --upgrade pip >nul
+"%VPY%" -m pip install --upgrade pip >nul
 if errorlevel 1 goto :error
-python -m pip install -e ".[dev,gui]"
+"%VPY%" -m pip install -e ".[dev,gui]"
 if errorlevel 1 goto :error
 echo       Done.
 echo.
 
 echo [4/5] Verifying the package compiles/imports without errors...
-python -m py_compile src\urtc_updater\__init__.py src\urtc_updater\registry.py src\urtc_updater\version_parse.py src\urtc_updater\detect.py src\urtc_updater\github_client.py src\urtc_updater\install.py src\urtc_updater\main.py src\urtc_updater\gui.py src\urtc_updater\qt_gui.py src\urtc_updater\i18n.py
+"%VPY%" -m py_compile src\urtc_updater\__init__.py src\urtc_updater\registry.py src\urtc_updater\version_parse.py src\urtc_updater\detect.py src\urtc_updater\github_client.py src\urtc_updater\install.py src\urtc_updater\main.py src\urtc_updater\gui.py src\urtc_updater\qt_gui.py src\urtc_updater\i18n.py
 if errorlevel 1 goto :error
-python -c "import urtc_updater; print('import OK - version', urtc_updater.__version__)"
+"%VPY%" -c "import urtc_updater; print('import OK - version', urtc_updater.__version__)"
 if errorlevel 1 goto :error
 echo       Done.
 echo.
 
 echo [5/5] Running the real test suite (pytest)...
-python -m pytest tests/ -q
+"%VPY%" -m pytest tests/ -q
 if errorlevel 1 goto :error
 echo       Done.
 echo.
