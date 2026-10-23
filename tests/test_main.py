@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from urtc_updater import main as main_module
 from urtc_updater.detect import LocalDiscovery, LocalStatus
