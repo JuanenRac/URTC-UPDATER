@@ -89,7 +89,7 @@ def record_attempt(
     message: str,
 ) -> Path | None:
     """Append one attempt to the evidence file; returns its path, or None if it could not be written."""
-    line = {
+    line: dict[str, Any] = {
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "updaterVersion": __version__,
         "host": platform.node(),

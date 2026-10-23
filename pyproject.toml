@@ -18,7 +18,7 @@ keywords = ["urtc", "updater", "installer", "fleet-management"]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pytest-cov>=5"]
+dev = ["pytest>=8.0", "pytest-cov>=5", "mypy>=2.4,<3"]
 gui = ["PySide6>=6.8,<7"]
 # P01: a durable, on-disk promotion journal (HYDRA-UMC-SDK's own
 # promotion_journal.py, shared with HYDRA-UMC-OPS-AGENT's own
@@ -34,6 +34,17 @@ Homepage = "https://github.com/JuanenRac/URTC-UPDATER"
 
 [project.scripts]
 urtc-updater = "urtc_updater.main:main"
+
+[tool.mypy]
+files = ["src"]
+ignore_missing_imports = true
+
+# The Qt shell (decorator-driven properties and slots the checker cannot model),
+# the Tk shell and the vendored copy of the shared package are exercised by the
+# offscreen window tests instead; everything else is type-checked.
+[[tool.mypy.overrides]]
+module = ["urtc_updater.qt_gui", "urtc_updater.packages_qt", "urtc_updater.gui", "urtc_updater.urtc_pkg.*"]
+ignore_errors = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

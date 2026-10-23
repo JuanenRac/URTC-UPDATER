@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
+from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -32,13 +34,13 @@ _TIMEOUT_S = 30
 
 def _git(path: Path, *args: str) -> subprocess.CompletedProcess[str] | None:
     env = dict(os.environ, GIT_TERMINAL_PROMPT="0")
-    kwargs: dict[str, object] = {}
-    if os.name == "nt":
+    kwargs: dict[str, Any] = {}
+    if sys.platform == "win32":
         kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
     try:
         return subprocess.run(
             ["git", *args], cwd=str(path), check=False, capture_output=True,
-            text=True, timeout=_TIMEOUT_S, env=env, **kwargs,  # type: ignore[arg-type]
+            text=True, timeout=_TIMEOUT_S, env=env, **kwargs,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None

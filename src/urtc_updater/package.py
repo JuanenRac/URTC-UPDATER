@@ -47,8 +47,10 @@ def make_service(app: str, fetch: Callable | None = None, busy: Callable | None 
     if app not in KNOWN_APPS:
         raise su.UpdateError("bad_app", f"{app} is not one of: {', '.join(KNOWN_APPS)}")
     policy = svc.policy_from(settings.load_settings())
-    kwargs = {"fetch": fetch} if fetch is not None else {}
-    return svc.UpdateService(app, installed_version(app), root_of(app), policy, svc.RELEASE_PUBLIC_KEY_HEX, svc.RELEASE_KEY_ID, busy=busy, **kwargs)
+    args = (app, installed_version(app), root_of(app), policy, svc.RELEASE_PUBLIC_KEY_HEX, svc.RELEASE_KEY_ID)
+    if fetch is not None:
+        return svc.UpdateService(*args, busy=busy, fetch=fetch)
+    return svc.UpdateService(*args, busy=busy)
 
 
 def _said(error: su.UpdateError) -> str:

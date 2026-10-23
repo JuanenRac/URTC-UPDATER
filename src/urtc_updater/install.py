@@ -31,7 +31,7 @@ from contextlib import contextmanager
 from shutil import copy2, copytree, rmtree
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterator
+from typing import Any, Callable, Iterator
 from uuid import uuid4
 
 from .evidence import installed_state, record_attempt
@@ -143,7 +143,7 @@ class InstallResult:
 def _run(
     cmd: list[str], cwd: Path, *, capture_output: bool = False, env: dict[str, str] | None = None
 ) -> subprocess.CompletedProcess[str]:
-    kwargs: dict[str, object] = {"cwd": str(cwd), "check": False}
+    kwargs: dict[str, Any] = {"cwd": str(cwd), "check": False}
     if env is not None:
         kwargs["env"] = env
     if capture_output:
@@ -151,7 +151,7 @@ def _run(
     # The GUI is started with pythonw on Windows. Do not let git or a child
     # build script create a surprise console while its output is captured for
     # the in-window checkpoint log.
-    if capture_output and os.name == "nt":
+    if capture_output and sys.platform == "win32":
         kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
         # Ecosystem .bat files deliberately finish with `pause` when an
         # operator double-clicks them.  In the GUI they run as a child with
@@ -159,7 +159,7 @@ def _run(
         # not leave a hidden child waiting forever for a keypress.
         kwargs["input"] = "\n"
     try:
-        return subprocess.run(cmd, **kwargs)  # type: ignore[arg-type]
+        return subprocess.run(cmd, **kwargs)
     except FileNotFoundError as exc:
         raise InstallError(coded("tool_missing", tool=cmd[0], error=str(exc))) from exc
 
@@ -854,7 +854,7 @@ def workspace_lock(workspace_root: Path) -> Iterator[None]:
         # release a lock whose previous holder has only just finished.
         for attempt in range(6):
             try:
-                if os.name == "nt":
+                if sys.platform == "win32":
                     import msvcrt
                     handle.seek(0)
                     msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
@@ -870,7 +870,7 @@ def workspace_lock(workspace_root: Path) -> Iterator[None]:
             yield
         finally:
             try:
-                if os.name == "nt":
+                if sys.platform == "win32":
                     import msvcrt
                     handle.seek(0)
                     msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
