@@ -347,6 +347,18 @@ El diseno de esta herramienta (descubrimiento por manifiesto, instalacion/actual
 📧 electrohobby3d@gmail.com
 📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
 
+<!-- urtc-section:updates -->
+## 🔄 Cómo se actualiza
+
+Este programa puede buscar una versión más nueva de sí mismo: el botón «Buscar actualización» pregunta una vez a GitHub y ofrece un paquete firmado solo si es para tu sistema y más nuevo. Nada se comprueba ni se instala por su cuenta salvo que actives la comprobación, y una actualización necesita tu confirmación. El paquete debe coincidir con su SHA-256 y con la firma de la clave de las releases fijada en el programa; la versión anterior se conserva y se restaura sola si la nueva no arranca. `urtc-updater --cli package list|check|install|rollback` hace lo mismo desde la línea de órdenes para el flasher y el tester, y `install --file` funciona sin red.
+<!-- /urtc-section:updates -->
+
+<!-- urtc-section:compatibility -->
+## 🧩 Compatibilidad
+
+Qué versiones de los programas de URTC funcionan juntas, y qué versión del protocolo habla cada una, figura en la tabla de compatibilidad que genera URTC-COMMON: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
+<!-- /urtc-section:compatibility -->
+
 ## 📜 LICENCIA
 
 GPL-3.0-or-later - ver [LICENSE](LICENSE).

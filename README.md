@@ -323,6 +323,18 @@ This tool's design (manifest discovery, atomic-by-verification install/update, e
 📧 electrohobby3d@gmail.com
 📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
 
+<!-- urtc-section:updates -->
+## 🔄 How it updates
+
+This program can look for a newer version of itself: the "Check for updates" button asks GitHub once and offers a signed package only if it is for your system and newer. Nothing is checked or installed on its own unless you turn the check on, and an update needs your confirmation. The package must match its SHA-256 and the signature of the releases key pinned in the program; the previous version is kept, and it is restored by itself if the new one does not start. `urtc-updater --cli package list|check|install|rollback` does the same from the command line for the flasher and the tester, and `install --file` works without a network.
+<!-- /urtc-section:updates -->
+
+<!-- urtc-section:compatibility -->
+## 🧩 Compatibility
+
+Which versions of the URTC programs work together, and which protocol version each one speaks, is listed in the compatibility table that URTC-COMMON generates: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
+<!-- /urtc-section:compatibility -->
+
 ## 📜 LICENSE
 
 GPL-3.0-or-later - see [LICENSE](LICENSE).

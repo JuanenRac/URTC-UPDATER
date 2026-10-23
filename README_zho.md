@@ -239,6 +239,18 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 📧 electrohobby3d@gmail.com
 📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
 
+<!-- urtc-section:updates -->
+## 🔄 如何更新
+
+本程序可以查找自身的较新版本：“检查更新”按钮只向 GitHub 查询一次，只有当包适用于您的系统且更新时才会提供已签名的包。除非您打开检查，否则不会自行检查或安装，更新需要您的确认。包必须与其 SHA-256 以及程序中固定的发布密钥签名一致；上一版本会保留，新版本无法启动时会自动恢复。`urtc-updater --cli package list|check|install|rollback` 可在命令行中为刷写器和测试器完成同样的操作，`install --file` 无需网络即可使用。
+<!-- /urtc-section:updates -->
+
+<!-- urtc-section:compatibility -->
+## 🧩 兼容性
+
+哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
+<!-- /urtc-section:compatibility -->
+
 ## 📜 许可证
 
 GPL-3.0-or-later —— 详见 [LICENSE](LICENSE)。
