@@ -292,6 +292,29 @@ ApplicationWindow {
         errorColor: window.red
     }
 
+    PackagesDialog {
+        id: packagesDialog
+        model: backend.packages
+        tick: languageTick
+        panelColor: window.panel
+        borderColor: window.border
+        textColor: window.textPrimary
+        mutedColor: window.textMuted
+        accentColor: window.cyan
+        errorColor: window.red
+    }
+
+    HelpDialog {
+        id: helpDialog
+        objectName: "helpDialog"
+        model: backend.help
+        panelColor: window.panel
+        borderColor: window.border
+        textColor: window.textPrimary
+        mutedColor: window.textMuted
+        accentColor: window.cyan
+    }
+
     Dialog {
         id: securityDialog
         objectName: "securityDialog"
@@ -538,9 +561,11 @@ ApplicationWindow {
                     LabelText { text: backend.busy ? ui("status_busy") : ui("status_online"); color: window.textMuted; font.pixelSize: 11; font.bold: true }
                 }
             }
-            GameButton { text: ui("security_menu"); Layout.preferredWidth: 152; accent: "#5a4a22"; Layout.alignment: Qt.AlignRight; onClicked: securityDialog.open() }
-            GameButton { text: backend.updates.t("UPD_BTN_CHECK"); Layout.preferredWidth: 152; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: updateDialog.open() }
-            GameButton { text: ui("menu_about"); Layout.preferredWidth: 152; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
+            GameButton { text: ui("security_menu"); Layout.preferredWidth: 128; accent: "#5a4a22"; Layout.alignment: Qt.AlignRight; onClicked: securityDialog.open() }
+            GameButton { text: backend.updates.t("UPD_BTN_CHECK"); Layout.preferredWidth: 156; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: updateDialog.open() }
+            GameButton { text: ui("pkg_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: packagesDialog.open() }
+            GameButton { text: ui("menu_help"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: helpDialog.open() }
+            GameButton { text: ui("menu_about"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
         }
 
         RowLayout {

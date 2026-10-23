@@ -37,7 +37,9 @@ from .install import InstallError, install_or_update, is_running_checkout, list_
 from .logs import prune_logs
 from .messages import localize
 from .registry import GITHUB_OWNER
+from .packages_qt import PackagesModel
 from .urtc_pkg import update_service
+from .urtc_pkg.help_qt import HelpModel
 from .urtc_pkg.update_qt import UpdateModel
 
 
@@ -152,6 +154,8 @@ class UpdaterBridge(QObject):
         self._batch_project = ""
         self._lang = i18n.resolve_initial_lang()
         self._update_model: UpdateModel | None = None
+        self._packages_model: PackagesModel | None = None
+        self._help_model: HelpModel | None = None
         self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
         self._actionResult.connect(self._on_action_result)
@@ -201,6 +205,21 @@ class UpdaterBridge(QObject):
             )
             self._update_model = UpdateModel(service, language=lambda: _LANGUAGE_NAMES.get(self._lang, "english"), save_options=save, parent=self)
         return self._update_model
+
+    @Property(QObject, constant=True)
+    def packages(self) -> QObject:
+        """The Packages window: the signed packages of the releases, checked, installed and rolled back one program at a time. The same rules as
+        ``urtc-updater --cli package``; nothing happens until the person presses a button, and not while an install or an update of a project runs."""
+        if self._packages_model is None:
+            self._packages_model = PackagesModel(lambda: self._lang, busy=lambda: "install/update" if self._busy else None, parent=self)
+        return self._packages_model
+
+    @Property(QObject, constant=True)
+    def help(self) -> QObject:
+        """The quick guide of the Help window (shared with the other programs, in the eight languages)."""
+        if self._help_model is None:
+            self._help_model = HelpModel("updater", lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
+        return self._help_model
 
     # -- QML-visible properties -----------------------------------------
     @Property(str, notify=languageChanged)
@@ -450,6 +469,9 @@ class UpdaterBridge(QObject):
             return
         self._lang = language
         i18n.save_lang_preference(language)
+        for model in (self._update_model, self._packages_model, self._help_model):
+            if model is not None:
+                model.languageChanged()
         self.languageChanged.emit()
         self.securityChanged.emit()
         self.deployOptionsChanged.emit()

@@ -1027,6 +1027,97 @@ for _language, _log_copy in _LOG_COPY.items():
 
 
 # =============================================================================
+# The Packages window (packages_qt.py, qml/PackagesDialog.qml): the signed packages of the releases of the URTC programs. The words of the
+# steps (check, download and verify, install, go back, yes, cancel, close) are the ones of the update window (urtc_pkg/update_strings.py).
+# =============================================================================
+_PACKAGES_COPY: dict[str, dict[str, str]] = {
+    "en": {
+        "pkg_menu": "Packages",
+        "pkg_title": "Packages",
+        "pkg_intro": "The programs of the family that a release publishes as a signed package. Each row checks its own release when you press the button, and installs only after you say yes.",
+        "pkg_not_installed": "not installed",
+        "pkg_installed_label": "Installed",
+        "pkg_kept_label": "Kept versions",
+        "pkg_rollback_confirm": "Go back to the previous version? The version in use stays on disk, so this can be undone.",
+        "pkg_safety": "Only a package whose size, SHA-256 and signature (key of the releases) are right is installed. A package that fails a check is deleted. Nothing is installed while a project is being installed or updated.",
+    },
+    "es": {
+        "pkg_menu": "Paquetes",
+        "pkg_title": "Paquetes",
+        "pkg_intro": "Los programas de la familia que una versión publica como paquete firmado. Cada fila comprueba su propia versión cuando pulsas el botón e instala solo después de que digas que sí.",
+        "pkg_not_installed": "no instalado",
+        "pkg_installed_label": "Instalado",
+        "pkg_kept_label": "Versiones guardadas",
+        "pkg_rollback_confirm": "¿Volver a la versión anterior? La versión en uso se queda en el disco, así que esto se puede deshacer.",
+        "pkg_safety": "Solo se instala un paquete cuyo tamaño, SHA-256 y firma (clave de las versiones) son correctos. Un paquete que falla una comprobación se borra. No se instala nada mientras se instala o actualiza un proyecto.",
+    },
+    "fr": {
+        "pkg_menu": "Paquets",
+        "pkg_title": "Paquets",
+        "pkg_intro": "Les programmes de la famille qu'une version publie sous forme de paquet signé. Chaque ligne vérifie sa propre version quand vous appuyez sur le bouton et n'installe qu'après votre accord.",
+        "pkg_not_installed": "non installé",
+        "pkg_installed_label": "Installé",
+        "pkg_kept_label": "Versions conservées",
+        "pkg_rollback_confirm": "Revenir à la version précédente ? La version en cours reste sur le disque, donc cela peut être annulé.",
+        "pkg_safety": "Seul un paquet dont la taille, le SHA-256 et la signature (clé des versions) sont corrects est installé. Un paquet qui échoue à un contrôle est supprimé. Rien n'est installé pendant l'installation ou la mise à jour d'un projet.",
+    },
+    "it": {
+        "pkg_menu": "Pacchetti",
+        "pkg_title": "Pacchetti",
+        "pkg_intro": "I programmi della famiglia che una versione pubblica come pacchetto firmato. Ogni riga controlla la propria versione quando premi il pulsante e installa solo dopo il tuo sì.",
+        "pkg_not_installed": "non installato",
+        "pkg_installed_label": "Installato",
+        "pkg_kept_label": "Versioni conservate",
+        "pkg_rollback_confirm": "Tornare alla versione precedente? La versione in uso resta sul disco, quindi si può annullare.",
+        "pkg_safety": "Si installa solo un pacchetto con dimensione, SHA-256 e firma (chiave delle versioni) corretti. Un pacchetto che non supera un controllo viene eliminato. Non si installa nulla mentre un progetto viene installato o aggiornato.",
+    },
+    "de": {
+        "pkg_menu": "Pakete",
+        "pkg_title": "Pakete",
+        "pkg_intro": "Die Programme der Familie, die eine Version als signiertes Paket veröffentlicht. Jede Zeile prüft ihre eigene Version, wenn Sie die Schaltfläche drücken, und installiert erst nach Ihrem Ja.",
+        "pkg_not_installed": "nicht installiert",
+        "pkg_installed_label": "Installiert",
+        "pkg_kept_label": "Aufbewahrte Versionen",
+        "pkg_rollback_confirm": "Zur vorherigen Version zurückkehren? Die genutzte Version bleibt auf der Platte, das lässt sich also rückgängig machen.",
+        "pkg_safety": "Es wird nur ein Paket installiert, dessen Größe, SHA-256 und Signatur (Schlüssel der Versionen) stimmen. Ein Paket, das eine Prüfung nicht besteht, wird gelöscht. Es wird nichts installiert, solange ein Projekt installiert oder aktualisiert wird.",
+    },
+    "zh": {
+        "pkg_menu": "软件包",
+        "pkg_title": "软件包",
+        "pkg_intro": "发布版本以已签名软件包形式提供的家族程序。按下按钮时，每一行检查自己的发布版本，只有在你确认后才会安装。",
+        "pkg_not_installed": "未安装",
+        "pkg_installed_label": "已安装",
+        "pkg_kept_label": "保留的版本",
+        "pkg_rollback_confirm": "退回上一版本吗？正在使用的版本仍保留在磁盘上，因此可以撤销。",
+        "pkg_safety": "只有大小、SHA-256 和签名（发布密钥）都正确的软件包才会被安装。未通过检查的软件包会被删除。有项目正在安装或更新时，不会安装任何东西。",
+    },
+    "ja": {
+        "pkg_menu": "パッケージ",
+        "pkg_title": "パッケージ",
+        "pkg_intro": "リリースが署名付きパッケージとして公開しているファミリーのプログラムです。ボタンを押すと各行が自分のリリースを確認し、「はい」と答えた後でだけインストールします。",
+        "pkg_not_installed": "未インストール",
+        "pkg_installed_label": "インストール済み",
+        "pkg_kept_label": "保存されているバージョン",
+        "pkg_rollback_confirm": "前のバージョンに戻しますか？使用中のバージョンはディスクに残るので、元に戻せます。",
+        "pkg_safety": "サイズ、SHA-256、署名（リリース鍵）がすべて正しいパッケージだけがインストールされます。検査に通らないパッケージは削除されます。プロジェクトのインストールまたは更新中は何もインストールされません。",
+    },
+    "pt": {
+        "pkg_menu": "Pacotes",
+        "pkg_title": "Pacotes",
+        "pkg_intro": "Os programas da família que uma versão publica como pacote assinado. Cada linha verifica a sua própria versão quando carrega no botão e só instala depois de dizer que sim.",
+        "pkg_not_installed": "não instalado",
+        "pkg_installed_label": "Instalado",
+        "pkg_kept_label": "Versões guardadas",
+        "pkg_rollback_confirm": "Voltar à versão anterior? A versão em uso fica no disco, por isso isto pode ser desfeito.",
+        "pkg_safety": "Só se instala um pacote cujo tamanho, SHA-256 e assinatura (chave das versões) estejam certos. Um pacote que falhe uma verificação é apagado. Não se instala nada enquanto um projeto estiver a ser instalado ou atualizado.",
+    },
+}
+
+for _language, _packages_copy in _PACKAGES_COPY.items():
+    TRANSLATIONS[_language].update(_packages_copy)
+
+
+# =============================================================================
 # Install/update messages. install.py builds every checkpoint and result as a
 # message code plus parameters (see messages.py); the text of each code lives
 # here, in every language, under the key "inst_<code>". The English text is

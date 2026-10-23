@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **A Packages window:** the "Packages" button lists the signed packages of the flasher, the tester and this updater, one row each with the installed version and the versions kept; each row checks its release only when the button is pressed, downloads and verifies the package (size, SHA-256, signature of the key of the releases), asks before it installs and goes back to the previous version after a second question. It is the window of what `--cli package` does, with the same rules and the same security options, and nothing is installed while a project is being installed or updated; every text is in the eight languages.
+- **A Help window:** a five-step guide (the list, install or update, going back, packages, security and updates) in the eight languages, shared with the flasher and the tester through URTC-COMMON.
 - **The README files carry sections written once in URTC-COMMON:** "How it updates" and "Compatibility", in the eight languages, between marker comments before the license heading (`tools/readme_sections.py` of URTC-COMMON writes and checks them; the rest of each README is hand-written as before).
 - **A static check on every push:** `ruff.toml` (unused names, exception chaining and syntax errors, the rules the flasher and the tester already ran) and a step of the CI that runs `ruff check .` with a pinned ruff; it found an unused import in a test, now removed.
 - **A missing letter in the German title of the activity log** (`AKTIVITAETSPROTOKOLL`, as in the flasher and the tester) and the texts it shares with the other programs are checked against the shared glossary of URTC-COMMON by its nightly comparison.
