@@ -865,7 +865,7 @@ _VISUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
         "safe_update_title": "✓  Sicheres Update", "safe_update_hint": "Projekt auswahlen, Status prufen und Aktion bestatigen.",
         "selected_project_caption": "AUSGEWAHLTES PROJEKT", "selected_project_none": "Kein Projekt ausgewahlt", "open_github_button": "Auf GitHub offnen",
         "safety_title": "SICHERHEITSSCHLEUSEN", "safety_summary": "• Manifestgesteuerte Erkennung\n• Manuelle Bestatigung erforderlich\n• Optionaler Projekt-Build\n• Terminal mit vollstandiger Evidenz",
-        "activity_log_title": "AKTIVITATSPROTOKOLL", "status_caption": "SYSTEMSTATUS", "log_workspace_changed": "Workspace geandert: {path}",
+        "activity_log_title": "AKTIVITAETSPROTOKOLL", "status_caption": "SYSTEMSTATUS", "log_workspace_changed": "Workspace geandert: {path}",
         "log_local_scan": "Lokale Manifeste werden gescannt...", "log_offline_ready": "Offline-Scan bereit: {projects} Projekte.",
         "log_github_check": "GitHub-Manifeste werden gepruft...", "log_github_ready": "GitHub-Prufung abgeschlossen: {projects} Projekte.",
         "log_action_started": "{verb} {name} gestartet.", "log_action_finished": "{name}: {result}.", "log_result_ok": "abgeschlossen", "log_result_failed": "benotigt Aufmerksamkeit",
