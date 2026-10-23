@@ -18,7 +18,7 @@ keywords = ["urtc", "updater", "installer", "fleet-management"]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "pytest-cov>=5"]
 gui = ["PySide6>=6.8,<7"]
 # P01: a durable, on-disk promotion journal (HYDRA-UMC-SDK's own
 # promotion_journal.py, shared with HYDRA-UMC-OPS-AGENT's own
