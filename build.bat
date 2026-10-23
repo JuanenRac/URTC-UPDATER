@@ -71,10 +71,12 @@ set "VPY=%CD%\.venv\Scripts\python.exe"
 echo       Done.
 echo.
 
-echo [3/5] Installing project (editable, with dev and QML GUI extras) into the venv...
+echo [3/5] Installing project (editable) and the pinned dev and QML GUI dependencies into the venv...
 "%VPY%" -m pip install --upgrade pip >nul
 if errorlevel 1 goto :error
-"%VPY%" -m pip install -e ".[dev,gui]"
+"%VPY%" -m pip install --require-hashes -r requirements-dev.lock
+if errorlevel 1 goto :error
+"%VPY%" -m pip install --no-deps -e .
 if errorlevel 1 goto :error
 echo       Done.
 echo.

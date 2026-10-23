@@ -48,7 +48,8 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          python -m pip install ".[dev,gui]"
+          python -m pip install --require-hashes -r requirements-dev.lock
+          python -m pip install --no-deps .
           PYTHONPATH=src python -m pytest tests -q --cov=src --cov-fail-under=61
   windows:
     name: Tests on Windows
@@ -64,5 +65,6 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: |
-          python -m pip install ".[dev,gui]"
+          python -m pip install --require-hashes -r requirements-dev.lock
+          python -m pip install --no-deps .
           python -m pytest tests -q
