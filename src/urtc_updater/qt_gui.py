@@ -37,6 +37,8 @@ from .install import InstallError, install_or_update, is_running_checkout, list_
 from .logs import prune_logs
 from .messages import localize
 from .registry import GITHUB_OWNER
+from .urtc_pkg import update_service
+from .urtc_pkg.update_qt import UpdateModel
 
 
 DEPLOY_ORDER = ("all", "cm5", "user-pc", "mobile", "wearable", "dev-server")
@@ -100,6 +102,9 @@ def _state_key(local: LocalStatus, remote: RemoteStatus | None, commit: str | No
     return "state_up_to_date"
 
 
+_LANGUAGE_NAMES = {"en": "english", "es": "spanish", "it": "italian", "fr": "french", "de": "german", "zh": "chinese", "ja": "japanese", "pt": "portuguese"}
+
+
 class UpdaterBridge(QObject):
     """A small QML-facing state model over the actual updater services."""
 
@@ -146,6 +151,7 @@ class UpdaterBridge(QObject):
         self._batch_total = 1
         self._batch_project = ""
         self._lang = i18n.resolve_initial_lang()
+        self._update_model: UpdateModel | None = None
         self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
         self._actionResult.connect(self._on_action_result)
@@ -178,6 +184,23 @@ class UpdaterBridge(QObject):
 
     def _batch_allowed(self) -> bool:
         return self._profile is None or self._profile.allow_batch
+
+    @Property(QObject, constant=True)
+    def updates(self) -> QObject:
+        """The "Check for updates" model of the updater itself (the signed package of its own release). Nothing is checked, downloaded or
+        installed until the person asks, and not while an install or an update of a project runs."""
+        if self._update_model is None:
+            def busy() -> str | None:
+                return "install/update" if self._busy else None
+
+            def save(auto_check: bool, require_confirmation: bool) -> None:
+                settings.save_settings(update_auto_check=auto_check, update_require_confirmation=require_confirmation)
+
+            service = update_service.UpdateService(
+                "urtc-updater", __version__, policy=update_service.policy_from(settings.load_settings()), busy=busy,
+            )
+            self._update_model = UpdateModel(service, language=lambda: _LANGUAGE_NAMES.get(self._lang, "english"), save_options=save, parent=self)
+        return self._update_model
 
     # -- QML-visible properties -----------------------------------------
     @Property(str, notify=languageChanged)
@@ -857,6 +880,8 @@ def launch_qt_gui(workspace_root: Path) -> int:
     for window in engine.rootObjects():
         if hasattr(window, "setIcon"):
             window.setIcon(app.windowIcon())
+    update_service.mark_started(bridge.updates.controller.service.root)
+    bridge.updates.startupCheck()  # does nothing unless the person turned the automatic check on
     code = app.exec()
     # The windows go first, while the bridge their bindings read still exists: the other way round every binding of the window reads a null `backend` while it closes and the
     # console fills with "Cannot read property ... of null".

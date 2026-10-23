@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **Install a program from the signed package of its release (`package`):** `urtc-updater --cli package list|check|install|rollback` installs the flasher, the tester or this updater from the `.zip` / `.tar.gz` of a release instead of a clone and a build, with the rules of URTC-COMMON's `self_update` (copied to `urtc_pkg/`): only a strictly higher version, only GitHub's download hosts, the announced size and SHA-256, the Ed25519 signature of the key of the releases pinned in the program, a safe extraction, two releases kept and a rollback. It asks before installing (`--yes` for scripts); `install --file` works from a package on disk with its `.sha256` and `.sig`, with no network. The window gets a "Check for updates" button for the updater itself (dialog and texts shared with the flasher and the tester); the automatic check at start (`update_auto_check`) is off by default and the confirmation (`update_require_confirmation`) on.
 - The CI holds the tests to a coverage floor of 61 percent (measured 69, with the Qt window code included; `pytest-cov` is in the `dev` extra).
 - **The window no longer fills the console with `Cannot read property ... of null` when it closes:** the windows are deleted before the object their bindings read, instead of the other way round.
 

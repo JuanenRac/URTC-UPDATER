@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "urtc_common_version": "0.0.7",
+  "files": {
+    "launcher.py": {
+      "from": "src/urtc_common/launcher.py",
+      "sha256": "dbd8ebc1767b4af82cc651b23a78565d59c5b8c2f831296b7d3befa5688bde13"
+    },
+    "self_update.py": {
+      "from": "src/urtc_common/self_update.py",
+      "sha256": "6a741d838069c61398da9a0c367e19a23b4020e4b54e8c86f3fcb0cd03ba5746"
+    },
+    "update_controller.py": {
+      "from": "src/urtc_common/update_controller.py",
+      "sha256": "48eeb961739ed4d89c9e5456adbbce48b338f14b13d04a417cb01c3656304b33"
+    },
+    "update_qt.py": {
+      "from": "src/urtc_common/update_qt.py",
+      "sha256": "9a54d99da00da043f72056773c1522be6cd4e2d3dbfcccc72af9b424f00880df"
+    },
+    "update_service.py": {
+      "from": "src/urtc_common/update_service.py",
+      "sha256": "965764d3fed0dfa3ea725929694f869647e29e5aae0280d15af6d79808167356"
+    },
+    "update_strings.py": {
+      "from": "src/urtc_common/update_strings.py",
+      "sha256": "82269d46a2b48dc0576fa0e305e3c26d9bd6d87889b0667305f6c7bd49734584"
+    }
+  }
+}

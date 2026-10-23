@@ -281,6 +281,17 @@ ApplicationWindow {
         }
     }
 
+    UpdateDialog {
+        id: updateDialog
+        model: backend.updates
+        panelColor: window.panel
+        borderColor: window.border
+        textColor: window.textPrimary
+        mutedColor: window.textMuted
+        accentColor: window.cyan
+        errorColor: window.red
+    }
+
     Dialog {
         id: securityDialog
         objectName: "securityDialog"
@@ -528,6 +539,7 @@ ApplicationWindow {
                 }
             }
             GameButton { text: ui("security_menu"); Layout.preferredWidth: 152; accent: "#5a4a22"; Layout.alignment: Qt.AlignRight; onClicked: securityDialog.open() }
+            GameButton { text: backend.updates.t("UPD_BTN_CHECK"); Layout.preferredWidth: 152; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: updateDialog.open() }
             GameButton { text: ui("menu_about"); Layout.preferredWidth: 152; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
         }
 
