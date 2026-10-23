@@ -244,10 +244,13 @@ URTC-UPDATER/
 ├── tests/                  # Tests réels de chaque module (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Référence des commandes
-│   └── QML_DESKTOP_GUI.md   # Architecture de la GUI Qt Quick
+│   ├── QML_DESKTOP_GUI.md   # Architecture de la GUI Qt Quick
+│   ├── WINDOW_GUIDE.md      # La fenêtre pas à pas, en images
+│   └── screenshots/         # La fenêtre dans les huit langues (écrites par tools/capture_screens.py)
 ├── images/                 # Médias, icônes de l'app et captures de l'interface
 ├── tools/
 │   ├── build_test.py        # Vérification de build sans versionnage
+│   ├── capture_screens.py   # Fait les images du guide à partir de la vraie fenêtre, sans écran
 │   ├── ci_validate.py       # Validation manifeste/CHANGELOG/docs utilisée par CI
 │   ├── generate_app_icon.py # Génère l'icône utilisée par Windows à partir du SVG public HYDRA-UMC
 │   ├── migrate_project_manifests.py  # Audite un workspace après la migration ponctuelle des manifestes
@@ -335,6 +338,14 @@ fallback de compatibilité uniquement.
 * **URTC-UPDATER** (ce depot) - Detecte, installe et met a jour les propres depots de l'ecosysteme
 
 La conception de cet outil (decouverte par manifeste, installation/mise a jour atomique-par-verification, journal de preuves) est partagee avec **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** et **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - les propres updaters du meme auteur pour les ecosystemes HYDRA-UMC et A.R.M.O.R., chacun limite a ses propres depots.
+
+## 🖼️ La fenêtre, pas à pas
+
+Ces images montrent la vraie fenêtre, dessinée sans écran telle qu'elle s'ouvre (rien de vérifié, rien d'installé). Le guide parcourt la fenêtre, l'aide, la fenêtre de mise à jour et celle des paquets, et les montre dans les huit langues du programme.
+
+![La fenêtre, pas à pas](docs/screenshots/updater-deck.png)
+
+[Guide avec images](docs/WINDOW_GUIDE.md)
 
 ## 📚 Documentation et Communaute
 

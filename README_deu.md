@@ -247,10 +247,13 @@ URTC-UPDATER/
 ├── tests/                  # Echte Tests für jedes Modul (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Befehlsreferenz
-│   └── QML_DESKTOP_GUI.md   # Qt-Quick-GUI-Architektur
+│   ├── QML_DESKTOP_GUI.md   # Qt-Quick-GUI-Architektur
+│   ├── WINDOW_GUIDE.md      # Das Fenster Schritt für Schritt, in Bildern
+│   └── screenshots/         # Das Fenster in den acht Sprachen (geschrieben von tools/capture_screens.py)
 ├── images/                 # Medien, App-Icons und Interface-Screenshots
 ├── tools/
 │   ├── build_test.py        # Nicht-versionierender Build-Check
+│   ├── capture_screens.py   # Macht die Bilder der Anleitung aus dem echten Fenster, ohne Bildschirm
 │   ├── ci_validate.py       # Manifest/CHANGELOG/Docs-Validierung, von CI genutzt
 │   ├── generate_app_icon.py # Rendert das öffentliche HYDRA-UMC-SVG in das von Windows genutzte Icon
 │   ├── migrate_project_manifests.py  # Prüft einen Workspace nach der einmaligen Manifest-Migration
@@ -338,6 +341,14 @@ bleibt das alte Tkinter-Fenster nur ein Kompatibilitäts-Fallback.
 * **URTC-UPDATER** (dieses Repository) - Erkennt, installiert und aktualisiert die eigenen Repositories des Oekosystems
 
 Das Design dieses Tools (Manifest-Erkennung, atomar-durch-Verifikation Installation/Aktualisierung, Nachweisprotokoll) wird geteilt mit **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** und **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - den eigenen Updatern desselben Autors fuer die Oekosysteme HYDRA-UMC und A.R.M.O.R., jeweils nur auf ihre eigenen Repositories beschraenkt.
+
+## 🖼️ Das Fenster, Schritt für Schritt
+
+Diese Bilder zeigen das echte Fenster, ohne Bildschirm gezeichnet, so wie es sich öffnet (nichts geprüft, nichts installiert). Die Anleitung führt durch das Fenster, das Hilfefenster, das Update-Fenster und das Paketfenster und zeigt sie in den acht Sprachen des Programms.
+
+![Das Fenster, Schritt für Schritt](docs/screenshots/updater-deck.png)
+
+[Anleitung mit Bildern](docs/WINDOW_GUIDE.md)
 
 ## 📚 Dokumentation und Community
 

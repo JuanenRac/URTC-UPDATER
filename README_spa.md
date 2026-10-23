@@ -247,10 +247,13 @@ URTC-UPDATER/
 ├── tests/                  # Tests reales de cada módulo (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Referencia de comandos
-│   └── QML_DESKTOP_GUI.md   # Arquitectura de la GUI Qt Quick
+│   ├── QML_DESKTOP_GUI.md   # Arquitectura de la GUI Qt Quick
+│   ├── WINDOW_GUIDE.md      # La ventana paso a paso, en imágenes
+│   └── screenshots/         # La ventana en los ocho idiomas (la escribe tools/capture_screens.py)
 ├── images/                 # Medios, iconos de app y capturas de la interfaz
 ├── tools/
 │   ├── build_test.py        # Comprobación de compilación sin versionado
+│   ├── capture_screens.py   # Hace las imágenes de la guía desde la ventana real, sin pantalla
 │   ├── ci_validate.py       # Validación de manifiesto/CHANGELOG/docs usada por CI
 │   ├── generate_app_icon.py # Renderiza el SVG público de HYDRA-UMC al icono que consume Windows
 │   ├── migrate_project_manifests.py  # Audita un workspace tras la migración de manifiestos de un solo uso
@@ -337,6 +340,14 @@ antigua ventana Tkinter es solo un fallback de compatibilidad.
 * **URTC-UPDATER** (este repositorio) - Detecta, instala y actualiza los propios repositorios del ecosistema
 
 El diseno de esta herramienta (descubrimiento por manifiesto, instalacion/actualizacion atomica-por-verificacion, registro de evidencia) se comparte con **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** y **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - los propios actualizadores del mismo autor para los ecosistemas HYDRA-UMC y A.R.M.O.R., cada uno limitado solo a sus propios repositorios.
+
+## 🖼️ La ventana, paso a paso
+
+Estas imágenes son la ventana real, dibujada sin pantalla tal como se abre (nada comprobado, nada instalado). La guía recorre la ventana, la ayuda, la ventana de actualización y la de paquetes, y las muestra en los ocho idiomas del programa.
+
+![La ventana, paso a paso](docs/screenshots/updater-deck.png)
+
+[Guía con imágenes](docs/WINDOW_GUIDE.md)
 
 ## 📚 Documentacion y Comunidad
 

@@ -152,10 +152,13 @@ URTC-UPDATER/
 ├── tests/                  # 每个模块的真实测试（`python -m pytest`）
 ├── docs/
 │   ├── CLI_REFERENCE.md     # 命令参考
-│   └── QML_DESKTOP_GUI.md   # Qt Quick GUI 架构
+│   ├── QML_DESKTOP_GUI.md   # Qt Quick GUI 架构
+│   ├── WINDOW_GUIDE.md      # 窗口分步图文指南
+│   └── screenshots/         # 八种语言的窗口（由 tools/capture_screens.py 生成）
 ├── images/                 # 媒体、应用图标与界面截图
 ├── tools/
 │   ├── build_test.py        # 不递增版本号的构建检查
+│   ├── capture_screens.py   # 无需屏幕，从真实窗口生成指南的图片
 │   ├── ci_validate.py       # CI 使用的清单/CHANGELOG/文档校验
 │   ├── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
 │   ├── migrate_project_manifests.py  # 一次性清单迁移后对工作区的审计
@@ -229,6 +232,14 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 * **URTC-UPDATER**(本仓库)- 检测、安装并更新生态系统自身的仓库
 
 本工具的设计(清单发现、以验证为准的原子安装/更新、证据日志)与同一作者为 HYDRA-UMC 和 A.R.M.O.R. 生态系统打造的 **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** 和 **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** 共享,二者各自仅限于自己的仓库。
+
+## 🖼️ 窗口分步指南
+
+这些图片是真实的窗口，在没有屏幕的情况下按打开时的样子绘制（未检查任何内容，未安装任何东西）。指南依次介绍主窗口、帮助窗口、更新窗口和软件包窗口，并以程序的八种语言展示。
+
+![窗口分步指南](docs/screenshots/updater-deck.png)
+
+[图文指南](docs/WINDOW_GUIDE.md)
 
 ## 📚 文档与社区
 

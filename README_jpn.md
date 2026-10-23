@@ -167,10 +167,13 @@ URTC-UPDATER/
 ├── tests/                  # 各モジュールの実際のテスト（`python -m pytest`）
 ├── docs/
 │   ├── CLI_REFERENCE.md     # コマンドリファレンス
-│   └── QML_DESKTOP_GUI.md   # Qt Quick GUIのアーキテクチャ
+│   ├── QML_DESKTOP_GUI.md   # Qt Quick GUIのアーキテクチャ
+│   ├── WINDOW_GUIDE.md      # ウィンドウを画像でステップごとに説明
+│   └── screenshots/         # 8 言語のウィンドウ（tools/capture_screens.py が書き出す）
 ├── images/                 # メディア、アプリアイコン、インターフェースのスクリーンショット
 ├── tools/
 │   ├── build_test.py        # バージョンを増やさないビルドチェック
+│   ├── capture_screens.py   # 実際のウィンドウから画面なしでガイドの画像を作る
 │   ├── ci_validate.py       # CI が使用するマニフェスト/CHANGELOG/ドキュメント検証
 │   ├── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
 │   ├── migrate_project_manifests.py  # 一度限りのマニフェスト移行後のワークスペース監査
@@ -245,6 +248,14 @@ update <name>`。
 * **URTC-UPDATER**(本リポジトリ)- エコシステム自身のリポジトリを検出・インストール・更新する
 
 このツールの設計(マニフェスト発見、検証済みでのみ確定する原子的インストール/更新、証跡ログ)は、同じ著者による HYDRA-UMC および A.R.M.O.R. エコシステム向けのアップデーターである **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** および **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** と共有されています。それぞれ自分自身のリポジトリのみに限定されています。
+
+## 🖼️ ウィンドウをステップごとに
+
+これらの画像は、画面なしで描画した、開いた直後の実際のウィンドウです（何も確認せず、何もインストールしていません）。ガイドでは、ウィンドウ、ヘルプ、更新ウィンドウ、パッケージウィンドウを順に説明し、プログラムの 8 言語すべてで示します。
+
+![ウィンドウをステップごとに](docs/screenshots/updater-deck.png)
+
+[画像付きガイド](docs/WINDOW_GUIDE.md)
 
 ## 📚 ドキュメントとコミュニティ
 

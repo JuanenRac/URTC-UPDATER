@@ -247,10 +247,13 @@ URTC-UPDATER/
 ├── tests/                  # Test reali di ogni modulo (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Riferimento comandi
-│   └── QML_DESKTOP_GUI.md   # Architettura della GUI Qt Quick
+│   ├── QML_DESKTOP_GUI.md   # Architettura della GUI Qt Quick
+│   ├── WINDOW_GUIDE.md      # La finestra passo dopo passo, in immagini
+│   └── screenshots/         # La finestra nelle otto lingue (scritte da tools/capture_screens.py)
 ├── images/                 # Media, icone dell'app e screenshot dell'interfaccia
 ├── tools/
 │   ├── build_test.py        # Controllo build senza versionamento
+│   ├── capture_screens.py   # Crea le immagini della guida dalla finestra reale, senza schermo
 │   ├── ci_validate.py       # Validazione manifest/CHANGELOG/docs usata dalla CI
 │   ├── generate_app_icon.py # Renderizza l'SVG pubblico di HYDRA-UMC nell'icona usata da Windows
 │   ├── migrate_project_manifests.py  # Verifica un workspace dopo la migrazione una tantum dei manifesti
@@ -337,6 +340,14 @@ Tkinter resta solo un fallback di compatibilità.
 * **URTC-UPDATER** (questo repository) - Rileva, installa e aggiorna i repository dell'ecosistema stesso
 
 Il design di questo strumento (scoperta tramite manifesto, installazione/aggiornamento atomico-per-verifica, registro delle prove) e condiviso con **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** e **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - gli updater dello stesso autore per gli ecosistemi HYDRA-UMC e A.R.M.O.R., ciascuno limitato ai propri repository.
+
+## 🖼️ La finestra, passo dopo passo
+
+Queste immagini mostrano la finestra reale, disegnata senza schermo com'è quando si apre (niente controllato, niente installato). La guida percorre la finestra, l'aiuto, la finestra di aggiornamento e quella dei pacchetti, e le mostra nelle otto lingue del programma.
+
+![La finestra, passo dopo passo](docs/screenshots/updater-deck.png)
+
+[Guida con immagini](docs/WINDOW_GUIDE.md)
 
 ## 📚 Documentazione e Comunita
 

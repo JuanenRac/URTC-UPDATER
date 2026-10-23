@@ -283,6 +283,7 @@ ApplicationWindow {
 
     UpdateDialog {
         id: updateDialog
+        objectName: "updateDialog"
         model: backend.updates
         panelColor: window.panel
         borderColor: window.border

@@ -224,10 +224,13 @@ URTC-UPDATER/
 ├── tests/                  # Real tests for every module (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Command reference
-│   └── QML_DESKTOP_GUI.md   # Qt Quick GUI architecture
+│   ├── QML_DESKTOP_GUI.md   # Qt Quick GUI architecture
+│   ├── WINDOW_GUIDE.md      # The window step by step, in pictures
+│   └── screenshots/         # The window in the eight languages (written by tools/capture_screens.py)
 ├── images/                 # Media and app icons
 ├── tools/
 │   ├── build_test.py        # Non-versioning build/compile check
+│   ├── capture_screens.py   # Takes the pictures of the guide from the real window, without a screen
 │   ├── ci_validate.py       # Manifest/CHANGELOG/docs validation used by CI
 │   └── generate_app_icon.py # Renders the public URTC SVG into the Windows-consumed icon
 ├── .env.example            # Environment variable template
@@ -313,6 +316,14 @@ older Tkinter shell is only a compatibility fallback.
 This tool's design (manifest discovery, atomic-by-verification install/update, evidence log) is shared with **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** and **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - the same author's updaters for the HYDRA-UMC and A.R.M.O.R. ecosystems, each scoped to its own repositories only.
 
 ---
+
+## 🖼️ The window, step by step
+
+These pictures are the real window, drawn without a screen as it opens (nothing checked, nothing installed). The guide goes through the window, the Help window, the update window and the Packages window, and shows them in the eight languages of the program.
+
+![The window, step by step](docs/screenshots/updater-deck.png)
+
+[Guide with pictures](docs/WINDOW_GUIDE.md)
 
 ## 📚 Documentation & Community
 

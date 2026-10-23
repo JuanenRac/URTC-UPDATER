@@ -231,10 +231,13 @@ URTC-UPDATER/
 ├── tests/                  # Testes reais de cada módulo (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Command reference
-│   └── QML_DESKTOP_GUI.md   # Qt Quick GUI architecture
+│   ├── QML_DESKTOP_GUI.md   # Qt Quick GUI architecture
+│   ├── WINDOW_GUIDE.md      # A janela passo a passo, em imagens
+│   └── screenshots/         # A janela nas oito línguas (escritas por tools/capture_screens.py)
 ├── images/                 # Media and app icons
 ├── tools/
 │   ├── build_test.py        # Non-versioning build/compile check
+│   ├── capture_screens.py   # Faz as imagens do guia a partir da janela real, sem ecrã
 │   ├── ci_validate.py       # Manifest/CHANGELOG/docs validation used by CI
 │   └── generate_app_icon.py # Renders the public URTC SVG into the Windows-consumed icon
 ├── .env.example            # Environment variable template
@@ -321,6 +324,14 @@ O **URTC** (Universal Robot Tool Controller) é uma plataforma real de troca de 
 O design desta ferramenta (deteção por manifesto, instalação/atualização atómica por verificação, registo de evidência) é partilhado com o **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** e o **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - os atualizadores do mesmo autor para os ecossistemas HYDRA-UMC e A.R.M.O.R., cada um limitado apenas aos seus próprios repositórios.
 
 ---
+
+## 🖼️ A janela, passo a passo
+
+Estas imagens são a janela real, desenhada sem ecrã tal como abre (nada verificado, nada instalado). O guia percorre a janela, a ajuda, a janela de atualização e a dos pacotes, e mostra-as nas oito línguas do programa.
+
+![A janela, passo a passo](docs/screenshots/updater-deck.png)
+
+[Guia com imagens](docs/WINDOW_GUIDE.md)
 
 ## 📚 Documentação e Comunidade
 
