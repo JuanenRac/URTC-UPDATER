@@ -143,7 +143,9 @@ URTC-UPDATER/
 │   ├── notify.py           # 仅通知检查所用的桌面通知
 │   ├── logs.py             # 窗口日志文件的轮转
 │   ├── i18n.py             # 真实、完整的 GUI 翻译（8 种语言）
+│   ├── translations_data.py # 窗口文本，由 URTC-COMMON 的目录生成
 │   ├── qt_gui.py           # 通向真实发现/更新服务的 Qt Quick 桥接层
+│   ├── packages_qt.py      # 软件包窗口：各发布版的已签名软件包
 │   ├── qml/Main.qml        # 带主题、检查点和 About 的桌面界面
 │   ├── gui.py              # PySide6 不可用时的 Tkinter 兼容回退
 │   └── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update

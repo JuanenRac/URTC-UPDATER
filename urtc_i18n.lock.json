@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "urtc_common_version": "0.0.7",
+  "catalog": "spec/i18n/catalog/updater.json",
+  "catalog_sha256": "adb0db6f824183ac700a0032241f0525fc56595bc3cf623aceb428dcf85dc1e4",
+  "files": {
+    "src/urtc_updater/translations_data.py": "6a2a7d5219bbbd94a93495319f49981d6220e3df90d70157f102d60aed60505e",
+    "tests/test_i18n_generated.py": "2dbb1740abb41abb5dca047084ac545d4cb403687e599550a73e4e1174c1ce87"
+  }
+}

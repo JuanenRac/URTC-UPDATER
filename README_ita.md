@@ -238,7 +238,9 @@ URTC-UPDATER/
 │   ├── notify.py           # Notifica desktop per il controllo di sola segnalazione
 │   ├── logs.py             # Rotazione dei file di log della finestra
 │   ├── i18n.py             # Traduzioni reali e complete della GUI (8 lingue)
+│   ├── translations_data.py # I testi della finestra, generati dal catalogo di URTC-COMMON
 │   ├── qt_gui.py           # Bridge Qt Quick verso i servizi reali di scoperta/aggiornamento
+│   ├── packages_qt.py      # La finestra Pacchetti: i pacchetti firmati delle versioni
 │   ├── qml/Main.qml        # Shell desktop a tema con checkpoint e About
 │   ├── gui.py              # Fallback Tkinter se PySide6 non è disponibile
 │   └── main.py             # Dispatch: GUI predefinita, --cli per status/install/update

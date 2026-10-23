@@ -235,7 +235,9 @@ URTC-UPDATER/
 │   ├── notify.py           # Notification de bureau pour la vérification d'information seule
 │   ├── logs.py             # Rotation des fichiers journaux de la fenêtre
 │   ├── i18n.py             # Vraies traductions complètes de la GUI (8 langues)
+│   ├── translations_data.py # Les textes de la fenêtre, générés depuis le catalogue d'URTC-COMMON
 │   ├── qt_gui.py           # Pont Qt Quick vers les services réels de découverte/mise à jour
+│   ├── packages_qt.py      # La fenêtre Paquets : les paquets signés des versions
 │   ├── qml/Main.qml        # Shell desktop theme avec checkpoints et About
 │   ├── gui.py              # Fallback Tkinter si PySide6 est indisponible
 │   └── main.py             # Répartition : GUI par défaut, --cli pour status/install/update
