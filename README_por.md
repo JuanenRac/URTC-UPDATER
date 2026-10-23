@@ -113,12 +113,12 @@ confirmação manual, build opcional e um rasto de atividade no ecrã; o registo
 ## 2. 🔄 COMO FUNCIONA REALMENTE UMA VERIFICAÇÃO/ATUALIZAÇÃO
 
 - **Origem da versão**: a convenção de auto-bump "odómetro" deste ecossistema
-  (cada build real incrementa um número de versão que vive NUM ficheiro de
+  (cada passo `bump.py` explícito incrementa um número de versão que vive NUM ficheiro de
   código-fonte - `pyproject.toml`, `Cargo.toml`, `version.go`,
   `package.json`, `version.properties`, `pubspec.yaml` ou um `#define` de
   firmware, consoante a stack do projeto) nunca criou uma tag git nem uma
   GitHub Release para esse incremento. Por isso, esta ferramenta lê o MESMO
-  ficheiro que o `bump_version.py`/script de build de cada projeto já
+  ficheiro que o `bump_version.py`/passo `bump.py` de cada projeto já
   escreve, diretamente do ramo predefinido do repositório através do host de
   conteúdo raw do GitHub - não a API de Releases, que indicaria que todos os
   projetos não têm releases.

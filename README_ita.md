@@ -109,13 +109,13 @@ selezionata.
 ## 2. 🔄 COME FUNZIONA DAVVERO UN CONTROLLO/AGGIORNAMENTO
 
 - **Origine della versione**: la convenzione "contachilometri" di
-  auto-incremento di questo ecosistema (ogni build reale incrementa un
+  auto-incremento di questo ecosistema (ogni passo esplicito `bump.py` incrementa un
   numero di versione che vive DENTRO un file sorgente - `pyproject.toml`,
   `Cargo.toml`, `version.go`, `package.json`, `version.properties`,
   `pubspec.yaml`, o un `#define` di firmware, a seconda dello stack del
   progetto) non ha mai creato un tag git né una GitHub Release per
   quell'incremento. Questo strumento legge quindi lo STESSO file che il
-  proprio `bump_version.py`/script di build di ogni progetto già scrive,
+  proprio `bump_version.py`/passo `bump.py` di ogni progetto già scrive,
   direttamente dal branch predefinito del repo tramite l'host di
   contenuto raw di GitHub - non l'API delle Releases, che riporterebbe
   che tutti i progetti non hanno alcuna release.

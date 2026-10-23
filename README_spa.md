@@ -111,13 +111,13 @@ seleccionada.
 ## 2. 🔄 CÓMO FUNCIONA REALMENTE UNA COMPROBACIÓN/ACTUALIZACIÓN
 
 - **Origen de la versión**: la convención "cuentakilómetros" de
-  auto-incremento de este ecosistema (cada build real incrementa un
+  auto-incremento de este ecosistema (cada paso `bump.py` explícito incrementa un
   número de versión que vive DENTRO de un archivo fuente -
   `pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`,
   `version.properties`, `pubspec.yaml`, o un `#define` de firmware, según
   el stack del proyecto) nunca ha creado un tag de git ni un GitHub
   Release para ese incremento. Por eso esta herramienta lee el MISMO
-  archivo que el propio `bump_version.py`/script de build de cada
+  archivo que el propio `bump_version.py`/paso `bump.py` de cada
   proyecto ya escribe, directamente desde la rama por defecto del repo
   vía el servidor de contenido raw de GitHub - no la API de Releases, que
   reportaría que todos los proyectos no tienen ningún release.
