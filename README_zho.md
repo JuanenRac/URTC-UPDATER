@@ -156,6 +156,7 @@ URTC-UPDATER/
 │   ├── qml/UpdateDialog.qml # 检查更新窗口（共享）
 │   ├── qml/PackagesDialog.qml # 软件包窗口：各发布版本的签名包
 │   ├── gui.py              # PySide6 不可用时的 Tkinter 兼容回退
+│   ├── flasher_handoff.py  # 提议用在此处校验过发布签名的固件镜像启动 Flasher (本程序从不刷写)
 │   ├── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update
 │   ├── urtc_pkg/           # 复制自 URTC-COMMON 的共享代码：从签名包自我更新、更新对话框和快速指南
 │   └── assets/             # 程序自带的图标文件
@@ -170,7 +171,8 @@ URTC-UPDATER/
 │   ├── build_test.py        # 不递增版本号的构建检查
 │   ├── capture_screens.py   # 无需屏幕，从真实窗口生成指南的图片
 │   ├── ci_validate.py       # CI 使用的清单/CHANGELOG/文档校验
-│   └── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
+│   ├── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
+│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # ci_validate.py 使用的共享检查
 ├── .env.example            # 环境变量模板
 ├── build.sh / build.bat    # venv + 可编辑安装 + 编译检查
 ├── run.sh / run.bat        # 默认 GUI / CLI 入口

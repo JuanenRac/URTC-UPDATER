@@ -225,6 +225,7 @@ URTC-UPDATER/
 │   ├── qml/UpdateDialog.qml # The Check for updates window (shared)
 │   ├── qml/PackagesDialog.qml # The Packages window: the signed packages of the releases
 │   ├── gui.py              # Legacy Tkinter fallback if PySide6 is unavailable
+│   ├── flasher_handoff.py  # Offers to start the Flasher with a firmware image whose release signature was checked here (it never flashes)
 │   ├── main.py             # Dispatch: GUI by default, --cli for status/install/update
 │   ├── urtc_pkg/           # Shared code copied from URTC-COMMON: self-update from a signed package, the update dialog and the quick guide
 │   └── assets/             # The icon files the program ships with
@@ -239,7 +240,8 @@ URTC-UPDATER/
 │   ├── build_test.py        # Non-versioning build/compile check
 │   ├── capture_screens.py   # Takes the pictures of the guide from the real window, without a screen
 │   ├── ci_validate.py       # Manifest/CHANGELOG/docs validation used by CI
-│   └── generate_app_icon.py # Renders the public URTC SVG into the Windows-consumed icon
+│   ├── generate_app_icon.py # Renders the public URTC SVG into the Windows-consumed icon
+│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # Shared checks used by ci_validate.py
 ├── .env.example            # Environment variable template
 ├── build.sh / build.bat    # venv + editable install + compile-check
 ├── run.sh / run.bat        # GUI default / CLI entry point

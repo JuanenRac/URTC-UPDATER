@@ -250,6 +250,7 @@ URTC-UPDATER/
 │   ├── qml/UpdateDialog.qml # La fenêtre de recherche de mises à jour (partagée)
 │   ├── qml/PackagesDialog.qml # La fenêtre des Paquets : les paquets signés des versions publiées
 │   ├── gui.py              # Fallback Tkinter si PySide6 est indisponible
+│   ├── flasher_handoff.py  # Propose de lancer le Flasher avec une image de firmware dont la signature de version a été vérifiée ici (ne flashe jamais)
 │   ├── main.py             # Répartition : GUI par défaut, --cli pour status/install/update
 │   ├── urtc_pkg/           # Code partagé copié de URTC-COMMON : mise à jour automatique depuis un paquet signé, le dialogue de mise à jour et le guide rapide
 │   └── assets/             # Les fichiers d'icône fournis avec le programme
@@ -264,7 +265,8 @@ URTC-UPDATER/
 │   ├── build_test.py        # Vérification de build sans versionnage
 │   ├── capture_screens.py   # Fait les images du guide à partir de la vraie fenêtre, sans écran
 │   ├── ci_validate.py       # Validation manifeste/CHANGELOG/docs utilisée par CI
-│   └── generate_app_icon.py # Génère l'icône utilisée par Windows à partir du SVG public HYDRA-UMC
+│   ├── generate_app_icon.py # Génère l'icône utilisée par Windows à partir du SVG public HYDRA-UMC
+│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # Contrôles partagés utilisés par ci_validate.py
 ├── .env.example            # Modèle de variables d'environnement
 ├── build.sh / build.bat    # venv + installation éditable + compile-check
 ├── run.sh / run.bat        # GUI par défaut / entrée CLI

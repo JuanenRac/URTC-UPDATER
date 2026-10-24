@@ -172,6 +172,7 @@ URTC-UPDATER/
 │   ├── qml/UpdateDialog.qml # 更新確認のウィンドウ（共有）
 │   ├── qml/PackagesDialog.qml # パッケージのウィンドウ：リリースの署名付きパッケージ
 │   ├── gui.py              # PySide6 がない場合の Tkinter 互換フォールバック
+│   ├── flasher_handoff.py  # ここで署名を確認したファームウェアイメージで Flasher を起動することを提案 (書き込みは一切しない)
 │   ├── main.py             # ディスパッチ：デフォルトは GUI、--cli で status/install/update
 │   ├── urtc_pkg/           # URTC-COMMON からコピーした共有コード：署名付きパッケージからの自己更新、更新ダイアログ、クイックガイド
 │   └── assets/             # プログラムに同梱するアイコンファイル
@@ -186,7 +187,8 @@ URTC-UPDATER/
 │   ├── build_test.py        # バージョンを増やさないビルドチェック
 │   ├── capture_screens.py   # 実際のウィンドウから画面なしでガイドの画像を作る
 │   ├── ci_validate.py       # CI が使用するマニフェスト/CHANGELOG/ドキュメント検証
-│   └── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
+│   ├── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
+│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # ci_validate.py が使う共有チェック
 ├── .env.example            # 環境変数テンプレート
 ├── build.sh / build.bat    # venv + editable インストール + コンパイルチェック
 ├── run.sh / run.bat        # 標準 GUI / CLI エントリポイント
