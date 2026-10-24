@@ -29,7 +29,7 @@
 > **不足分をすべてインストール**と**古い項目をすべて更新**は、同じ実際の状態と
 > 安全経路に基づく、別途確認される順次一括アクションです。
 
-**正直な現状確認 - 実際に今動くもの:** **成熟度: established（確立。ただし記録されているのは 1 回の通しの実行であり、継続的な使用ではありません）。** このプロジェクトは HYDRA-UMC-UPDATER で実績のある設計（同じマニフェスト検出、原子的に検証される一時クローンによるインストール/更新、証跡ログ）を、URTC エコシステムのリポジトリだけに適用したものです。隔離したワークスペースで GitHub に対してエンドツーエンドで実行済みです。クリーンインストールと、その後の実リポジトリの更新が、正しくクローン、ビルド、昇格され、以前のコピーはバックアップとして残りました。検出とバージョンのロジック（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、リトライ/バックオフとリポジトリ一覧のキャッシュを備えた GitHub raw-content クライアント（`github_client.py`）、コミット比較（`commits.py`）、clone-stage-verify-promote パイプライン（`install.py`）は、ローカルの HTTP テストサーバーや、ローカルの bare リモートを持つ実際の一時 git リポジトリを含むテスト（`python -m pytest`）で検証されています。Qt ブリッジ自体のロジックはテストで画面なしに実行されますが、QML の画面そのものには自動テストがありません。`i18n.py` の 8 言語対応は、キーとプレースホルダーの一致をテストで強制していますが、翻訳の品質は検証していません。これまでに実際に提供したものは `CHANGELOG.md` を参照してください。
+**正直な現状確認 - 実際に今動くもの:** **成熟度: established（確立。ただし記録されているのは 1 回の通しの実行であり、継続的な使用ではありません）。** このプロジェクトは HYDRA-UMC-UPDATER で実績のある設計（同じマニフェスト検出、原子的に検証される一時クローンによるインストール/更新、証跡ログ）を、URTC エコシステムのリポジトリだけに適用したものです。隔離したワークスペースで GitHub に対してエンドツーエンドで実行済みです。クリーンインストールと、その後の実リポジトリの更新が、正しくクローン、ビルド、昇格され、以前のコピーはバックアップとして残りました。検出とバージョンのロジック（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、リトライ/バックオフとリポジトリ一覧のキャッシュを備えた GitHub raw-content クライアント（`github_client.py`）、コミット比較（`commits.py`）、clone-stage-verify-promote パイプライン（`install.py`）は、ローカルの HTTP テストサーバーや、ローカルの bare リモートを持つ実際の一時 git リポジトリを含むテスト（`python -m pytest`）で検証されています。Qt ブリッジ自体のロジックはテストで画面なしに実行され、ウィンドウとそのダイアログも画面なしで読み込んで、開いて応答することを確認します。見た目は目視で確認しており、テストはありません。`i18n.py` の 8 言語対応は、キーとプレースホルダーの一致をテストで強制していますが、翻訳の品質は検証していません。これまでに実際に提供したものは `CHANGELOG.md` を参照してください。
 
 ---
 
@@ -253,6 +253,7 @@ update <name>`。
 * **[URTC](https://github.com/JuanenRac/URTC)** - 物理的な Universal Robot Tool Controller 基板のファームウェア、CAN バス経由の25以上のツールプロファイル
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - エコシステムのアーキテクチャ、インターフェース、セキュリティ基準、能力マトリクス、生成されたプロジェクトカタログ、そしてすべてのリポジトリを比較するツール
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 基板用デスクトップGUIフラッシュツール、CAN-OTA に加えてフルチップ SWD/JTAG
+* **[URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON)** - 一度だけ書かれた CAN プロトコルのデータ（仕様、生成された表、適合ベクトル）と、各プログラムが共有するコード。このリポジトリは使用する部分のコピーを含みます。
 * **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - CAN バスの手前に置き、一覧にある識別子だけを通し、レートを制限し、セッション鍵を求めるゲートウェイ。
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 実際のツールID デコードと Smart Idle 予熱ロジックを備えたツール搭載ラックのファームウェア
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 基板用デスクトップライブ CAN バス診断ツール、ツールプロファイルごとに1パネル

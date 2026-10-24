@@ -12,13 +12,13 @@ illustrative of the shape, with made-up project names and versions.
 ```
 $ urtc-updater --cli -h
 usage: urtc-updater --cli [-h] [--version]
-                          {status,install,update,check,clean-backups,restore-backup,evidence} ...
+                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package} ...
 
 Detects, installs, and manually updates the URTC ecosystem's own repositories
 on this machine.
 
 positional arguments:
-  {status,install,update,check,clean-backups,restore-backup,evidence}
+  {status,install,update,check,clean-backups,restore-backup,security,evidence,package}
     status              Show what's installed, its version, and the latest
                         GitHub version of every project.
     install             Clone and build ONE project that isn't installed yet.
@@ -29,8 +29,13 @@ positional arguments:
                         staging folders) beyond the newest N per project.
     restore-backup      Put the newest kept previous installation of ONE
                         project back in place (the current one is kept too).
+    security            Show or change the security options: require signed
+                        commits, ask before the build check (both off by
+                        default; turning one off asks first).
     evidence            Verify the hash chain of the evidence log, optionally
                         exporting it as one JSON file.
+    package             Install a program from the signed package of its
+                        release (list, check, install, rollback).
 
 options:
   -h, --help            show this help message and exit
@@ -39,7 +44,7 @@ options:
 
 ```
 $ urtc-updater --cli --version
-urtc-updater 0.1.1
+urtc-updater <version>
 ```
 
 `install`/`update` are deliberately separate from `status` and always
@@ -282,6 +287,25 @@ Both are off by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_
 
 Saving a **lower** level than the saved one (turning an option off) prints a warning and asks `Turn it off anyway? [y/N]`; without a terminal it needs `--yes` and otherwise changes nothing (exit `1`). The same flags exist on `install` and `update` for one run (`--require-signed` / `--no-require-signed`, `--confirm-build` / `--no-confirm-build`, `--yes`); they win over the settings and the environment variables, and a run that turns off a protection that the saved settings have on says so on standard error.
 
+### `package {list|check|install|rollback} [APP] [--file FILE] [--yes]`
+
+Installs a URTC program from the signed package its release carries (a `.zip`, or a `.tar.gz` outside Windows) instead of a clone and a build. `APP` is one of `urtc-flasher`, `urtc-tester` and `urtc-updater`.
+
+```text
+$ urtc-updater --cli package list
+$ urtc-updater --cli package check urtc-flasher
+$ urtc-updater --cli package install urtc-flasher
+$ urtc-updater --cli package install urtc-flasher --file urtc-flasher-<version>-<platform>.zip
+$ urtc-updater --cli package rollback urtc-flasher
+```
+
+- `list` shows the installed version and the kept releases of every program.
+- `check` asks GitHub once whether a newer package exists and exits `10` when it does.
+- `install` downloads the package of the latest release (or reads `--file`, with its `.sha256` and `.sig` next to it, and uses no network), checks it, shows the version and the notes and waits for a yes in the terminal (`--yes` answers it, for scripts).
+- `rollback` points the program back to its previous release.
+
+The rules are those of the programs that update themselves: only a strictly higher version, only the download hosts of GitHub, the announced size and SHA-256, the Ed25519 signature of the key of the releases pinned in this tool, a safe extraction, two releases kept and a rollback. A package that fails a check is deleted and nothing is installed. The programs live under `URTC_UPDATE_ROOT` (or the data folder of the person), one folder per program. Exit code `1` when a check fails or the network or the disk does.
+
 ### `evidence [--workspace PATH] [--export FILE]`
 
 ```
@@ -335,7 +359,8 @@ any real failure (unknown project, failed clone/pull, failed build script) and
 candidate. `check` exits `0` when nothing can be updated and `10` when
 something can. `clean-backups` exits `1` when another instance holds the
 workspace; `restore-backup` exits `1` when it could not restore; `evidence`
-exits `1` when the chain is broken.
+exits `1` when the chain is broken; `package check` exits `10` when a newer
+package exists and `package` exits `1` when a check fails.
 
 ## Network resilience
 

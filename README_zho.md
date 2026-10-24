@@ -26,7 +26,7 @@
 > **安装全部缺失项目**和**更新全部过期项目**是分别确认的顺序批量操作，使用相同的
 > 实时状态和安全流程。
 
-**诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established，仅有一次有记录的完整运行，并非持续使用）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行；QML 界面本身没有自动化测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
+**诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established，仅有一次有记录的完整运行，并非持续使用）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行，窗口及其对话框也会在无屏幕模式下加载，以检查它能打开并作出响应；外观靠人眼检查，没有测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
 
 ---
 
@@ -236,6 +236,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 * **[URTC](https://github.com/JuanenRac/URTC)** - 物理通用机器人工具控制器 PCB 的固件,基于 CAN 总线的 25+ 工具配置
 * **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - 生态的架构、接口、安全基线、能力矩阵和生成的项目目录,以及对所有仓库进行比较的工具
 * **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 板卡的桌面刷写工具,CAN-OTA 加完整芯片 SWD/JTAG
+* **[URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON)** - 只写一次的 CAN 协议数据（规范、生成的表、一致性向量）以及各程序共享的代码；本仓库带有其所用部分的副本。
 * **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - 位于 CAN 总线前的网关，只放行列表中的标识符，限制其速率，并要求会话密钥。
 * **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 工具挂架固件,具备真实的工具 ID 解码和 Smart Idle 预热逻辑
 * **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 板卡的桌面实时 CAN 总线诊断工具,每个工具配置一个面板
