@@ -8,7 +8,7 @@
     },
     "help_text.py": {
       "from": "src/urtc_common/help_text.py",
-      "sha256": "41212b21f777145e1dc9d5853e1e2e9d8574eb2567d7d4dc5d8d88b27512abb9"
+      "sha256": "8e0774ff91bdd34113292eef7693e4adbe9365b368380242896c8ec395d01e8a"
     },
     "launcher.py": {
       "from": "src/urtc_common/launcher.py",
@@ -28,7 +28,7 @@
     },
     "update_service.py": {
       "from": "src/urtc_common/update_service.py",
-      "sha256": "965764d3fed0dfa3ea725929694f869647e29e5aae0280d15af6d79808167356"
+      "sha256": "9c84dd68c3805a4bafe609384556bf347ab6ccffef63ce736343195bb855b6a1"
     },
     "update_strings.py": {
       "from": "src/urtc_common/update_strings.py",
