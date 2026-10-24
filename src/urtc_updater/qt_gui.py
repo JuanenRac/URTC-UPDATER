@@ -545,7 +545,8 @@ class UpdaterBridge(QObject):
                 errors: tuple[str, ...] = discovery.errors
             except RuntimeError as exc:
                 remotes = fetch_all([status.entry for status in self._locals])
-                errors = (self._t("inst_remote_unavailable", error=str(exc)),)
+                detail = exc.args[0] if exc.args and isinstance(exc.args[0], str) else str(exc)
+                errors = (self._t("inst_remote_unavailable", error=localize(self._lang, detail)),)
             local_by_name = {status.entry.name: status for status in self._locals}
             entries = {name: status.entry for name, status in local_by_name.items()}
             entries.update({name: status.entry for name, status in remotes.items()})
@@ -747,7 +748,7 @@ class UpdaterBridge(QObject):
     def _on_remote_result(self, locals_: object, remotes: object, errors: object) -> None:
         self._locals = list(locals_)  # type: ignore[arg-type]
         self._remotes = dict(remotes)  # type: ignore[arg-type]
-        error_list = tuple(errors)  # type: ignore[arg-type]
+        error_list = tuple(localize(self._lang, error) for error in errors)  # type: ignore[attr-defined]
         self.projectsChanged.emit()
         self.summaryChanged.emit()
         self.selectionChanged.emit()

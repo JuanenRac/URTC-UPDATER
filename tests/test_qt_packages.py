@@ -160,6 +160,6 @@ def test_the_buttons_are_in_the_window_and_the_bridge_offers_the_models():
 
 
 def test_the_window_opens_the_packages_and_the_help_in_every_language():
-    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONPATH=str(ROOT / "src"))
+    env = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONPATH=os.pathsep.join([str(ROOT / "src"), *filter(None, [os.environ.get("PYTHONPATH")])]))
     result = subprocess.run([sys.executable, str(ROOT / "tests" / "qt_packages_check.py")], capture_output=True, text=True, timeout=180, env=env, check=False)
     assert result.returncode == 0 and "QT_PACKAGES=PASS" in result.stdout, result.stdout + result.stderr

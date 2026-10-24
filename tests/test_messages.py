@@ -117,3 +117,70 @@ def test_a_missing_git_is_reported_as_a_coded_result(tmp_path: Path, monkeypatch
     assert not result.ok
     assert isinstance(result.message, CodedText) and result.message.code == "tool_missing"
     assert "'git' was not found" in result.message and "'git' est introuvable" in localize("fr", result.message)
+
+
+# --- the restore of a kept installation and the errors of the GitHub client carry codes too ---------------------------------------
+
+def test_the_results_of_a_restore_are_messages_the_window_can_translate(tmp_path: Path):
+    from urtc_updater.install import restore_backup
+
+    nothing = restore_backup("URTC-EXAMPLE", tmp_path)
+    assert isinstance(nothing.message, CodedText) and nothing.message.code == "restore_none"
+    assert localize("es", nothing.message).startswith("no hay ninguna instalación anterior de URTC-EXAMPLE")
+    named = restore_backup("URTC-EXAMPLE", tmp_path, backup="URTC-EXAMPLE.backup-ffffffff")
+    assert isinstance(named.message, CodedText) and named.message.code == "restore_none_named"
+    assert "URTC-EXAMPLE.backup-ffffffff" in localize("de", named.message)
+
+    folder = tmp_path / "URTC-EXAMPLE.backup-00000001"
+    folder.mkdir()
+    (folder / "urtc.project.json").write_text("{}", encoding="utf-8")
+    unusable = restore_backup("URTC-EXAMPLE", tmp_path)
+    assert isinstance(unusable.message, CodedText) and unusable.message.code == "restore_unusable"
+    assert localize("fr", unusable.message).startswith("URTC-EXAMPLE.backup-00000001 n'est pas une installation utilisable")
+
+
+def test_a_restore_that_worked_says_where_the_replaced_installation_went(tmp_path: Path):
+    from repo_helpers import manifest_text
+
+    from urtc_updater.install import restore_backup
+    from urtc_updater.project_manifest import MANIFEST_FILE
+
+    manifest = manifest_text("1.0.0", "URTC-EXAMPLE")
+    kept = tmp_path / "URTC-EXAMPLE.backup-00000001"
+    kept.mkdir()
+    (kept / MANIFEST_FILE).write_text(manifest, encoding="utf-8")
+    result = restore_backup("URTC-EXAMPLE", tmp_path)
+    assert result.ok and isinstance(result.message, CodedText) and result.message.code == "restored"
+    assert localize("pt", result.message).startswith("Restaurado ")
+    (tmp_path / "URTC-EXAMPLE.backup-00000002").mkdir()
+    (tmp_path / "URTC-EXAMPLE.backup-00000002" / MANIFEST_FILE).write_text(manifest, encoding="utf-8")
+    again = restore_backup("URTC-EXAMPLE", tmp_path)
+    assert again.ok and again.message.code == "restored_kept" and "mantiene" not in localize("es", again.message)
+    assert "se conserva en" in localize("es", again.message)
+
+
+def test_the_errors_of_the_github_client_keep_their_code_through_an_exception():
+    from urtc_updater import github_client
+
+    try:
+        raise RuntimeError(coded("net_list_failed", owner="JuanenRac", detail=coded("net_http", code=503)))
+    except RuntimeError as exc:
+        message = exc.args[0]
+    assert str(message) == "unable to list GitHub repositories for JuanenRac: HTTP 503"
+    assert localize("de", message) == "die GitHub-Repositories von JuanenRac konnten nicht aufgelistet werden: HTTP-Fehler 503"
+    assert github_client.describe_http_error is not None
+
+
+def test_a_rate_limit_is_described_in_the_language_of_the_window():
+    import io
+    import urllib.error
+
+    from urtc_updater.github_client import describe_http_error
+
+    error = urllib.error.HTTPError("https://api.github.com/x", 403, "Forbidden", {"X-RateLimit-Remaining": "0", "X-RateLimit-Reset": "1700000000"}, io.BytesIO(b""))  # type: ignore[arg-type]
+    message = describe_http_error(error)
+    assert isinstance(message, CodedText) and message.code == "net_rate_limited"
+    assert message.startswith("rate limited by GitHub - resets at 2023-11-14T22:13:20")
+    assert "GITHUB_TOKEN" in localize("it", message) and "GitHub" in localize("zh", message)
+    other = describe_http_error(urllib.error.HTTPError("https://api.github.com/x", 500, "Server error", {}, io.BytesIO(b"")))  # type: ignore[arg-type]
+    assert other == "HTTP 500" and isinstance(other, CodedText)

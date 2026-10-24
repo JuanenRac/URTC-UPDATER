@@ -51,6 +51,7 @@ from concurrent.futures import (
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+from .messages import coded
 from .project_manifest import (
     MANIFEST_FILE,
     ManifestValidationError,
@@ -157,11 +158,8 @@ def describe_http_error(exc: urllib.error.HTTPError) -> str:
             except (TypeError, ValueError, OSError):
                 pass
             else:
-                return (
-                    f"rate limited by GitHub - resets at {reset_at.isoformat()} "
-                    "(unauthenticated requests are capped at 60/hour; set GITHUB_TOKEN to raise the limit)"
-                )
-    return f"HTTP {exc.code}"
+                return coded("net_rate_limited", reset_at=reset_at.isoformat())
+    return coded("net_http", code=exc.code)
 
 
 def _urlopen_with_retries(
@@ -267,9 +265,9 @@ def _fetch_discovered_manifest(owner: str, name: str, branch: str) -> RemoteStat
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             return None
-        raise RuntimeError(f"{name}: manifest {describe_http_error(exc)}") from exc
+        raise RuntimeError(coded("net_manifest_error", name=name, detail=describe_http_error(exc))) from exc
     except (urllib.error.URLError, TimeoutError, socket.timeout, OSError) as exc:
-        raise RuntimeError(f"{name}: manifest lookup failed: {exc}") from exc
+        raise RuntimeError(coded("net_manifest_lookup", name=name, error=str(exc))) from exc
 
     try:
         manifest = parse_manifest(text, expected_name=name)
@@ -277,7 +275,7 @@ def _fetch_discovered_manifest(owner: str, name: str, branch: str) -> RemoteStat
         # A repository that exposes this exact manifest path is relevant to
         # the maintainer even when it is malformed; surface it in workflow
         # logs rather than silently treating it as a non-ecosystem project.
-        raise RuntimeError(f"{name}: invalid manifest: {exc}") from exc
+        raise RuntimeError(coded("net_manifest_invalid", name=name, error=str(exc))) from exc
 
     return RemoteStatus(
         entry=replace(entry_from_manifest(manifest), default_branch=branch),
@@ -366,11 +364,11 @@ def discover_remote_projects(
             # caller it was the hourly PRIMARY rate limit, when it
             # resets, or that GITHUB_TOKEN raises the limit - all of
             # which describe_http_error() already knows how to say.
-            raise RuntimeError(f"unable to list GitHub repositories for {owner}: {describe_http_error(exc)}") from exc
+            raise RuntimeError(coded("net_list_failed", owner=owner, detail=describe_http_error(exc))) from exc
         except (urllib.error.URLError, TimeoutError, socket.timeout, OSError, json.JSONDecodeError) as exc:
-            raise RuntimeError(f"unable to list GitHub repositories for {owner}: {exc}") from exc
+            raise RuntimeError(coded("net_list_failed", owner=owner, detail=str(exc))) from exc
         if not isinstance(payload, list):
-            raise RuntimeError(f"unexpected GitHub repository-list response for {owner}")
+            raise RuntimeError(coded("net_list_unexpected", owner=owner))
         for item in payload:
             if isinstance(item, dict) and isinstance(item.get("name"), str):
                 # A fork or an archived repository never joins the ecosystem; asking for its manifest would only add a request that answers 404.
@@ -391,7 +389,8 @@ def discover_remote_projects(
             try:
                 status = future.result()
             except RuntimeError as exc:
-                errors.append(str(exc))
+                # the message of a coded error keeps its code, so the window can say it in its own language
+                errors.append(exc.args[0] if exc.args and isinstance(exc.args[0], str) else str(exc))
                 continue
             if status is not None:
                 discovered.append(status)

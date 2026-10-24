@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_the_security_dialogs_load_open_and_answer_the_waiting_worker():
-    environment = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONPATH=str(ROOT / "src"))
+    environment = dict(os.environ, QT_QPA_PLATFORM="offscreen", PYTHONPATH=os.pathsep.join([str(ROOT / "src"), *filter(None, [os.environ.get("PYTHONPATH")])]))
     result = subprocess.run(
         [sys.executable, str(ROOT / "tests" / "qt_security_dialogs_check.py")],
         capture_output=True, text=True, timeout=120, env=environment, check=False,

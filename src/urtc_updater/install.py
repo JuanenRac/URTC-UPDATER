@@ -1125,13 +1125,13 @@ def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) 
     if backup is not None:
         available = [folder for folder in available if folder.name == backup]
     if not available:
-        return InstallResult(False, f"no kept previous installation of {name} to restore" + (f" named {backup}" if backup else ""))
+        return InstallResult(False, coded("restore_none_named", name=name, backup=backup) if backup else coded("restore_none", name=name))
     chosen = available[0]
     manifest_file = chosen / "urtc.project.json"
     try:
         restored = parse_manifest(manifest_file.read_text(encoding="utf-8"), expected_name=name)
     except (OSError, ManifestValidationError) as exc:
-        return InstallResult(False, f"{chosen.name} is not a usable installation of {name}: {exc}")
+        return InstallResult(False, coded("restore_unusable", backup=chosen.name, name=name, error=str(exc)))
     before = installed_state(path)
     set_aside: Path | None = None
     if path.exists():
@@ -1139,7 +1139,7 @@ def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) 
         try:
             path.rename(set_aside)
         except OSError as exc:
-            return InstallResult(False, f"the installation at {path} could not be set aside (is it open in a running program or a terminal?): {exc}")
+            return InstallResult(False, coded("set_aside_failed", path=str(path), error=str(exc)))
         try:
             os.utime(set_aside, None)
         except OSError:
@@ -1151,10 +1151,12 @@ def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) 
             try:
                 set_aside.rename(path)
             except OSError:
-                return InstallResult(False, f"restoring failed AND putting {path} back also failed; the installation that was in place is at {set_aside}: {exc}")
-        return InstallResult(False, f"could not restore {chosen.name} ({exc}); {path} was left as it was")
-    message = f"Restored {path} to v{restored.version} from {chosen.name}" + (
-        f"; the installation that was in place is kept at {set_aside}" if set_aside is not None else ""
+                return InstallResult(False, coded("restore_double_failure", path=str(path), set_aside=str(set_aside), error=str(exc)))
+        return InstallResult(False, coded("restore_failed", backup=chosen.name, error=str(exc), path=str(path)))
+    message = (
+        coded("restored_kept", path=str(path), version=restored.version, backup=chosen.name, set_aside=str(set_aside))
+        if set_aside is not None
+        else coded("restored", path=str(path), version=restored.version, backup=chosen.name)
     )
     record_attempt(
         workspace_root, project=name, before=before, after=installed_state(path), ok=True, message=message,
