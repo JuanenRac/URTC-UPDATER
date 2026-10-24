@@ -12,13 +12,13 @@ illustrative of the shape, with made-up project names and versions.
 ```
 $ urtc-updater --cli -h
 usage: urtc-updater --cli [-h] [--version]
-                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package} ...
+                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware} ...
 
 Detects, installs, and manually updates the URTC ecosystem's own repositories
 on this machine.
 
 positional arguments:
-  {status,install,update,check,clean-backups,restore-backup,security,evidence,package}
+  {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware}
     status              Show what's installed, its version, and the latest
                         GitHub version of every project.
     install             Clone and build ONE project that isn't installed yet.
@@ -36,6 +36,8 @@ positional arguments:
                         exporting it as one JSON file.
     package             Install a program from the signed package of its
                         release (list, check, install, rollback).
+    firmware            Check the release signature of a firmware image and
+                        offer to open the Flasher with it (check, open).
 
 options:
   -h, --help            show this help message and exit
@@ -305,6 +307,19 @@ $ urtc-updater --cli package rollback urtc-flasher
 - `rollback` points the program back to its previous release.
 
 The rules are those of the programs that update themselves: only a strictly higher version, only the download hosts of GitHub, the announced size and SHA-256, the Ed25519 signature of the key of the releases pinned in this tool, a safe extraction, two releases kept and a rollback. A package that fails a check is deleted and nothing is installed. The programs live under `URTC_UPDATE_ROOT` (or the data folder of the person), one folder per program. Exit code `1` when a check fails or the network or the disk does.
+
+### `firmware {check|open} IMAGE [--yes]`
+
+Checks a firmware image of a release and offers to open the installed Flasher with it already selected.
+
+```text
+$ urtc-updater --cli firmware check URTC_MAIN_FIRMWARE_v<version>.bin
+$ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
+```
+
+- Both read `<IMAGE>.sig` next to the image: the Ed25519 signature, by the key of the releases pinned in this tool, over the name of the file and its SHA-256. A file that is not a `.bin`, an image with no signature, with an unreadable one or with one that does not match is refused (exit code `1`, `FIRMWARE=FAIL <code>`), and nothing is started.
+- `open` shows the size and SHA-256, then asks `Open the Flasher with ... selected? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is started). It starts the Flasher installed with `package install urtc-flasher` as `--firmware IMAGE`.
+- The Flasher only selects the file. This tool never writes to a board: you connect an adapter, choose the options and confirm the update in the Flasher, which checks the image again.
 
 ### `evidence [--workspace PATH] [--export FILE]`
 
