@@ -101,10 +101,15 @@ Updating URTC into /home/user/GitHub ...
 OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verified build; previous installation kept at /home/user/GitHub/URTC.backup-1a2b3c4d
 ```
 
-Avviare `urtc-updater` senza argomenti (o con doppio clic) apre la
-stessa informazione in una finestra - una tabella di progetti, un filtro
-per obiettivo di distribuzione, e pulsanti Installa/Aggiorna per la riga
-selezionata.
+Avviare `urtc-updater` senza argomenti (o con doppio clic) apre invece la
+stessa informazione in una superficie di controllo desktop scura: un pannello
+**Local Ecosystem** con metriche di rilevamento/installazione/aggiornamento in
+tempo reale, un albero **Project Registry** guidato dai manifesti e un
+pannello **Safe Update** per il progetto selezionato. La disposizione rende
+visibili le vere protezioni: rilevamento tramite manifesto, una sola azione
+esplicita su un progetto, conferma manuale, compilazione opzionale e una
+traccia di attività a schermo; l'intero registro viene scritto anche in un
+file sotto `~/.urtc_updater/logs` (vengono conservati i 20 più recenti).
 
 ## 2. 🔄 COME FUNZIONA DAVVERO UN CONTROLLO/AGGIORNAMENTO
 
@@ -230,6 +235,8 @@ URTC-UPDATER/
 │   ├── github_client.py   # Recupero concorrente del contenuto raw + ritentativo/backoff reale per errori di rete transitori
 │   ├── install.py         # git clone/pull + delega allo script di build proprio
 │   ├── signature.py       # Politica opzionale dei commit firmati (git verify-commit prima della build)
+│   ├── security.py        # Le due protezioni di un'installazione (commit firmati, chiedere prima del controllo di compilazione) e come cambiarle
+│   ├── package.py         # Installare un programma dal pacchetto firmato della sua versione pubblicata (elenco, verifica, installazione, ripristino)
 │   ├── commits.py          # Confronta una copia con il suo remoto per commit (git ls-remote)
 │   ├── messages.py         # Messaggi di installazione/aggiornamento come codici più parametri
 │   ├── evidence.py         # Registro concatenato con hash di ogni tentativo
@@ -242,8 +249,13 @@ URTC-UPDATER/
 │   ├── qt_gui.py           # Bridge Qt Quick verso i servizi reali di scoperta/aggiornamento
 │   ├── packages_qt.py      # La finestra Pacchetti: i pacchetti firmati delle versioni
 │   ├── qml/Main.qml        # Shell desktop a tema con checkpoint e About
+│   ├── qml/HelpDialog.qml  # La finestra della guida rapida (condivisa)
+│   ├── qml/UpdateDialog.qml # La finestra di ricerca aggiornamenti (condivisa)
+│   ├── qml/PackagesDialog.qml # La finestra dei Pacchetti: i pacchetti firmati delle versioni pubblicate
 │   ├── gui.py              # Fallback Tkinter se PySide6 non è disponibile
-│   └── main.py             # Dispatch: GUI predefinita, --cli per status/install/update
+│   ├── main.py             # Dispatch: GUI predefinita, --cli per status/install/update
+│   ├── urtc_pkg/           # Codice condiviso copiato da URTC-COMMON: autoaggiornamento da un pacchetto firmato, la finestra di aggiornamento e la guida rapida
+│   └── assets/             # I file di icona forniti con il programma
 ├── tests/                  # Test reali di ogni modulo (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Riferimento comandi
@@ -255,13 +267,15 @@ URTC-UPDATER/
 │   ├── build_test.py        # Controllo build senza versionamento
 │   ├── capture_screens.py   # Crea le immagini della guida dalla finestra reale, senza schermo
 │   ├── ci_validate.py       # Validazione manifest/CHANGELOG/docs usata dalla CI
-│   ├── generate_app_icon.py # Renderizza l'SVG pubblico di HYDRA-UMC nell'icona usata da Windows
-│   ├── migrate_project_manifests.py  # Verifica un workspace dopo la migrazione una tantum dei manifesti
-│   └── validate_project_manifests.py # Valida i manifesti propri dei repo + le versioni native di build
+│   └── generate_app_icon.py # Renderizza l'SVG pubblico di HYDRA-UMC nell'icona usata da Windows
 ├── .env.example            # Modello delle variabili d'ambiente
 ├── build.sh / build.bat    # venv + installazione editabile + compile-check
 ├── run.sh / run.bat        # GUI predefinita / ingresso CLI
 ├── run-gui.vbs             # Launcher grafico Windows senza console
+├── pyproject.toml / requirements-dev.lock # Pacchettizzazione e dipendenze di sviluppo bloccate con hash
+├── ruff.toml               # Impostazioni dei controlli statici
+├── urtc_i18n.lock.json     # Lock dei testi della finestra generati dal catalogo di URTC-COMMON
+├── urtc.project.json       # Manifesto del progetto (versione, maturità, evidenze)
 ├── bump.py                 # Comando esplicito per alzare la versione (compilare non la alza mai)
 ├── bump_version.py         # Incremento "contachilometri" dell'ecosistema (pyproject.toml + __init__.py)
 └── bump_manifest_version.py # Sincronizza la versione di urtc.project.json con quella nativa (--sync)

@@ -207,6 +207,8 @@ URTC-UPDATER/
 │   ├── github_client.py   # Concurrent raw-content fetch + real retry/backoff for transient network errors
 │   ├── install.py         # git clone/pull + delegate to the project's own build script
 │   ├── signature.py       # Optional signed-commits policy (git verify-commit before building)
+│   ├── security.py        # The two protections of an install (signed commits, ask before the build check) and how to change them
+│   ├── package.py         # Install a program from the signed package of its release (list, check, install, rollback)
 │   ├── commits.py          # Compares a checkout with its remote by commit (git ls-remote)
 │   ├── messages.py         # Install/update messages as codes plus parameters
 │   ├── evidence.py         # Hash-chained log of every attempt
@@ -219,8 +221,13 @@ URTC-UPDATER/
 │   ├── qt_gui.py           # Qt Quick bridge over the real discovery/update services
 │   ├── packages_qt.py      # The Packages window: the signed packages of the releases
 │   ├── qml/Main.qml        # Themed desktop shell: controls, checkpoints and About
+│   ├── qml/HelpDialog.qml  # The quick-guide window (shared)
+│   ├── qml/UpdateDialog.qml # The Check for updates window (shared)
+│   ├── qml/PackagesDialog.qml # The Packages window: the signed packages of the releases
 │   ├── gui.py              # Legacy Tkinter fallback if PySide6 is unavailable
-│   └── main.py             # Dispatch: GUI by default, --cli for status/install/update
+│   ├── main.py             # Dispatch: GUI by default, --cli for status/install/update
+│   ├── urtc_pkg/           # Shared code copied from URTC-COMMON: self-update from a signed package, the update dialog and the quick guide
+│   └── assets/             # The icon files the program ships with
 ├── tests/                  # Real tests for every module (`python -m pytest`)
 ├── docs/
 │   ├── CLI_REFERENCE.md     # Command reference
@@ -237,6 +244,10 @@ URTC-UPDATER/
 ├── build.sh / build.bat    # venv + editable install + compile-check
 ├── run.sh / run.bat        # GUI default / CLI entry point
 ├── run-gui.vbs             # Windows graphical launcher with no console window
+├── pyproject.toml / requirements-dev.lock # Packaging, and the development dependencies closed with hashes
+├── ruff.toml               # Settings of the static checks
+├── urtc_i18n.lock.json     # Lock of the window texts generated from the catalog of URTC-COMMON
+├── urtc.project.json       # Project manifest (version, maturity, evidence)
 ├── bump.py                 # Explicit version bump command (building never bumps)
 ├── bump_version.py         # Ecosystem-wide odometer bump (pyproject.toml + __init__.py), called by bump.py
 └── bump_manifest_version.py # Syncs urtc.project.json's version to the native one (--sync)

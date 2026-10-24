@@ -88,9 +88,12 @@ Updating URTC into /home/user/GitHub ...
 OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verified build; previous installation kept at /home/user/GitHub/URTC.backup-1a2b3c4d
 ```
 
-不带任何参数运行 `urtc-updater`（或直接双击它）会在窗口中打开同样
-的信息——一个可排序的项目表格、一个部署目标筛选器，以及针对当前所选行
-的安装/更新按钮。
+不带任何参数运行 `urtc-updater`（或直接双击它）会改为在深色桌面控制界面中
+打开同样的信息：一个带有实时发现/安装/更新指标的 **Local Ecosystem** 面板、
+一棵由清单驱动的 **Project Registry** 树，以及针对所选项目的 **Safe Update**
+面板。该布局让真正的防护措施清晰可见：通过清单发现、一次只执行一个明确的
+项目操作、手动确认、可选的构建，以及屏幕上的活动轨迹；完整日志还会写入
+`~/.urtc_updater/logs` 下的文件（保留最新的 20 个）。
 
 ## 2. 🔄 检查/更新实际是如何工作的
 
@@ -135,6 +138,8 @@ URTC-UPDATER/
 │   ├── github_client.py   # 并发抓取原始内容 + 针对临时性网络错误的真实重试/退避机制
 │   ├── install.py         # git clone/pull + 委托给项目自身的构建脚本
 │   ├── signature.py       # 可选的已签名提交策略（构建前执行 git verify-commit）
+│   ├── security.py        # 安装的两项保护（签名提交、构建检查前先询问）以及如何更改它们
+│   ├── package.py         # 从某个发布版本的签名包安装程序（列出、检查、安装、回滚）
 │   ├── commits.py          # 按提交把副本与其远程进行比较（git ls-remote）
 │   ├── messages.py         # 以代码加参数表示的安装/更新消息
 │   ├── evidence.py         # 按哈希链接的每次尝试日志
@@ -147,8 +152,13 @@ URTC-UPDATER/
 │   ├── qt_gui.py           # 通向真实发现/更新服务的 Qt Quick 桥接层
 │   ├── packages_qt.py      # 软件包窗口：各发布版的已签名软件包
 │   ├── qml/Main.qml        # 带主题、检查点和 About 的桌面界面
+│   ├── qml/HelpDialog.qml  # 快速指南窗口（共享）
+│   ├── qml/UpdateDialog.qml # 检查更新窗口（共享）
+│   ├── qml/PackagesDialog.qml # 软件包窗口：各发布版本的签名包
 │   ├── gui.py              # PySide6 不可用时的 Tkinter 兼容回退
-│   └── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update
+│   ├── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update
+│   ├── urtc_pkg/           # 复制自 URTC-COMMON 的共享代码：从签名包自我更新、更新对话框和快速指南
+│   └── assets/             # 程序自带的图标文件
 ├── tests/                  # 每个模块的真实测试（`python -m pytest`）
 ├── docs/
 │   ├── CLI_REFERENCE.md     # 命令参考
@@ -160,13 +170,15 @@ URTC-UPDATER/
 │   ├── build_test.py        # 不递增版本号的构建检查
 │   ├── capture_screens.py   # 无需屏幕，从真实窗口生成指南的图片
 │   ├── ci_validate.py       # CI 使用的清单/CHANGELOG/文档校验
-│   ├── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
-│   ├── migrate_project_manifests.py  # 一次性清单迁移后对工作区的审计
-│   └── validate_project_manifests.py # 校验仓库自身的清单 + 原生构建版本号
+│   └── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
 ├── .env.example            # 环境变量模板
 ├── build.sh / build.bat    # venv + 可编辑安装 + 编译检查
 ├── run.sh / run.bat        # 默认 GUI / CLI 入口
 ├── run-gui.vbs             # 无控制台窗口的 Windows 图形启动器
+├── pyproject.toml / requirements-dev.lock # 打包信息，以及带哈希锁定的开发依赖
+├── ruff.toml               # 静态检查的设置
+├── urtc_i18n.lock.json     # 由 URTC-COMMON 目录生成的窗口文本的锁定文件
+├── urtc.project.json       # 项目清单（版本、成熟度、证据）
 ├── bump.py                 # 显式的版本递增命令（编译从不递增）
 ├── bump_version.py         # 生态系统统一的里程表式版本递增（pyproject.toml + __init__.py）
 └── bump_manifest_version.py # 将 urtc.project.json 的版本与原生版本同步(--sync)

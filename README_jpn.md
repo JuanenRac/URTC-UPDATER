@@ -100,10 +100,14 @@ Updating URTC into /home/user/GitHub ...
 OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verified build; previous installation kept at /home/user/GitHub/URTC.backup-1a2b3c4d
 ```
 
-`urtc-updater` を引数なしで実行する（またはダブルクリックする）
-と、同じ情報がウィンドウ内に表示されます——ソート可能なプロジェクト
-テーブル、デプロイターゲットフィルター、そして選択された行に対する
-インストール/更新ボタンです。
+`urtc-updater` を引数なしで実行する（またはダブルクリックする）と、
+代わりに同じ情報が暗い色調のデスクトップ操作画面に表示されます：検出/
+インストール/更新の指標をリアルタイムで示す **Local Ecosystem** パネル、
+マニフェスト駆動の **Project Registry** ツリー、選択したプロジェクトのための
+**Safe Update** パネルです。このレイアウトは実際の安全策を見えるようにして
+います：マニフェストによる検出、明示的なプロジェクト操作は一度に 1 つ、
+手動での確認、任意のビルド、画面上のアクティビティ履歴。ログ全体は
+`~/.urtc_updater/logs` 配下のファイルにも書き込まれます（最新の 20 件を保持）。
 
 ## 2. 🔄 チェック/更新が実際にどう機能するか
 
@@ -150,6 +154,8 @@ URTC-UPDATER/
 │   ├── github_client.py   # 生コンテンツの並行取得 + 一時的なネットワークエラーに対する本物の再試行/バックオフ
 │   ├── install.py         # git clone/pull + プロジェクト自身のビルドスクリプトへの委譲
 │   ├── signature.py       # 任意の署名付きコミットポリシー（ビルド前に git verify-commit）
+│   ├── security.py        # インストールの 2 つの保護（署名付きコミット、ビルド確認前の確認）とその変更方法
+│   ├── package.py         # リリースの署名付きパッケージからプログラムをインストールする（一覧、確認、インストール、ロールバック）
 │   ├── commits.py          # チェックアウトとそのリモートをコミットで比較（git ls-remote）
 │   ├── messages.py         # コードとパラメーターで表すインストール/更新メッセージ
 │   ├── evidence.py         # 各試行のハッシュ連鎖ログ
@@ -162,8 +168,13 @@ URTC-UPDATER/
 │   ├── qt_gui.py           # 実際の検出/更新サービスへの Qt Quick ブリッジ
 │   ├── packages_qt.py      # パッケージウィンドウ：リリースの署名付きパッケージ
 │   ├── qml/Main.qml        # テーマ、チェックポイント、About を持つデスクトップ画面
+│   ├── qml/HelpDialog.qml  # クイックガイドのウィンドウ（共有）
+│   ├── qml/UpdateDialog.qml # 更新確認のウィンドウ（共有）
+│   ├── qml/PackagesDialog.qml # パッケージのウィンドウ：リリースの署名付きパッケージ
 │   ├── gui.py              # PySide6 がない場合の Tkinter 互換フォールバック
-│   └── main.py             # ディスパッチ：デフォルトは GUI、--cli で status/install/update
+│   ├── main.py             # ディスパッチ：デフォルトは GUI、--cli で status/install/update
+│   ├── urtc_pkg/           # URTC-COMMON からコピーした共有コード：署名付きパッケージからの自己更新、更新ダイアログ、クイックガイド
+│   └── assets/             # プログラムに同梱するアイコンファイル
 ├── tests/                  # 各モジュールの実際のテスト（`python -m pytest`）
 ├── docs/
 │   ├── CLI_REFERENCE.md     # コマンドリファレンス
@@ -175,13 +186,15 @@ URTC-UPDATER/
 │   ├── build_test.py        # バージョンを増やさないビルドチェック
 │   ├── capture_screens.py   # 実際のウィンドウから画面なしでガイドの画像を作る
 │   ├── ci_validate.py       # CI が使用するマニフェスト/CHANGELOG/ドキュメント検証
-│   ├── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
-│   ├── migrate_project_manifests.py  # 一度限りのマニフェスト移行後のワークスペース監査
-│   └── validate_project_manifests.py # リポジトリ自身のマニフェスト+ネイティブビルドバージョンを検証
+│   └── generate_app_icon.py # 公開HYDRA-UMC SVGをWindowsが使用するアイコンにレンダリング
 ├── .env.example            # 環境変数テンプレート
 ├── build.sh / build.bat    # venv + editable インストール + コンパイルチェック
 ├── run.sh / run.bat        # 標準 GUI / CLI エントリポイント
 ├── run-gui.vbs             # コンソールなしの Windows GUI ランチャー
+├── pyproject.toml / requirements-dev.lock # パッケージング情報と、ハッシュで固定した開発用の依存関係
+├── ruff.toml               # 静的チェックの設定
+├── urtc_i18n.lock.json     # URTC-COMMON のカタログから生成したウィンドウ文言のロックファイル
+├── urtc.project.json       # プロジェクトマニフェスト（バージョン、成熟度、証拠）
 ├── bump.py                 # 明示的なバージョン加算コマンド（コンパイルでは加算されない）
 ├── bump_version.py         # エコシステム全体で統一されたオドメーター式インクリメント（pyproject.toml + __init__.py）
 └── bump_manifest_version.py # urtc.project.json のバージョンをネイティブ版と同期(--sync)
