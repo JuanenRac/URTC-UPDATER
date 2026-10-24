@@ -278,6 +278,22 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
 <!-- /urtc-section:compatibility -->
 
+<!-- urtc-section:status_updater -->
+## 💡 项目状态
+
+🟢 已完成并已验证 · 🟡 可用，但有已知限制 · 🟠 做了一半或未验证 · 🔴 未完成或不能用。从未在真实硬件上运行过的内容不会是绿色。
+
+| 部分 | 状态 | 仓库能够证明的内容 |
+| --- | :---: | --- |
+| 软件 | 🟡 | 可在电脑上和模拟器上运行；从未在真实板子上运行过。 |
+| 界面 | 🟡 | 窗口可运行，并用模拟板子检查；未用真实适配器试过。 |
+| 测试 | 🟢 | 每次推送时测试套件都会在 CI 中通过。 |
+| 更新 | 🟡 | 从已签名的软件包安装，并可回滚；仅在电脑上试过。 |
+| 安全 | 🟡 | 发布版使用 Ed25519 签名，并在使用前检查；密钥的处理没有他人审阅过。 |
+| 文档 | 🟡 | 提供八种语言的 README 和参考文档；翻译未经母语者审阅。 |
+
+<!-- /urtc-section:status_updater -->
+
 ## 📜 许可证
 
 GPL-3.0-or-later —— 详见 [LICENSE](LICENSE)。

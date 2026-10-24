@@ -390,6 +390,22 @@ Dieses Programm kann nach einer neueren Version seiner selbst suchen: Die Schalt
 Welche Versionen der URTC-Programme zusammenarbeiten und welche Protokollversion jede spricht, steht in der Kompatibilitätstabelle, die URTC-COMMON erzeugt: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
 <!-- /urtc-section:compatibility -->
 
+<!-- urtc-section:status_updater -->
+## 💡 Projektstatus
+
+🟢 fertig und überprüft · 🟡 funktioniert, mit bekannten Grenzen · 🟠 halb fertig oder nicht überprüft · 🔴 nicht gemacht oder funktioniert nicht. Nichts ist grün, wenn es nie auf echter Hardware lief.
+
+| Teil | Status | Was das Repository belegen kann |
+| --- | :---: | --- |
+| Software | 🟡 | Läuft am PC und gegen den Simulator; nie an einer echten Platine ausgeführt. |
+| Oberfläche | 🟡 | Das Fenster läuft und wird gegen eine simulierte Platine geprüft; nicht mit einem echten Adapter probiert. |
+| Tests | 🟢 | Die Testsuite besteht bei jedem Push in der CI. |
+| Aktualisierungen | 🟡 | Installiert aus signierten Paketen mit Rückgängig-Funktion; nur am PC erprobt. |
+| Sicherheit | 🟡 | Releases werden mit Ed25519 signiert und vor der Nutzung geprüft; der Umgang mit den Schlüsseln wurde von niemand anderem geprüft. |
+| Dokumentation | 🟡 | README in acht Sprachen und Referenzdokumente; die Übersetzungen wurden nicht von Muttersprachlern geprüft. |
+
+<!-- /urtc-section:status_updater -->
+
 ## 📜 LIZENZ
 
 GPL-3.0-or-later - siehe [LICENSE](LICENSE).
