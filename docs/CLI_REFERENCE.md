@@ -12,13 +12,13 @@ illustrative of the shape, with made-up project names and versions.
 ```
 $ urtc-updater --cli -h
 usage: urtc-updater --cli [-h] [--version]
-                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware} ...
+                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat} ...
 
 Detects, installs, and manually updates the URTC ecosystem's own repositories
 on this machine.
 
 positional arguments:
-  {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware}
+  {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat}
     status              Show what's installed, its version, and the latest
                         GitHub version of every project.
     install             Clone and build ONE project that isn't installed yet.
@@ -320,6 +320,10 @@ $ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
 - Both read `<IMAGE>.sig` next to the image: the Ed25519 signature, by the key of the releases pinned in this tool, over the name of the file and its SHA-256. A file that is not a `.bin`, an image with no signature, with an unreadable one or with one that does not match is refused (exit code `1`, `FIRMWARE=FAIL <code>`), and nothing is started.
 - `open` shows the size and SHA-256, then asks `Open the Flasher with ... selected? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is started). It starts the Flasher installed with `package install urtc-flasher` as `--firmware IMAGE`.
 - The Flasher only selects the file. This tool never writes to a board: you connect an adapter, choose the options and confirm the update in the Flasher, which checks the image again.
+
+### `compat [--workspace PATH] [--json] [--language NAME]`
+
+Compares the projects found in the workspace with the compatibility matrix of the release this program carries: each one is shown as released, newer, older, not installed or of unknown version, with the copy of the shared code it carries, and the firmware that URTC-FLASHER and URTC-WEB-STUDIO bundle is compared with the firmware of the tool head repository. It only reads manifests and file names: it changes nothing and does not use the network. `--json` prints the same result as data; `--language` picks one of the eight languages of the table.
 
 ### `evidence [--workspace PATH] [--export FILE]`
 

@@ -55,4 +55,4 @@ pythonpath = ["src"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-urtc_updater = ["qml/*.qml", "assets/*"]
+urtc_updater = ["qml/*.qml", "assets/*", "urtc_pkg/compat.json"]
