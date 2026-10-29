@@ -361,7 +361,8 @@ URTC-UPDATER/
 ├── .gitattributes .gitignore                          ajustes de Git
 ├── run-gui.vbs                                        lanzador de Windows sin ventana de consola
 ├── bump.py bump_version.py bump_manifest_version.py   scripts que suben la versión
-├── LICENSE.md, urtc_i18n.lock.json, .env.example      licencia de la documentación y plantilla de variables
+├── urtc_i18n.lock.json                                bloqueo de los textos de la ventana
+├── LICENSE.md .env.example                            licencia de la documentación y variables
 └── pyproject.toml requirements-dev.lock ruff.toml     paquete, herramientas fijadas, ajustes de lint y el bloqueo de los textos
 ```
 

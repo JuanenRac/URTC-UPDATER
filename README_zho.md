@@ -269,7 +269,8 @@ URTC-UPDATER/
 ├── .gitattributes .gitignore                          Git 设置
 ├── run-gui.vbs                                        无控制台窗口的 Windows 启动器
 ├── bump.py bump_version.py bump_manifest_version.py   提升版本号的脚本
-├── LICENSE.md, urtc_i18n.lock.json, .env.example      文档许可证和环境变量模板
+├── urtc_i18n.lock.json                                窗口文本的锁文件
+├── LICENSE.md .env.example                            文档许可证和环境变量
 └── pyproject.toml requirements-dev.lock ruff.toml     软件包、锁定的工具、lint 设置和文本锁文件
 ```
 

@@ -286,7 +286,8 @@ URTC-UPDATER/
 ├── .gitattributes .gitignore                          Git の設定
 ├── run-gui.vbs                                        コンソールウィンドウなしの Windows 起動用
 ├── bump.py bump_version.py bump_manifest_version.py   バージョンを上げるスクリプト
-├── LICENSE.md, urtc_i18n.lock.json, .env.example      ドキュメントのライセンスと環境変数のテンプレート
+├── urtc_i18n.lock.json                                ウィンドウのテキストのロック
+├── LICENSE.md .env.example                            ドキュメントのライセンスと環境変数
 └── pyproject.toml requirements-dev.lock ruff.toml     パッケージ、固定ツール、lint 設定、テキストのロック
 ```
 

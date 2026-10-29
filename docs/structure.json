@@ -338,17 +338,30 @@
           "tree_name": "bump.py bump_version.py bump_manifest_version.py"
         },
         {
-          "name": "LICENSE.md  urtc_i18n.lock.json  .env.example",
-          "tree_name": "LICENSE.md, urtc_i18n.lock.json, .env.example",
+          "name": "urtc_i18n.lock.json",
           "desc": {
-            "en": "documentation license, texts lock, variables",
-            "es": "licencia de la documentación y plantilla de variables",
-            "de": "Dokumentationslizenz und Vorlage der Variablen",
-            "fr": "licence de la documentation et modèle des variables",
-            "it": "licenza della documentazione e modello delle variabili",
-            "zh": "文档许可证和环境变量模板",
-            "ja": "ドキュメントのライセンスと環境変数のテンプレート",
-            "pt": "licença da documentação e modelo das variáveis"
+            "en": "lock of the window texts",
+            "es": "bloqueo de los textos de la ventana",
+            "de": "Sperre der Fenstertexte",
+            "fr": "verrou des textes de la fenêtre",
+            "it": "blocco dei testi della finestra",
+            "zh": "窗口文本的锁文件",
+            "ja": "ウィンドウのテキストのロック",
+            "pt": "bloqueio dos textos da janela"
+          }
+        },
+        {
+          "name": "LICENSE.md  .env.example",
+          "tree_name": "LICENSE.md .env.example",
+          "desc": {
+            "en": "documentation license and variables",
+            "es": "licencia de la documentación y variables",
+            "de": "Dokumentationslizenz und Variablen",
+            "fr": "licence de la documentation et variables",
+            "it": "licenza della documentazione e variabili",
+            "zh": "文档许可证和环境变量",
+            "ja": "ドキュメントのライセンスと環境変数",
+            "pt": "licença da documentação e variáveis"
           }
         },
         {
