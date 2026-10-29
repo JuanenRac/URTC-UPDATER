@@ -126,13 +126,15 @@ def test_the_export_holds_the_entries_and_the_verdict(tmp_path: Path):
 
 def test_the_evidence_command_exports_and_sets_the_exit_code(tmp_path: Path, capsys):
     _record(tmp_path, "one")
-    args = argparse.Namespace(workspace=str(tmp_path), export=str(tmp_path / "e.json"))
+    args = argparse.Namespace(workspace=str(tmp_path), export=str(tmp_path / "e.json"), export_common=str(tmp_path / "common.jsonl"))
     assert main_module.cmd_evidence(args) == 0
-    assert "Evidence chain intact." in capsys.readouterr().out and (tmp_path / "e.json").is_file()
+    out = capsys.readouterr().out
+    assert "Evidence chain intact." in out and (tmp_path / "e.json").is_file()
+    assert "urtc-evidence/1" in out and (tmp_path / "common.jsonl").is_file()
     lines = _lines(tmp_path)
     lines[0] = lines[0].replace('"one"', '"x"')
     _write_lines(tmp_path, lines)
-    assert main_module.cmd_evidence(argparse.Namespace(workspace=str(tmp_path), export=None)) == 1
+    assert main_module.cmd_evidence(argparse.Namespace(workspace=str(tmp_path), export=None, export_common=None)) == 1
     assert "PROBLEM" in capsys.readouterr().err
 
 

@@ -174,3 +174,22 @@ def export_evidence(workspace_root: Path, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return destination
+
+def export_common(workspace_root: Path, destination: Path) -> tuple[int, int]:
+    """Writes the attempts as ``urtc-evidence/1`` records, one JSON document per line, the shape the flasher and the tester use for theirs.
+
+    Returns how many records were written and how many lines were left out because they do not fit the shape (a line written by a very old
+    version without a time, for example). The hash chain of the evidence file itself stays where it is: this is a second view, not a replacement.
+    """
+    from .urtc_pkg import evidence as common
+
+    lines: list[str] = []
+    skipped = 0
+    for entry in read_attempts(workspace_root):
+        try:
+            lines.append(json.dumps(common.from_updater_line(entry), sort_keys=True, ensure_ascii=False))
+        except (ValueError, TypeError, AttributeError):
+            skipped += 1
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text("".join(line + "\n" for line in lines), encoding="utf-8")
+    return len(lines), skipped

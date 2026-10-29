@@ -18,9 +18,10 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import firmware_names
+
 MATCH, NEWER, OLDER, MISSING, UNKNOWN = "match", "newer", "older", "missing", "unknown"
 STATES = (MATCH, NEWER, OLDER, MISSING, UNKNOWN)
-FIRMWARE_NAME = re.compile(r"^URTC_MAIN_FIRMWARE_v(\d+(?:\.\d+)+)\.bin$")
 #: where each program keeps the firmware images it carries, relative to its repository
 BUNDLED_FOLDERS = {"URTC-FLASHER": "firmware", "URTC-WEB-STUDIO": "public/firmware"}
 
@@ -121,7 +122,8 @@ def bundled_firmware(workspace: Path) -> dict[str, str | None]:
         base = workspace / repo
         if not base.is_dir():
             continue
-        found = [parsed for item in (base / folder).glob("URTC_MAIN_FIRMWARE_v*.bin") if (m := FIRMWARE_NAME.match(item.name)) and (parsed := parse_version(m.group(1)))]
+        images = sorted((base / folder).iterdir()) if (base / folder).is_dir() else []
+        found = [parsed for item in images if (name := firmware_names.parse_image_name(item.name)) and name[:2] == ("MAIN", "FIRMWARE") and (parsed := parse_version(name[2]))]
         result[repo] = ".".join(str(n) for n in max(found)) if found else None
     return result
 

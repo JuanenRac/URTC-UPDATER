@@ -325,12 +325,12 @@ $ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
 
 Compares the projects found in the workspace with the compatibility matrix of the release this program carries: each one is shown as released, newer, older, not installed or of unknown version, with the copy of the shared code it carries, and the firmware that URTC-FLASHER and URTC-WEB-STUDIO bundle is compared with the firmware of the tool head repository. It only reads manifests and file names: it changes nothing and does not use the network. `--json` prints the same result as data; `--language` picks one of the eight languages of the table.
 
-### `evidence [--workspace PATH] [--export FILE]`
+### `evidence [--workspace PATH] [--export FILE] [--export-common FILE]`
 
 ```
 $ urtc-updater --cli evidence -h
 usage: urtc-updater --cli evidence [-h] [--workspace WORKSPACE]
-                                   [--export FILE]
+                                   [--export FILE] [--export-common FILE]
 
 options:
   -h, --help            show this help message and exit
@@ -338,6 +338,9 @@ options:
                         Workspace root (default: this tool's own parent
                         directory).
   --export FILE         Write the entries and the verification result to FILE.
+  --export-common FILE  Write the attempts as urtc-evidence/1 records (one
+                        JSON document per line), the shape the flasher and the
+                        tester use.
 ```
 
 Every install, update and restore appends a line to
@@ -346,7 +349,7 @@ version, host, user, project, versions and commits before and after, and the
 message. Each line carries the hash of the one before it and its own hash, so
 an edited, removed or reordered line is detected. `evidence` verifies the chain
 (exit `1` and a `PROBLEM` line per finding when it is broken) and, with
-`--export`, writes the entries and the verdict as one JSON document.
+`--export`, writes the entries and the verdict as one JSON document. With `--export-common` it writes the attempts as `urtc-evidence/1` records, one JSON document per line, the same shape the flasher writes for an update; it says how many lines it left out because they do not fit that shape.
 
 ## Settings
 

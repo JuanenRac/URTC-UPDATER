@@ -11,6 +11,7 @@ from pathlib import Path
 from urtc_updater import install as install_module
 from urtc_updater.evidence import (
     EVIDENCE_DIRECTORY,
+    export_common,
     installed_state,
     read_attempts,
     record_attempt,
@@ -68,3 +69,30 @@ def test_install_or_update_leaves_evidence_of_a_failed_attempt(tmp_path: Path, m
     (line,) = read_attempts(tmp_path)
     assert line["project"] == "HYDRA-UMC-DEMO" and line["ok"] is False
     assert "clone refused" in line["message"]
+
+def test_the_attempts_can_be_exported_in_the_shape_the_other_programs_use(tmp_path: Path) -> None:
+    from urtc_updater.urtc_pkg import evidence as common
+
+    record_attempt(tmp_path, project="URTC-FLASHER", before={"version": "0.4.0", "commit": "a" * 40}, after={"version": "0.4.1", "commit": "b" * 40}, ok=True, message="updated")
+    record_attempt(tmp_path, project="URTC-TESTER", before={"version": "0.4.1"}, after={"version": "0.4.1"}, ok=False, message="build failed")
+    destination = tmp_path / "out" / "evidence.jsonl"
+    assert export_common(tmp_path, destination) == (2, 0)
+    records = [json.loads(line) for line in destination.read_text(encoding="utf-8").splitlines()]
+    assert [r["outcome"] for r in records] == ["pass", "fail"] and all(common.verify(r) == [] for r in records)
+    assert records[0]["kind"] == "install" and records[0]["subject"]["version_after"] == "0.4.1" and records[0]["tool"] == "URTC Updater"
+    assert records[1]["detail"] == "build failed"
+
+
+def test_a_line_that_does_not_fit_the_shape_is_left_out_and_counted(tmp_path: Path) -> None:
+    folder = tmp_path / EVIDENCE_DIRECTORY
+    folder.mkdir()
+    (folder / "evidence.jsonl").write_text('{"project": "old", "ok": true}\n{"timestamp": "2026-01-02T03:04:05+00:00", "updaterVersion": "0.1.8", "project": "p", "ok": true, "message": "m"}\n', encoding="utf-8")
+    destination = tmp_path / "e.jsonl"
+    assert export_common(tmp_path, destination) == (1, 1)
+    assert len(destination.read_text(encoding="utf-8").splitlines()) == 1
+
+
+def test_exporting_nothing_writes_an_empty_file(tmp_path: Path) -> None:
+    destination = tmp_path / "e.jsonl"
+    assert export_common(tmp_path, destination) == (0, 0)
+    assert destination.read_text(encoding="utf-8") == ""

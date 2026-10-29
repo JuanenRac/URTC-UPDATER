@@ -8,11 +8,19 @@
     },
     "compat.py": {
       "from": "src/urtc_common/compat.py",
-      "sha256": "7964c46a23e8e48235a00c5c8acd6782f14bc34109f346fee57cbdc2307d5b7d"
+      "sha256": "7f4b99288866aca15e777fb973137be784a5c779241aff6f8446e1ab10747b9b"
     },
     "compat_qt.py": {
       "from": "src/urtc_common/compat_qt.py",
       "sha256": "33c234ec8d2283443a08a6f07642fa9ec93624cbc2c5ddeb22356e2090175e3a"
+    },
+    "evidence.py": {
+      "from": "src/urtc_common/evidence.py",
+      "sha256": "d51277bc5cd67f975f09966d70e64280244a767b26c50d2a109d8b9156f8bb75"
+    },
+    "firmware_names.py": {
+      "from": "src/urtc_common/firmware_names.py",
+      "sha256": "f87c9314fb1f8992056f3f699b8128698e0706c288ceb6bc6cd402dbb5007fc8"
     },
     "help_qt.py": {
       "from": "src/urtc_common/help_qt.py",

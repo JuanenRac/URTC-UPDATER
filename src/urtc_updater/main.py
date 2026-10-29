@@ -36,7 +36,7 @@ from pathlib import Path
 
 from . import __version__, commits, compat_view, flasher_handoff, package, profiles, security, settings
 from .detect import LocalStatus, discover_workspace
-from .evidence import export_evidence, verify_chain
+from .evidence import export_common, export_evidence, verify_chain
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import (
     InstallError,
@@ -321,6 +321,9 @@ def cmd_evidence(args: argparse.Namespace) -> int:
     if args.export:
         destination = export_evidence(workspace_root, Path(args.export))
         print(f"Evidence exported to {destination}")
+    if args.export_common:
+        written, skipped = export_common(workspace_root, Path(args.export_common))
+        print(f"{written} record(s) in the urtc-evidence/1 shape written to {args.export_common}" + (f" ({skipped} line(s) left out: they do not fit the shape)" if skipped else ""))
     for problem in problems:
         print(f"PROBLEM {problem}", file=sys.stderr)
     if not problems:
@@ -571,6 +574,7 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_p = subparsers.add_parser("evidence", help="Verify the hash chain of the evidence log, optionally exporting it as one JSON file.")
     evidence_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
     evidence_p.add_argument("--export", metavar="FILE", help="Write the entries and the verification result to FILE.")
+    evidence_p.add_argument("--export-common", metavar="FILE", help="Write the attempts as urtc-evidence/1 records (one JSON document per line), the shape the flasher and the tester use.")
     evidence_p.set_defaults(func=cmd_evidence)
 
     package.add_parser(subparsers)
