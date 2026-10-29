@@ -46,6 +46,22 @@
 | Cible | Le PC de la personne qui l'utilise |
 | Sur matériel réel | Sans objet : rien ici ne s'exécute sur du matériel |
 
+<!-- urtc-section:status_updater -->
+## 🚦 État du projet
+
+🟢 fait et vérifié · 🟡 fonctionne, avec des limites connues · 🟠 à moitié fait ou non vérifié · 🔴 non fait ou non fonctionnel. Rien n'est vert si cela n'a jamais tourné sur du vrai matériel.
+
+| Partie | État | Ce que le dépôt peut démontrer |
+| --- | :---: | --- |
+| Logiciel | 🟡 | Fonctionne sur un PC et face au simulateur ; jamais utilisé avec une vraie carte. |
+| Interface | 🟡 | La fenêtre fonctionne et est vérifiée face à une carte simulée ; non essayée avec un vrai adaptateur. |
+| Tests | 🟢 | La suite de tests passe dans la CI à chaque push. |
+| Mises à jour | 🟡 | Installe depuis des paquets signés avec retour en arrière ; essayé seulement sur PC. |
+| Sécurité | 🟡 | Les versions sont signées en Ed25519 et vérifiées avant usage ; la gestion des clés n'a été relue par personne d'autre. |
+| Documentation | 🟡 | README en huit langues et documents de référence ; les traductions n'ont pas été relues par des locuteurs natifs. |
+
+<!-- /urtc-section:status_updater -->
+
 ## 1. 🛠️ VUE TECHNIQUE
 
 URTC-UPDATER est un petit outil - GUI avec fenêtre par défaut, CLI
@@ -387,22 +403,6 @@ Ce programme peut chercher une version plus récente de lui-même : le bouton «
 
 Les versions des programmes URTC qui fonctionnent ensemble, et la version du protocole que parle chacune, figurent dans le tableau de compatibilité que génère URTC-COMMON : [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
 <!-- /urtc-section:compatibility -->
-
-<!-- urtc-section:status_updater -->
-## 💡 État du projet
-
-🟢 fait et vérifié · 🟡 fonctionne, avec des limites connues · 🟠 à moitié fait ou non vérifié · 🔴 non fait ou non fonctionnel. Rien n'est vert si cela n'a jamais tourné sur du vrai matériel.
-
-| Partie | État | Ce que le dépôt peut démontrer |
-| --- | :---: | --- |
-| Logiciel | 🟡 | Fonctionne sur un PC et face au simulateur ; jamais utilisé avec une vraie carte. |
-| Interface | 🟡 | La fenêtre fonctionne et est vérifiée face à une carte simulée ; non essayée avec un vrai adaptateur. |
-| Tests | 🟢 | La suite de tests passe dans la CI à chaque push. |
-| Mises à jour | 🟡 | Installe depuis des paquets signés avec retour en arrière ; essayé seulement sur PC. |
-| Sécurité | 🟡 | Les versions sont signées en Ed25519 et vérifiées avant usage ; la gestion des clés n'a été relue par personne d'autre. |
-| Documentation | 🟡 | README en huit langues et documents de référence ; les traductions n'ont pas été relues par des locuteurs natifs. |
-
-<!-- /urtc-section:status_updater -->
 
 ## 📜 LICENCE
 

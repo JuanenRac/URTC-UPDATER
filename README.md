@@ -46,6 +46,22 @@
 | Target | The PC of the person using it |
 | On real hardware | Not applicable: nothing here runs on hardware |
 
+<!-- urtc-section:status_updater -->
+## 🚦 Project status
+
+🟢 done and verified · 🟡 works, with known limits · 🟠 half done or not verified · 🔴 not done or not working. Nothing is green if it never ran on real hardware.
+
+| Part | Status | What the repository can show |
+| --- | :---: | --- |
+| Software | 🟡 | Works on a PC and against the simulator; never run against a real board. |
+| Interface | 🟡 | The window runs and is checked against a simulated board; not tried with a real adapter. |
+| Tests | 🟢 | The test suite passes in the CI on every push. |
+| Updates | 🟡 | Installs from signed packages with a rollback; tried on a PC only. |
+| Security | 🟡 | Releases are signed with Ed25519 and checked before use; the key handling was not reviewed by anyone else. |
+| Documentation | 🟡 | README in eight languages and reference documents; the translations were not reviewed by native speakers. |
+
+<!-- /urtc-section:status_updater -->
+
 ## 1. 🛠️ TECHNICAL OVERVIEW
 
 URTC-UPDATER is a small tool - windowed GUI by default, full CLI with
@@ -362,22 +378,6 @@ This program can look for a newer version of itself: the "Check for updates" but
 
 Which versions of the URTC programs work together, and which protocol version each one speaks, is listed in the compatibility table that URTC-COMMON generates: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
 <!-- /urtc-section:compatibility -->
-
-<!-- urtc-section:status_updater -->
-## 💡 Project status
-
-🟢 done and verified · 🟡 works, with known limits · 🟠 half done or not verified · 🔴 not done or not working. Nothing is green if it never ran on real hardware.
-
-| Part | Status | What the repository can show |
-| --- | :---: | --- |
-| Software | 🟡 | Works on a PC and against the simulator; never run against a real board. |
-| Interface | 🟡 | The window runs and is checked against a simulated board; not tried with a real adapter. |
-| Tests | 🟢 | The test suite passes in the CI on every push. |
-| Updates | 🟡 | Installs from signed packages with a rollback; tried on a PC only. |
-| Security | 🟡 | Releases are signed with Ed25519 and checked before use; the key handling was not reviewed by anyone else. |
-| Documentation | 🟡 | README in eight languages and reference documents; the translations were not reviewed by native speakers. |
-
-<!-- /urtc-section:status_updater -->
 
 ## 📜 LICENSE
 
