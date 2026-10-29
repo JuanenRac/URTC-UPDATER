@@ -365,6 +365,8 @@ URTC-UPDATER/
 
 </details>
 
+La liste annotée de chaque fichier source, une ligne par fichier, est dans [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+
 ## 🗺️ Feuille de route et limites connues
 
 - Un exécutable GUI autonome packagé (PyInstaller, suivant la propre

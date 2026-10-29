@@ -368,6 +368,8 @@ URTC-UPDATER/
 
 </details>
 
+L'elenco annotato di ogni file sorgente, una riga per file, è in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+
 ## 🗺️ Roadmap e limiti noti
 
 - Un eseguibile GUI autonomo pacchettizzato (PyInstaller, seguendo la

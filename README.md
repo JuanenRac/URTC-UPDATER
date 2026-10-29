@@ -341,6 +341,8 @@ URTC-UPDATER/
 
 </details>
 
+The annotated list of every source file, one line each, is in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+
 ## 🗺️ Roadmap & Known limits
 
 - A packaged standalone GUI executable (PyInstaller, matching

@@ -370,6 +370,8 @@ URTC-UPDATER/
 
 </details>
 
+Die kommentierte Liste jeder Quelldatei, eine Zeile je Datei, steht in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+
 ## 🗺️ Roadmap und bekannte Grenzen
 
 - Eine gepackte eigenständige GUI-ausführbare Datei (PyInstaller, nach der

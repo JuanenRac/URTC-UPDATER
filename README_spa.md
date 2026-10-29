@@ -368,6 +368,8 @@ URTC-UPDATER/
 
 </details>
 
+La lista anotada de cada archivo de código, una línea por archivo, está en [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+
 ## 🗺️ Hoja de ruta y límites conocidos
 
 - Un ejecutable de GUI independiente empaquetado (PyInstaller, siguiendo
