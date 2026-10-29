@@ -290,20 +290,16 @@ README 和文本提供英语、西班牙语、法语、意大利语、德语、�
 
 ## 🔗 相关项目
 
-**URTC**(通用机器人工具控制器)是同一作者(JuanenRac / Electro Hobby 3D)打造的真实物理换刀平台。每个仓库都有自己的版本、自己的测试和自己的 README;这是完整的项目家族:
+URTC 由相互独立的仓库组成，每个仓库都有自己的版本、测试和 README。以下是按组划分的家族：
 
-* **[URTC](https://github.com/JuanenRac/URTC)** - 物理通用机器人工具控制器 PCB 的固件,基于 CAN 总线的 25+ 工具配置
-* **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - 生态的架构、接口、安全基线、能力矩阵和生成的项目目录,以及对所有仓库进行比较的工具
-* **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 板卡的桌面刷写工具,CAN-OTA 加完整芯片 SWD/JTAG
-* **[URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON)** - 只写一次的 CAN 协议数据（规范、生成的表、一致性向量）以及各程序共享的代码；本仓库带有其所用部分的副本。
-* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - 位于 CAN 总线前的网关，只放行列表中的标识符，限制其速率，并要求会话密钥。
-* **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 工具挂架固件,具备真实的工具 ID 解码和 Smart Idle 预热逻辑
-* **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 板卡的桌面实时 CAN 总线诊断工具,每个工具配置一个面板
-* **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - 固件加真实的 Python 视觉配套程序,用于热成像/RGB 检测工具头
-* **[URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)** - 通过 Web Serial API 实现的 URTC-TESTER 浏览器替代方案,无需本地安装
-* **URTC-UPDATER**(本仓库)- 检测、安装并更新生态系统自身的仓库
+* **URTC Tool Platform:** [URTC](https://github.com/JuanenRac/URTC), [URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON), [URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER), [URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY), [URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK), [URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER), [URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL), [URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)
+* **Ecosystem Operations:** [URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS), **URTC-UPDATER** (本仓库)
 
-本工具的设计(清单发现、以验证为准的原子安装/更新、证据日志)与同一作者为 HYDRA-UMC 和 A.R.M.O.R. 生态系统打造的 **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** 和 **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** 共享,二者各自仅限于自己的仓库。
+**姊妹项目（相互独立，共用同一基础和工具）：**
+
+* **[HYDRA-UMC-DOCS](https://github.com/JuanenRac/HYDRA-UMC-DOCS)** - 姊妹项目：HYDRA-UMC 的文档中心，一个独立的生态，与本生态共用基础和工具
+* **[ARMOR-DOCS](https://github.com/JuanenRac/ARMOR-DOCS)** - 姊妹项目：A.R.M.O.R. 安全生态的文档中心，同样独立，建立在同一基础上
+* **[JuanenRac](https://github.com/JuanenRac/JuanenRac)** - 所有生态的个人主页和状态面板
 
 ## 📚 文档
 

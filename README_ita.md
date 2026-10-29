@@ -390,20 +390,16 @@ Il README e i testi esistono in inglese, spagnolo, francese, italiano, tedesco, 
 
 ## 🔗 Progetti correlati
 
-**URTC** (Universal Robot Tool Controller) e una piattaforma fisica reale di cambio utensile robotico, dello stesso autore (JuanenRac / Electro Hobby 3D). Ogni repository ha la propria versione, i propri test e il proprio README; questa e l'intera famiglia:
+URTC è fatto di repository indipendenti, ciascuno con la propria versione, i propri test e il proprio README. Ecco la famiglia, per gruppi:
 
-* **[URTC](https://github.com/JuanenRac/URTC)** - Firmware per il PCB fisico Universal Robot Tool Controller, 25+ profili utensile su bus CAN
-* **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - L'architettura, le interfacce, la base di sicurezza, la matrice delle capacita e il catalogo dei progetti generato dell'ecosistema, piu gli strumenti che confrontano tutti i repository
-* **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - Strumento desktop per il flashing delle schede URTC, CAN-OTA piu SWD/JTAG completo
-* **[URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON)** - il protocollo CAN scritto una sola volta come dati (specifica, tabelle generate, vettori di conformità) e il codice condiviso dai programmi; questo repository contiene copie delle parti che usa.
-* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - un gateway davanti al bus CAN che lascia passare solo gli identificatori di un elenco, ne limita la frequenza e chiede una chiave di sessione.
-* **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - Firmware per un rack di montaggio utensili con decodifica reale dell'ID e preriscaldamento Smart Idle
-* **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - Strumento di diagnostica CAN dal vivo per schede URTC, un pannello per profilo utensile
-* **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - Firmware piu un vero compagno di visione in Python per una testa di ispezione termica/RGB
-* **[URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)** - Alternativa basata su browser a URTC-TESTER tramite la Web Serial API, senza installazione locale
-* **URTC-UPDATER** (questo repository) - Rileva, installa e aggiorna i repository dell'ecosistema stesso
+* **URTC Tool Platform:** [URTC](https://github.com/JuanenRac/URTC), [URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON), [URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER), [URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY), [URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK), [URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER), [URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL), [URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)
+* **Ecosystem Operations:** [URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS), **URTC-UPDATER** (questo repository)
 
-Il design di questo strumento (scoperta tramite manifesto, installazione/aggiornamento atomico-per-verifica, registro delle prove) e condiviso con **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** e **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - gli updater dello stesso autore per gli ecosistemi HYDRA-UMC e A.R.M.O.R., ciascuno limitato ai propri repository.
+**Progetti fratelli (indipendenti, con la stessa base e gli stessi strumenti):**
+
+* **[HYDRA-UMC-DOCS](https://github.com/JuanenRac/HYDRA-UMC-DOCS)** - progetto fratello: il centro di documentazione di HYDRA-UMC, un ecosistema indipendente che condivide base e strumenti con questo
+* **[ARMOR-DOCS](https://github.com/JuanenRac/ARMOR-DOCS)** - progetto fratello: il centro di documentazione di A.R.M.O.R., l'ecosistema di sicurezza, anch'esso indipendente e sulla stessa base
+* **[JuanenRac](https://github.com/JuanenRac/JuanenRac)** - il profilo e il pannello di stato di tutti gli ecosistemi
 
 ## 📚 Documentazione
 

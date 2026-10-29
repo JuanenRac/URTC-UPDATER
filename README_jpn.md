@@ -307,20 +307,16 @@ README とテキストは、英語、スペイン語、フランス語、イタ�
 
 ## 🔗 関連プロジェクト
 
-**URTC**(Universal Robot Tool Controller)は、同じ著者(JuanenRac / Electro Hobby 3D)による実在の物理ツールチェンジャー・プラットフォームです。各リポジトリはそれぞれ独自のバージョン、独自のテスト、独自の README を持ちます。以下がそのファミリー全体です:
+URTC は独立したリポジトリで構成され、それぞれに固有のバージョン、テスト、README があります。グループ別のファミリーは次のとおりです：
 
-* **[URTC](https://github.com/JuanenRac/URTC)** - 物理的な Universal Robot Tool Controller 基板のファームウェア、CAN バス経由の25以上のツールプロファイル
-* **[URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS)** - エコシステムのアーキテクチャ、インターフェース、セキュリティ基準、能力マトリクス、生成されたプロジェクトカタログ、そしてすべてのリポジトリを比較するツール
-* **[URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER)** - URTC 基板用デスクトップGUIフラッシュツール、CAN-OTA に加えてフルチップ SWD/JTAG
-* **[URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON)** - 一度だけ書かれた CAN プロトコルのデータ（仕様、生成された表、適合ベクトル）と、各プログラムが共有するコード。このリポジトリは使用する部分のコピーを含みます。
-* **[URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY)** - CAN バスの手前に置き、一覧にある識別子だけを通し、レートを制限し、セッション鍵を求めるゲートウェイ。
-* **[URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK)** - 実際のツールID デコードと Smart Idle 予熱ロジックを備えたツール搭載ラックのファームウェア
-* **[URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER)** - URTC 基板用デスクトップライブ CAN バス診断ツール、ツールプロファイルごとに1パネル
-* **[URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL)** - ファームウェアと、サーマル/RGB検査ツールヘッド用の実際の Python ビジョンコンパニオン
-* **[URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)** - Web Serial API 経由の URTC-TESTER のブラウザ版代替、ローカルインストール不要
-* **URTC-UPDATER**(本リポジトリ)- エコシステム自身のリポジトリを検出・インストール・更新する
+* **URTC Tool Platform:** [URTC](https://github.com/JuanenRac/URTC), [URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON), [URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER), [URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY), [URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK), [URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER), [URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL), [URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO)
+* **Ecosystem Operations:** [URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS), **URTC-UPDATER** (このリポジトリ)
 
-このツールの設計(マニフェスト発見、検証済みでのみ確定する原子的インストール/更新、証跡ログ)は、同じ著者による HYDRA-UMC および A.R.M.O.R. エコシステム向けのアップデーターである **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** および **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** と共有されています。それぞれ自分自身のリポジトリのみに限定されています。
+**姉妹プロジェクト（独立しており、基盤とツールを共有）：**
+
+* **[HYDRA-UMC-DOCS](https://github.com/JuanenRac/HYDRA-UMC-DOCS)** - 姉妹プロジェクト：HYDRA-UMC のドキュメントハブ。基盤とツールを共有する独立したエコシステム
+* **[ARMOR-DOCS](https://github.com/JuanenRac/ARMOR-DOCS)** - 姉妹プロジェクト：A.R.M.O.R. セキュリティエコシステムのドキュメントハブ。こちらも独立し、同じ基盤の上にある
+* **[JuanenRac](https://github.com/JuanenRac/JuanenRac)** - すべてのエコシステムのプロフィールとステータスダッシュボード
 
 ## 📚 ドキュメント
 
