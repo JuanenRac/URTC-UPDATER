@@ -2,6 +2,18 @@
   "format": 1,
   "urtc_common_version": "0.0.8",
   "files": {
+    "compat.json": {
+      "from": "generated/compat.json",
+      "sha256": "a01e467cfaa0f2cb219e6e20ec086f527cb816a611888ee03c9c3fb62fbac5a0"
+    },
+    "compat.py": {
+      "from": "src/urtc_common/compat.py",
+      "sha256": "7964c46a23e8e48235a00c5c8acd6782f14bc34109f346fee57cbdc2307d5b7d"
+    },
+    "compat_qt.py": {
+      "from": "src/urtc_common/compat_qt.py",
+      "sha256": "33c234ec8d2283443a08a6f07642fa9ec93624cbc2c5ddeb22356e2090175e3a"
+    },
     "help_qt.py": {
       "from": "src/urtc_common/help_qt.py",
       "sha256": "282578321477630ddd67ad29f9f8c619f6248dcac9a6d2793b1ac6221c88a91b"

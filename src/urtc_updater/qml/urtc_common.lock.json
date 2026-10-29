@@ -1,7 +1,11 @@
 {
   "format": 1,
-  "urtc_common_version": "0.0.7",
+  "urtc_common_version": "0.0.8",
   "files": {
+    "CompatDialog.qml": {
+      "from": "qml/CompatDialog.qml",
+      "sha256": "f4e2cd9dbddaf7e8d004d5423a7973e0a8c7cef2e01cd00368cd4399b2fe14fe"
+    },
     "HelpDialog.qml": {
       "from": "qml/HelpDialog.qml",
       "sha256": "f068c74647937e0b8a8c29b5eccfba9d9095522d5f734f859fcb73c4609ad4e7"

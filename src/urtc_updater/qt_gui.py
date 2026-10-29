@@ -31,6 +31,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 from . import __version__, i18n, profiles, security, settings
 from .commits import NEW_COMMITS, commit_states
+from .compat_view import compat_matrix_path
 from .detect import LocalStatus, discover_workspace
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import InstallError, install_or_update, is_running_checkout, list_backups, preview_update, restore_backup
@@ -39,6 +40,8 @@ from .messages import localize
 from .registry import GITHUB_OWNER
 from .packages_qt import PackagesModel
 from .urtc_pkg import update_service
+from .urtc_pkg import compat
+from .urtc_pkg.compat_qt import CompatModel
 from .urtc_pkg.help_qt import HelpModel
 from .urtc_pkg.update_qt import UpdateModel
 
@@ -156,6 +159,7 @@ class UpdaterBridge(QObject):
         self._update_model: UpdateModel | None = None
         self._packages_model: PackagesModel | None = None
         self._help_model: HelpModel | None = None
+        self._compat_model: CompatModel | None = None
         self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
         self._actionResult.connect(self._on_action_result)
@@ -220,6 +224,13 @@ class UpdaterBridge(QObject):
         if self._help_model is None:
             self._help_model = HelpModel("updater", lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
         return self._help_model
+
+    @Property(QObject, constant=True)
+    def compat(self) -> QObject:
+        """The compatibility window: the matrix of the release against the folders of the workspace (it only reads)."""
+        if self._compat_model is None:
+            self._compat_model = CompatModel(compat.load_matrix(compat_matrix_path()), lambda: self._workspace_root, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
+        return self._compat_model
 
     # -- QML-visible properties -----------------------------------------
     @Property(str, notify=languageChanged)
@@ -469,7 +480,7 @@ class UpdaterBridge(QObject):
             return
         self._lang = language
         i18n.save_lang_preference(language)
-        for model in (self._update_model, self._packages_model, self._help_model):
+        for model in (self._update_model, self._packages_model, self._help_model, self._compat_model):
             if model is not None:
                 model.languageChanged()
         self.languageChanged.emit()

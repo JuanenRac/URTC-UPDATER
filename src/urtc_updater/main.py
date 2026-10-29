@@ -34,7 +34,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__, commits, flasher_handoff, package, profiles, security, settings
+from . import __version__, commits, compat_view, flasher_handoff, package, profiles, security, settings
 from .detect import LocalStatus, discover_workspace
 from .evidence import export_evidence, verify_chain
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
@@ -575,6 +575,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     package.add_parser(subparsers)
     flasher_handoff.add_parser(subparsers)
+    compat_view.add_parser(subparsers)
 
     return parser
 
