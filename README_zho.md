@@ -26,6 +26,8 @@
 > **安装全部缺失项目**和**更新全部过期项目**是分别确认的顺序批量操作，使用相同的
 > 实时状态和安全流程。
 
+---
+
 **诚实核查 - 今天真正能运行的部分：** **成熟度：成熟（established，仅有一次有记录的完整运行，并非持续使用）。** 本项目把 HYDRA-UMC-UPDATER 已验证的设计（同样的清单发现、通过原子验证的临时克隆进行安装/更新，以及证据日志）仅用于 URTC 生态系统的仓库。它已在隔离的工作区中针对 GitHub 完整地端到端运行过：一次全新安装和随后对真实仓库的一次更新都正确地完成了克隆、构建和提升，并把之前的副本保留为备份。发现与版本逻辑（`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`）、带重试/退避并缓存仓库列表的 GitHub raw-content 客户端（`github_client.py`）、按提交比较（`commits.py`）以及克隆-暂存-验证-提升流水线（`install.py`）都有测试覆盖（`python -m pytest`），包括本地 HTTP 测试服务器，以及带本地 bare 远程的真实临时 git 仓库。Qt 桥接层自身的逻辑在测试中无界面运行，窗口及其对话框也会在无屏幕模式下加载，以检查它能打开并作出响应；外观靠人眼检查，没有测试。`i18n.py` 的 8 种语言覆盖通过测试检查键和占位符是否一致，而不检查翻译质量。具体已交付的内容请见 `CHANGELOG.md`。
 
 ---
@@ -38,9 +40,12 @@
 |---|---|
 | 版本 | `0.1.8` |
 | 成熟度 | 成熟 |
+| 测试 | 425 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |
+
+**跳转到：** [概述](#-概述) · [架构](#-架构) · [安全](#-安全与防护) · [接口](#-接口) · [快速开始](#-快速开始) · [测试](#-测试) · [故障排除](#-故障排除) · [结构](#-仓库结构) · [相关项目](#-相关项目)
 
 <!-- urtc-section:status_updater -->
 ## 🚦 项目状态
@@ -58,7 +63,7 @@
 
 <!-- /urtc-section:status_updater -->
 
-## 1. 🛠️ 技术概述
+## 🎯 概述
 
 URTC-UPDATER 是一个小型工具——默认为窗口化 GUI，通过 `--cli` 可
 获得完整的 CLI——旨在运行在真实的 CM5 本机上，或运行在开发者自己的
@@ -111,20 +116,26 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 项目操作、手动确认、可选的构建，以及屏幕上的活动轨迹；完整日志还会写入
 `~/.urtc_updater/logs` 下的文件（保留最新的 20 个）。
 
-## 2. 🔄 检查/更新实际是如何工作的
+## 🧩 在 URTC 中的角色
 
-- **版本来源**：本生态系统自身的"里程表"式自动递增惯例（每次真实构建都会递增一个存在于源文件*内部*的版本号——根据项目所用技术栈的不同，可能是 `pyproject.toml`、`Cargo.toml`、`version.go`、`package.json`、`version.properties`、`pubspec.yaml`，或一个固件 `#define`）从未为该次递增创建过 git 标签或 GitHub Release。因此本工具直接通过 GitHub 的原始内容托管，读取每个项目自身的 `bump_version.py`/构建脚本已经在写入的那个*同一个*文件的仓库默认分支版本——而非 Releases API，后者会把每个项目都报告为"完全没有发布记录"。
+URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据每个仓库自带的清单找到旁边的每个项目，说明已安装的版本和 GitHub 上的版本，并在明确确认之后一次安装或更新一个项目，运行该项目自己的 `build-test` 脚本，自己从不构建任何东西。它不会擅自改动任何东西：机器人控制单元绝不能在没有人批准确切操作的情况下于夜间自动更新。它还能从发布版的签名包安装桌面程序（刷写器、测试器和它自己），并可把已核对发布签名的固件镜像交给负责刷写的 URTC-FLASHER。
+
+## 🏛️ 架构
+
+<p align="center">
+  <img src="images/architecture.svg" alt="URTC-UPDATER 的架构：谁在使用、包含什么、依赖什么" width="100%">
+</p>
+
+本仓库各部分如何协作：谁在使用它、它包含什么、它依赖什么。图片由 `docs/architecture.json` 绘制，并与代码核对。
+
+### 检查/更新实际是如何工作的
+
+- **版本来源**：项目的版本保存在该项目的一个源文件中（视技术栈而定，如 `pyproject.toml`、`Cargo.toml`、`version.go`、`package.json`、`version.properties`、`pubspec.yaml` 或固件的 `#define`），由它自己的 `bump.py` 步骤写入，而这一步从未创建过 git 标签或 GitHub Release。因此本工具通过 GitHub 的原始内容主机直接从仓库默认分支读取同一个文件，而不是使用 Releases API——后者会报告每个项目都没有发布版。
 - **本地检测**：对于每一个发现的项目，检查工作区根目录下是否存在一个与该项目名称完全一致的目录（标准的生态系统布局——每个项目作为同级目录，这正是 `build-frontend.sh`/HYDRA-UMC-SUITE 自身的发现逻辑已经假定的方式），如果存在，则读取该项目*自身*的本地版本文件副本。
 - **单一解析实现**（`version_parse.py`）在本地读取和 GitHub 抓取之间共享，因此本地检出和 GitHub 抓取绝不会被两个独立漂移的正则表达式分别解读。
 - **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup-xxxxxxxx` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup-xxxxxxxx` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
 
-**build-test 可以返回什么：** 退出码 0 表示已验证，其他任何退出码都表示失败，唯独 75 表示验证*不可用*（缺少它需要的工具）。这会如实报告并拒绝更新，除非你在设置中把 `validation_unavailable` 设为 `accept`（或设置 `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`）来接受。build-test 应让目录树保持原样：如果它修改了 git 跟踪的文件，该文件会在提升之前恢复为已提交的内容，步骤中会说明是哪些文件。
-
-**已签名提交（默认仅警告；强制要求属于可选项，默认关闭）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
-
-**安全选项（两者默认都关闭；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则什么都不运行（脚本可用 `--yes` 代为回答）。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
-
-## 3. 🧱 架构与设计决策
+### 架构与设计决策
 
 - **默认 Qt Quick GUI，`--cli` 用于无桌面环境。** `main.py` 会在导入可选 PySide6
   运行时之前检查 `--cli`。CLI 可在没有显示器或桌面依赖的 CM5 上工作；无参数时会在
@@ -142,67 +153,54 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 - **仅使用标准库。** `urllib` 用于 GitHub 抓取（`github_client.py`），`subprocess` 用于 git/构建脚本调用（`install.py`），仅此而已——一个负责维护其他*所有*项目依赖健全性的工具，其自身保持零依赖，这是刻意为之的。
 - **已知的简化处理：** 由多个独立版本的二进制文件组成的仓库（URTC 有四个：主控与从控、应用与引导程序）只用一个版本来跟踪，即其自身 `urtc.project.json` 在 `native_version` 中声明的版本。这回答的是“这个仓库大致是否最新”，并不能替代烧录时按组件进行的版本检查。
 
-## 📂 目录结构
+<!-- urtc-section:updates -->
+### 如何更新
 
-```
-URTC-UPDATER/
-├── src/urtc_updater/
-│   ├── registry.py         # ProjectEntry —— 没有静态目录;在发现时从每个仓库自身的清单构建
-│   ├── project_manifest.py # 读取/校验仓库自身的 urtc.project.json
-│   ├── version_parse.py   # 单一的正则表达式提取实现，本地+GitHub 通用
-│   ├── detect.py          # 扫描工作区根目录，检测已安装的内容
-│   ├── github_client.py   # 并发抓取原始内容 + 针对临时性网络错误的真实重试/退避机制
-│   ├── install.py         # git clone/pull + 委托给项目自身的构建脚本
-│   ├── signature.py       # 可选的已签名提交策略（构建前执行 git verify-commit）
-│   ├── security.py        # 安装的两项保护（签名提交、构建检查前先询问）以及如何更改它们
-│   ├── package.py         # 从某个发布版本的签名包安装程序（列出、检查、安装、回滚）
-│   ├── commits.py          # 按提交把副本与其远程进行比较（git ls-remote）
-│   ├── messages.py         # 以代码加参数表示的安装/更新消息
-│   ├── evidence.py         # 按哈希链接的每次尝试日志
-│   ├── settings.py         # 记住的偏好（语言、工作区、保留数量、配置档）
-│   ├── profiles.py         # 具名的工作站配置档
-│   ├── notify.py           # 仅通知检查所用的桌面通知
-│   ├── logs.py             # 窗口日志文件的轮转
-│   ├── i18n.py             # 真实、完整的 GUI 翻译（8 种语言）
-│   ├── translations_data.py # 窗口文本，由 URTC-COMMON 的目录生成
-│   ├── qt_gui.py           # 通向真实发现/更新服务的 Qt Quick 桥接层
-│   ├── packages_qt.py      # 软件包窗口：各发布版的已签名软件包
-│   ├── qml/Main.qml        # 带主题、检查点和 About 的桌面界面
-│   ├── qml/HelpDialog.qml  # 快速指南窗口（共享）
-│   ├── qml/UpdateDialog.qml # 检查更新窗口（共享）
-│   ├── qml/PackagesDialog.qml # 软件包窗口：各发布版本的签名包
-│   ├── gui.py              # PySide6 不可用时的 Tkinter 兼容回退
-│   ├── flasher_handoff.py  # 提议用在此处校验过发布签名的固件镜像启动 Flasher (本程序从不刷写)
-│   ├── main.py             # 分发逻辑：默认 GUI，--cli 用于 status/install/update
-│   ├── urtc_pkg/           # 复制自 URTC-COMMON 的共享代码：从签名包自我更新、更新对话框和快速指南
-│   └── assets/             # 程序自带的图标文件
-├── tests/                  # 每个模块的真实测试（`python -m pytest`）
-├── docs/
-│   ├── CLI_REFERENCE.md     # 命令参考
-│   ├── QML_DESKTOP_GUI.md   # Qt Quick GUI 架构
-│   ├── WINDOW_GUIDE.md      # 窗口分步图文指南
-│   └── screenshots/         # 八种语言的窗口（由 tools/capture_screens.py 生成）
-├── images/                 # 媒体、应用图标与界面截图
-├── tools/
-│   ├── build_test.py        # 不递增版本号的构建检查
-│   ├── capture_screens.py   # 无需屏幕，从真实窗口生成指南的图片
-│   ├── ci_validate.py       # CI 使用的清单/CHANGELOG/文档校验
-│   ├── generate_app_icon.py # 将公开的 HYDRA-UMC SVG 渲染为 Windows 使用的图标
-│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # ci_validate.py 使用的共享检查
-├── .env.example            # 环境变量模板
-├── build.sh / build.bat    # venv + 可编辑安装 + 编译检查
-├── run.sh / run.bat        # 默认 GUI / CLI 入口
-├── run-gui.vbs             # 无控制台窗口的 Windows 图形启动器
-├── pyproject.toml / requirements-dev.lock # 打包信息，以及带哈希锁定的开发依赖
-├── ruff.toml               # 静态检查的设置
-├── urtc_i18n.lock.json     # 由 URTC-COMMON 目录生成的窗口文本的锁定文件
-├── urtc.project.json       # 项目清单（版本、成熟度、证据）
-├── bump.py                 # 显式的版本递增命令（编译从不递增）
-├── bump_version.py         # 生态系统统一的里程表式版本递增（pyproject.toml + __init__.py）
-└── bump_manifest_version.py # 将 urtc.project.json 的版本与原生版本同步(--sync)
-```
+本程序可以查找自身的较新版本：“检查更新”按钮只向 GitHub 查询一次，只有当包适用于您的系统且更新时才会提供已签名的包。除非您打开检查，否则不会自行检查或安装，更新需要您的确认。包必须与其 SHA-256 以及程序中固定的发布密钥签名一致；上一版本会保留，新版本无法启动时会自动恢复。`urtc-updater --cli package list|check|install|rollback` 可在命令行中为刷写器和测试器完成同样的操作，`install --file` 无需网络即可使用。
+<!-- /urtc-section:updates -->
 
-## ⚙️ 构建与运行
+## 🖼️ 屏幕截图
+
+这些图片是真实的窗口，在没有屏幕的情况下按打开时的样子绘制（未检查任何内容，未安装任何东西）。指南依次介绍主窗口、帮助窗口、更新窗口和软件包窗口，并以程序的八种语言展示。
+
+![窗口分步指南](docs/screenshots/updater-deck.png)
+
+[图文指南](docs/WINDOW_GUIDE.md)
+
+## 🔒 安全与防护
+
+| 威胁 | 防御 |
+|---|---|
+| 没有人批准的更新，例如夜间在机器人控制单元上 | 不会自行更改任何东西：对项目的操作需要明确确认，批量操作单独确认并逐个项目运行 |
+| 损坏或做了一半的更新让原本可用的安装无法使用 | 候选版本先被克隆、以快进方式合并（绝不强制重置，本地修改会明显报错），并先在暂存克隆中构建；只有该构建通过，才通过两次目录重命名替换正在使用的安装，之前的安装保留为 `<名称>.backup-xxxxxxxx` |
+| 在这里无法运行的检查 | build-test 返回 75 表示验证不可用：除非此人在设置中接受，否则拒绝更新 |
+| 没有人签名的提交 | 没有有效签名的修订会带警告安装；设置 `"signature_policy": "require"` 后会被拒绝 |
+| 被篡改的包 | 只有大小、SHA-256 和 Ed25519 签名都匹配且来自 GitHub 下载主机的包才会被接受；确认后才安装，绝不在另一个安装运行时安装，并可恢复之前的版本 |
+| 所做之事的痕迹丢失 | 每次安装、更新和恢复都会连同时间、主机和用户写入按哈希链接的日志 |
+
+策略的其余部分如下，用的是程序自己的措辞。
+
+**build-test 可以返回什么：** 退出码 0 表示已验证，其他任何退出码都表示失败，唯独 75 表示验证*不可用*（缺少它需要的工具）。这会如实报告并拒绝更新，除非你在设置中把 `validation_unavailable` 设为 `accept`（或设置 `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`）来接受。build-test 应让目录树保持原样：如果它修改了 git 跟踪的文件，该文件会在提升之前恢复为已提交的内容，步骤中会说明是哪些文件。
+
+**已签名提交（默认仅警告；强制要求属于可选项，默认关闭）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
+
+**安全选项（两者默认都关闭；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则什么都不运行（脚本可用 `--yes` 代为回答）。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
+
+## 🔌 接口
+
+不带参数运行时程序会打开 Qt Quick 窗口，并通过 `--cli` 提供完整的命令行（不需要显示器，也不需要 PySide6）：`status [--offline]`、`install 项目`、`update 项目 [--preview]`、`restore-backup 项目 [--list]`、`clean-backups [--keep N] [--dry-run]`、`check [--notify] [--quiet]`（有可更新内容时退出码为 10）、`package list|check|install|rollback`、`evidence [--export FILE]` 和 `security`。每个命令、选项和退出码以及真实输出见 [docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)；窗口在 [docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md) 中说明。维护和工作站命令的作用如下：
+
+- **保留的旧安装。** 每次更新都会把被替换的安装保留在 `<名称>.backup-xxxxxxxx` 中。每个项目保留最新的 2 份（在 `~/.urtc_updater_settings.json` 中设置 `"backups_to_keep"` 可更改数量），更新成功后会移除更旧的。`urtc-updater --cli clean-backups [--keep N] [--dry-run]` 可按需移除它们，同时移除因运行中断而遗留的隐藏暂存文件夹。
+- **可选：从发布版的已签名包安装。** `urtc-updater --cli package list|check|install|rollback` 用发布版附带的 `.zip` / `.tar.gz` 安装程序（刷写器、测试器或本更新器），而不是克隆加构建。只提供严格更高的版本，只来自 GitHub 的下载主机，并且包必须与公布的大小和 SHA-256 以及程序中固定的发布密钥的 Ed25519 签名一致；任何检查未通过的包都会被删除。安装前会询问（`--yes` 为脚本代答），保留最近两个发布版，`rollback` 可退回上一个。`install --file 包` 可使用磁盘上的文件（旁边放着 `.sha256` 和 `.sig`），无需网络。窗口里有给更新器自身用的“检查更新”按钮，规则相同；启动时的自动检查是一个选项，默认关闭。已用在计算机上生成的软件包测试，尚未用已发布的版本测试。
+- **软件包窗口和帮助窗口。** “软件包”按钮列出 flasher、tester 和本更新器的已签名软件包：按下“检查更新”后，每一行检查自己的版本，下载并验证软件包，安装前先询问，并可退回上一版本，规则和安全选项与 `package` 命令相同；有项目正在安装或更新时不会安装任何东西。“帮助”按钮以窗口所用语言打开五步指南。
+- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。 窗口中在“更新所选项”旁边提供同样的两个操作：预览更新（不更改任何内容，查看更新会带来什么）和恢复上一个版本。
+- **版本相同，但有新提交。** 版本号只在发布构建时变化，所以 `status` 还会把每个已安装项目的提交与远程提交（`git ls-remote`）比较，当 GitHub 上有该副本没有的内容时显示 `NEW COMMITS`。窗口显示同样的状态并提供更新。
+- **批准前先看。** `urtc-updater --cli update <项目> --preview` 会获取候选版本并显示其提交、作者、版本、签名状态以及它更改的构建或工具文件，而不触碰该副本。
+- **仅通知。** `urtc-updater --cli check [--notify] [--quiet]` 列出可以更新的内容，但不做任何更改。有可更新内容时以代码 10 退出，便于计划任务通知相关人员；`--notify` 还会显示桌面通知。
+- **证据。** 每次安装、更新和恢复都会连同时间、主机和用户记录在 `.urtc-updater/evidence.jsonl` 中，每一行都通过哈希与上一行链接。`urtc-updater --cli evidence [--export 文件]` 会验证该链，并可将其导出为一个 JSON 文档。
+- **工作站配置档。** 设置文件中的 `"profiles"` 指明一台机器处理哪些项目以及是否允许批量操作；`--profile 名称`（或设置中的 `"profile"`）会把 `status`、`check`、`install` 和 `update` 限制在其中，窗口也遵循同一配置档。
+
+## 🚀 快速开始
 
 ```bash
 chmod +x build.sh   # 仅需一次
@@ -222,30 +220,70 @@ status` / `run.bat --cli install <name>` / `run.bat --cli update
 `build.bat`/`build.sh` 已经安装它）。`--cli` 没有图形依赖，适合无桌面的
 CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
-**故障排查**
+<!-- urtc-section:compatibility -->
+### 要求与兼容性
+
+哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
+<!-- /urtc-section:compatibility -->
+
+## 🧪 测试
+
+测试套件共有 425 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
+
+## 🏗️ 构建与发布
+
+`build.sh` / `build.bat` 创建 `.venv`、安装软件包（`pip install -e .`，并为窗口安装 Qt 运行时）并编译检查所有内容；`build-test.sh` / `build-test.bat` 只检查不安装；`run.sh` / `run.bat` 打开窗口，或用 `--cli` 打开命令行；`run-gui.vbs` 在 Windows 上无控制台窗口地打开它。目前还没有构建打包的独立可执行文件。
+
+## 🩺 故障排除
 
 - `status` 在某个项目的 GitHub 版本处显示 `?`：无法为它读取 GitHub。STATE 列会说明原因（例如 `installed, GitHub unknown (HTTP 404)` 或请求限额提示）。
 - `status` 对 GitHub 显示 `-` 但没有显示任何错误：运行 `status`（不带 `--offline`）——`-` 只会在 GitHub 检查被完全跳过时出现。
 - `install`/`update` 失败并提示 "No non-versioning build-test.sh/.bat found"：该副本没有 `build-test.sh`（Windows 上为 `build-test.bat`）。请更新项目本身，或手动验证；本工具绝不会改为运行会提升版本号的构建脚本。
 - `git pull --ff-only` 失败：本地检出存在未提交的修改，或历史已分叉——请手动解决该问题（在该项目自身的目录中运行 `git status`）后再重试 `update`。本工具从不对检出进行强制重置。
 
-## 🧹 维护与工作站命令
+## 📂 仓库结构
 
-- **保留的旧安装。** 每次更新都会把被替换的安装保留在 `<名称>.backup-xxxxxxxx` 中。每个项目保留最新的 2 份（在 `~/.urtc_updater_settings.json` 中设置 `"backups_to_keep"` 可更改数量），更新成功后会移除更旧的。`urtc-updater --cli clean-backups [--keep N] [--dry-run]` 可按需移除它们，同时移除因运行中断而遗留的隐藏暂存文件夹。
-- **可选：从发布版的已签名包安装。** `urtc-updater --cli package list|check|install|rollback` 用发布版附带的 `.zip` / `.tar.gz` 安装程序（刷写器、测试器或本更新器），而不是克隆加构建。只提供严格更高的版本，只来自 GitHub 的下载主机，并且包必须与公布的大小和 SHA-256 以及程序中固定的发布密钥的 Ed25519 签名一致；任何检查未通过的包都会被删除。安装前会询问（`--yes` 为脚本代答），保留最近两个发布版，`rollback` 可退回上一个。`install --file 包` 可使用磁盘上的文件（旁边放着 `.sha256` 和 `.sig`），无需网络。窗口里有给更新器自身用的“检查更新”按钮，规则相同；启动时的自动检查是一个选项，默认关闭。已用在计算机上生成的软件包测试，尚未用已发布的版本测试。
-- **软件包窗口和帮助窗口。** “软件包”按钮列出 flasher、tester 和本更新器的已签名软件包：按下“检查更新”后，每一行检查自己的版本，下载并验证软件包，安装前先询问，并可退回上一版本，规则和安全选项与 `package` 命令相同；有项目正在安装或更新时不会安装任何东西。“帮助”按钮以窗口所用语言打开五步指南。
-- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。 窗口中在“更新所选项”旁边提供同样的两个操作：预览更新（不更改任何内容，查看更新会带来什么）和恢复上一个版本。
-- **版本相同，但有新提交。** 版本号只在发布构建时变化，所以 `status` 还会把每个已安装项目的提交与远程提交（`git ls-remote`）比较，当 GitHub 上有该副本没有的内容时显示 `NEW COMMITS`。窗口显示同样的状态并提供更新。
-- **批准前先看。** `urtc-updater --cli update <项目> --preview` 会获取候选版本并显示其提交、作者、版本、签名状态以及它更改的构建或工具文件，而不触碰该副本。
-- **仅通知。** `urtc-updater --cli check [--notify] [--quiet]` 列出可以更新的内容，但不做任何更改。有可更新内容时以代码 10 退出，便于计划任务通知相关人员；`--notify` 还会显示桌面通知。
-- **证据。** 每次安装、更新和恢复都会连同时间、主机和用户记录在 `.urtc-updater/evidence.jsonl` 中，每一行都通过哈希与上一行链接。`urtc-updater --cli evidence [--export 文件]` 会验证该链，并可将其导出为一个 JSON 文档。
-- **工作站配置档。** 设置文件中的 `"profiles"` 指明一台机器处理哪些项目以及是否允许批量操作；`--profile 名称`（或设置中的 `"profile"`）会把 `status`、`check`、`install` 和 `update` 限制在其中，窗口也遵循同一配置档。
+<p align="center">
+  <img src="images/repository-structure.svg" alt="URTC-UPDATER 的仓库结构" width="100%">
+</p>
 
-## 🚀 路线图
+<details>
+<summary>目录树的文本版</summary>
+
+```text
+URTC-UPDATER/
+├── src/urtc_updater/                                  程序：发现、版本、安装和更新、安全、签名包、Qt Quick 窗口及其八种语言的文本
+├── tests/                                             每个模块的真实测试
+├── docs/                                              命令参考、界面和窗口指南
+├── tools/                                             构建检查、截图、图标和共用工具
+├── images/                                            横幅和本 README 的图片
+├── .github/                                           CI 工作流以及 Issue 和 Pull Request 模板
+├── build.sh build.bat                                 构建脚本
+├── build-test.sh build-test.bat                       构建并测试的脚本，不会修改仓库内容
+├── test.sh test.bat                                   运行测试
+├── run.sh run.bat                                     启动程序
+├── urtc.project.json                                  清单：版本、角色、成熟度和构建命令
+├── CHANGELOG.md                                       每个版本的变更
+├── SECURITY.md SUPPORT.md LICENSE                     安全政策、支持和许可证
+├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 如何参与贡献和行为准则
+├── .gitattributes .gitignore                          Git 设置
+├── run-gui.vbs                                        无控制台窗口的 Windows 启动器
+├── bump.py bump_version.py bump_manifest_version.py   提升版本号的脚本
+├── LICENSE.md, urtc_i18n.lock.json, .env.example      文档许可证和环境变量模板
+└── pyproject.toml requirements-dev.lock ruff.toml     软件包、锁定的工具、lint 设置和文本锁文件
+```
+
+</details>
+
+## 🗺️ 路线图与已知限制
 
 - 一个打包的独立 GUI 可执行文件（PyInstaller，与 HYDRA-UMC-SUITE 自身的 `build_exe.bat`/`.sh` 惯例一致），实现完全无需 `pip`/venv 步骤的双击安装——目前的 GUI 仍然需要像 CLI 一样先执行 `./build.sh`。
 - 可选的逐项目依赖预检查（在 `install` 中途失败之前，报告缺失的工具链——未安装 Rust/Go/Android SDK/Flutter）。
 - 针对 HYDRA-UMC/URTC 自身多二进制固件的逐组件跟踪（见第 3 节中的"已知的简化处理"），一旦出现超出目前所跟踪的单一代表性组件的真实需求。
+
+## 🌍 语言
+
+README 和文本提供英语、西班牙语、法语、意大利语、德语、汉语、日语和欧洲葡萄牙语版本。
 
 ## 🔗 相关项目
 
@@ -264,37 +302,26 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
 本工具的设计(清单发现、以验证为准的原子安装/更新、证据日志)与同一作者为 HYDRA-UMC 和 A.R.M.O.R. 生态系统打造的 **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** 和 **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** 共享,二者各自仅限于自己的仓库。
 
-## 🖼️ 窗口分步指南
-
-这些图片是真实的窗口，在没有屏幕的情况下按打开时的样子绘制（未检查任何内容，未安装任何东西）。指南依次介绍主窗口、帮助窗口、更新窗口和软件包窗口，并以程序的八种语言展示。
-
-![窗口分步指南](docs/screenshots/updater-deck.png)
-
-[图文指南](docs/WINDOW_GUIDE.md)
-
-## 📚 文档与社区
+## 📚 文档
 
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — 每一个 `--cli` 子命令、从真实安装环境中获取的真实输出,以及退出码契约。
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML 桌面客户端的真实结构,以及它为何始终是同一个后端之上的真实控制界面(与 `--cli` 共用后端),而不是第二套实现。
 * **[本仓库的更新日志](CHANGELOG.md)**
 * 问题、想法与报告:electrohobby3d@gmail.com
 
+## 🤝 参与贡献与社区
+
+* 提交 Pull Request 之前请运行 `URTC_CI=1 python tools/ci_validate.py`：必须通过。参见 [CONTRIBUTING.md](CONTRIBUTING.md) 和[行为准则](CODE_OF_CONDUCT.md)。
+* README 有八种语言：修改文字时要同步修改全部八个文件，与其他仓库共用的章节由 URTC-COMMON 的 `tools/readme_sections.py` 写入。
+* 对 CAN 协议的修改从 URTC-COMMON（`spec/can_protocol.json`）开始，并通过经过核对的副本进入本仓库。
+* 不要把仅仅构建过的东西描述为已在板子上运行。
+* 请私下报告漏洞：[SECURITY.md](SECURITY.md)。问题、想法和报告：electrohobby3d@gmail.com（[SUPPORT.md](SUPPORT.md)）。
+
 ## 👤 作者
+
 **JuanenRac** (Electro Hobby 3D)
 📧 electrohobby3d@gmail.com
 📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
-
-<!-- urtc-section:updates -->
-## 🔄 如何更新
-
-本程序可以查找自身的较新版本：“检查更新”按钮只向 GitHub 查询一次，只有当包适用于您的系统且更新时才会提供已签名的包。除非您打开检查，否则不会自行检查或安装，更新需要您的确认。包必须与其 SHA-256 以及程序中固定的发布密钥签名一致；上一版本会保留，新版本无法启动时会自动恢复。`urtc-updater --cli package list|check|install|rollback` 可在命令行中为刷写器和测试器完成同样的操作，`install --file` 无需网络即可使用。
-<!-- /urtc-section:updates -->
-
-<!-- urtc-section:compatibility -->
-## 🧩 兼容性
-
-哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
-<!-- /urtc-section:compatibility -->
 
 ## 📜 许可证
 

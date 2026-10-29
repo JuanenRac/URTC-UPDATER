@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The README follows the universal layout in the eight languages:** the sections are in the fixed order with the fixed names, the Architecture and the Repository Structure are drawn from `docs/architecture.json` and `docs/structure.json`, the security options and the signed-commit policy moved to Security & Safety, the command line and the housekeeping commands to Interfaces, and the troubleshooting list has its own section. The source of the version is now described without explaining how versions are raised.
 - **The layout of the README is checked in the CI:** the validator runs `tools/universal_readme_check.py` and lists, as a warning, what differs from the universal layout of the README.
 - **Project status is the second section of the README,** right after At a glance, in the eight languages.
 

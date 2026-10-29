@@ -1,0 +1,149 @@
+{
+  "repo": "URTC-UPDATER",
+  "ecosystem": "urtc",
+  "tagline": "Finds the URTC repositories on a PC, compares them with GitHub and installs or updates one only after an explicit confirmation.",
+  "description": "URTC-UPDATER discovers the repositories next to each other from their own manifests, reads the version of each one locally and from GitHub, and installs or updates one project at a time: the candidate is cloned and built in a staging folder, the live installation is replaced only if that build passes, and the previous one is kept. It can also install a program from the signed package of its release. Nothing is ever changed on its own initiative. Tested on a computer against GitHub in an isolated workspace.",
+  "columns": [
+    "WHO USES IT",
+    "THE UPDATER",
+    "WHAT IT TOUCHES"
+  ],
+  "nodes": [
+    {
+      "id": "op",
+      "column": 0,
+      "level": "external",
+      "title": "The operator",
+      "lines": [
+        "the Qt Quick window or --cli:",
+        "status, install, update, preview,",
+        "restore-backup, package"
+      ],
+      "code": [
+        "src/urtc_updater/main.py",
+        "src/urtc_updater/qt_gui.py"
+      ]
+    },
+    {
+      "id": "task",
+      "column": 0,
+      "level": "external",
+      "title": "A scheduled task",
+      "lines": [
+        "check --notify exits with 10 when",
+        "something can be updated and",
+        "changes nothing"
+      ]
+    },
+    {
+      "id": "disc",
+      "column": 1,
+      "level": "tested",
+      "title": "Discovery and versions",
+      "lines": [
+        "manifests of the sibling checkouts,",
+        "one parser for the local and the",
+        "GitHub version"
+      ],
+      "code": [
+        "src/urtc_updater/registry.py",
+        "src/urtc_updater/detect.py",
+        "src/urtc_updater/version_parse.py"
+      ]
+    },
+    {
+      "id": "gh",
+      "column": 1,
+      "level": "tested",
+      "title": "GitHub client",
+      "lines": [
+        "raw content in parallel, a retry",
+        "only for a connection that got",
+        "no answer; new commits"
+      ],
+      "code": [
+        "src/urtc_updater/github_client.py",
+        "src/urtc_updater/commits.py"
+      ]
+    },
+    {
+      "id": "inst",
+      "column": 1,
+      "level": "contract",
+      "title": "Install and update",
+      "lines": [
+        "staging clone, the project's own",
+        "build-test, then two renames; the",
+        "old install is kept as a backup"
+      ],
+      "code": [
+        "src/urtc_updater/install.py"
+      ]
+    },
+    {
+      "id": "sec",
+      "column": 1,
+      "level": "config",
+      "title": "Security and evidence",
+      "lines": [
+        "signed commits, a question before",
+        "the build: off by default;",
+        "a hash-chained log of every step"
+      ],
+      "code": [
+        "src/urtc_updater/security.py",
+        "src/urtc_updater/signature.py",
+        "src/urtc_updater/evidence.py"
+      ]
+    },
+    {
+      "id": "pkg",
+      "column": 1,
+      "level": "tested",
+      "title": "Signed packages",
+      "lines": [
+        "install from the .zip of a release:",
+        "SHA-256, Ed25519, rollback"
+      ],
+      "code": [
+        "src/urtc_updater/package.py"
+      ]
+    },
+    {
+      "id": "gith",
+      "column": 2,
+      "level": "external",
+      "title": "GitHub",
+      "lines": [
+        "raw content of the default branch",
+        "and the release downloads"
+      ]
+    },
+    {
+      "id": "proj",
+      "column": 2,
+      "level": "external",
+      "title": "Each project",
+      "lines": [
+        "its own build-test.sh or .bat,",
+        "never a build logic of ours"
+      ]
+    }
+  ],
+  "edges": [
+    {"from": "op", "to": "inst", "label": "confirms", "level": "tested"},
+    {"from": "task", "to": "disc", "level": "tested"},
+    {"from": "disc", "to": "gh", "level": "tested"},
+    {"from": "disc", "to": "inst", "level": "tested"},
+    {"from": "inst", "to": "sec", "level": "tested"},
+    {"from": "gh", "to": "gith", "label": "reads", "level": "tested"},
+    {"from": "inst", "to": "proj", "label": "build-test", "level": "tested"}
+  ],
+  "legend": {
+    "tested": "covered by tests on a computer",
+    "contract": "the step that protects a working install",
+    "config": "off by default, chosen by the person",
+    "external": "a person, GitHub or another repository"
+  },
+  "footer": "A robot-control cell must never update overnight without a person approving the exact action."
+}

@@ -30,6 +30,8 @@
 > in blocco sequenziali, confermate separatamente e basate sullo stesso stato
 > reale e percorso di sicurezza.
 
+---
+
 **Verifica di onestà - cosa funziona davvero oggi:** **Maturità: consolidato (un'esecuzione completa documentata, non un uso prolungato).** Questo progetto adatta il design già collaudato di HYDRA-UMC-UPDATER (stessa scoperta tramite manifest, installazione/aggiornamento con clone temporaneo verificato in modo atomico e registro delle evidenze) ai soli repository dell'ecosistema URTC. È stato eseguito end to end contro GitHub in un'area di lavoro isolata: un'installazione pulita e un successivo aggiornamento di un repository reale sono stati clonati, compilati e promossi correttamente, conservando la copia precedente come backup. La logica di scoperta e di versione (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), il client GitHub raw-content con retry/backoff ed elenco dei repository in cache (`github_client.py`), il confronto per commit (`commits.py`) e la pipeline clona-prepara-verifica-promuovi (`install.py`) sono coperti da test (`python -m pytest`), compreso un server HTTP di prova locale e veri repository git temporanei con un remoto bare locale. La logica propria del bridge Qt gira senza schermo nei test, e la finestra con le sue finestre di dialogo viene caricata senza schermo per verificare che si apra e risponda; il suo aspetto si controlla a occhio, non con un test. La copertura a 8 lingue di `i18n.py` è verificata da test per chiavi e segnaposto, non per la qualità della traduzione. Vedi `CHANGELOG.md` per sapere esattamente cosa è stato consegnato finora.
 
 ---
@@ -42,9 +44,12 @@
 |---|---|
 | Versione | `0.1.8` |
 | Maturità | Consolidato |
+| Test | 425 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destinazione | Il PC di chi lo usa |
 | Su hardware reale | Non applicabile: nulla qui gira su hardware |
+
+**Vai a:** [Panoramica](#-panoramica) · [Architettura](#-architettura) · [Sicurezza](#-sicurezza-e-protezione) · [Interfacce](#-interfacce) · [Avvio rapido](#-avvio-rapido) · [Test](#-test) · [Problemi](#-risoluzione-dei-problemi) · [Struttura](#-struttura-del-repository) · [Correlati](#-progetti-correlati)
 
 <!-- urtc-section:status_updater -->
 ## 🚦 Stato del progetto
@@ -62,7 +67,7 @@
 
 <!-- /urtc-section:status_updater -->
 
-## 1. 🛠️ PANORAMICA TECNICA
+## 🎯 Panoramica
 
 URTC-UPDATER è un piccolo strumento - GUI con finestra per
 impostazione predefinita, CLI completa con `--cli` - pensato per girare
@@ -127,19 +132,21 @@ esplicita su un progetto, conferma manuale, compilazione opzionale e una
 traccia di attività a schermo; l'intero registro viene scritto anche in un
 file sotto `~/.urtc_updater/logs` (vengono conservati i 20 più recenti).
 
-## 2. 🔄 COME FUNZIONA DAVVERO UN CONTROLLO/AGGIORNAMENTO
+## 🧩 Ruolo in URTC
 
-- **Origine della versione**: la convenzione "contachilometri" di
-  auto-incremento di questo ecosistema (ogni passo esplicito `bump.py` incrementa un
-  numero di versione che vive DENTRO un file sorgente - `pyproject.toml`,
-  `Cargo.toml`, `version.go`, `package.json`, `version.properties`,
-  `pubspec.yaml`, o un `#define` di firmware, a seconda dello stack del
-  progetto) non ha mai creato un tag git né una GitHub Release per
-  quell'incremento. Questo strumento legge quindi lo STESSO file che il
-  proprio `bump_version.py`/passo `bump.py` di ogni progetto già scrive,
-  direttamente dal branch predefinito del repo tramite l'host di
-  contenuto raw di GitHub - non l'API delle Releases, che riporterebbe
-  che tutti i progetti non hanno alcuna release.
+URTC-UPDATER è il programma che tiene aggiornato un PC con i repository URTC. Trova ogni progetto accanto a sé dal manifesto che ogni repository porta, dice quale versione è installata e quale ha GitHub, e installa o aggiorna un progetto alla volta dopo una conferma esplicita, eseguendo lo script `build-test` di quel progetto e senza compilare nulla da sé. Non cambia nulla di propria iniziativa: una cella di controllo robot non deve mai aggiornarsi di notte senza che una persona approvi l'azione esatta. Installa anche i programmi desktop (il flasher, il tester e se stesso) dal pacchetto firmato della loro release, e può passare a URTC-FLASHER, che esegue il flashing, un'immagine firmware di cui ha verificato la firma di release.
+
+## 🏛️ Architettura
+
+<p align="center">
+  <img src="images/architecture.svg" alt="Architettura di URTC-UPDATER: chi lo usa, che cosa contiene e da che cosa dipende" width="100%">
+</p>
+
+Come si incastrano le parti di questo repository: chi lo usa, che cosa contiene e da che cosa dipende. L'immagine è disegnata da `docs/architecture.json` e verificata rispetto al codice.
+
+### COME FUNZIONA DAVVERO UN CONTROLLO/AGGIORNAMENTO
+
+- **Fonte della versione**: la versione di un progetto vive in un file sorgente di quel progetto (`pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`, `version.properties`, `pubspec.yaml` o un `#define` del firmware, a seconda della tecnologia) che scrive il suo stesso passo `bump.py`, e quel passo non ha mai creato un tag git né una Release di GitHub. Per questo lo strumento legge quello stesso file direttamente dal ramo predefinito del repository tramite l'host dei contenuti grezzi di GitHub, non tramite l'API delle Release, che direbbe che nessun progetto ha release.
 - **Rilevamento locale**: per ogni progetto scoperto,
   controlla se esiste una directory con quel nome esatto sotto la radice
   del workspace (la disposizione standard dell'ecosistema - ogni
@@ -179,13 +186,7 @@ file sotto `~/.urtc_updater/logs` (vengono conservati i 20 più recenti).
   strumento non reimplementa mai i passi di build propri di un
   progetto.
 
-**Cosa può rispondere il build-test:** il codice di uscita 0 significa convalidato e qualsiasi altro significa fallito, tranne 75, che significa che la convalida è *non disponibile* (manca uno strumento necessario). Viene segnalato come tale e l'aggiornamento viene rifiutato, a meno che tu non lo accetti impostando `validation_unavailable` su `accept` nelle impostazioni (o `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`). Un build-test deve lasciare l'albero come l'ha trovato: se cambia un file tracciato da git, il file viene riportato al contenuto registrato prima della promozione e i passaggi dicono quale.
-
-**Commit firmati (solo avviso per impostazione predefinita; richiederli è opzionale e disattivato per impostazione predefinita):** una revisione senza firma valida (`git verify-commit`: portachiavi GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) viene installata comunque, e i passi della finestra e della riga di comando dicono che non è firmata. Con `"signature_policy": "require"` in `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=1`; il vecchio `"require_signed_commits": true` significa lo stesso) il candidato - l'`HEAD` di un clone nuovo o il `FETCH_HEAD` scaricato di un aggiornamento - deve superare `git verify-commit` prima di leggere il suo manifest o costruire qualcosa, e un candidato rifiutato lascia intatto il checkout installato.
-
-**Opzioni di sicurezza (entrambe disattivate per impostazione predefinita; modificabili dal pulsante Sicurezza della finestra, dal comando `security`, dal file delle impostazioni, dall'ambiente e dalla riga di comando):** oltre a richiedere commit firmati, l'updater può *chiedere prima di eseguire il controllo di build* di un candidato (`"confirm_before_build": true`, `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Scarica e convalida il candidato, mostra il progetto, il commit, il suo autore, la sua firma e gli script di build o di strumenti modificati, e non esegue nulla finché non rispondi; senza finestra né terminale a cui chiedere, non esegue nulla (`--yes` risponde per gli script). `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valgono per una sola esecuzione, e un'esecuzione che disattiva una protezione attiva nelle impostazioni salvate lo segnala; la finestra, e `urtc-updater --cli security --require-signed off`, chiedono conferma prima di salvare un livello più basso. Un file di impostazioni che esiste ma non può essere letto conta come «firme richieste» finché non viene riparato o rimosso. Al controllo di build viene passato anche `URTC_PYTHON`, l'interprete che esegue l'updater, così un progetto prova con quel Python e non con il primo che il sistema trova.
-
-## 3. 🧱 ARCHITETTURA E DECISIONI DI DESIGN
+### ARCHITETTURA E DECISIONI DI DESIGN
 
 - **GUI Qt Quick predefinita, `--cli` per headless.** `main.py` controlla
   `--cli` prima di importare il runtime PySide6 opzionale. La CLI funziona su
@@ -239,67 +240,54 @@ file sotto `~/.urtc_updater/logs` (vengono conservati i 20 più recenti).
   stesso senza dipendenze è deliberato.
 - **Semplificazione nota:** un repository composto da più binari con versione indipendente (URTC ne ha quattro: principale e slave, applicazione e bootloader) viene seguito con UNA sola versione, quella che il suo `urtc.project.json` dichiara in `native_version`. Risponde a "questo repository è più o meno aggiornato?", non sostituisce il controllo di versione per componente di un flash.
 
-## 📂 STRUTTURA DELLE DIRECTORY
+<!-- urtc-section:updates -->
+### Come si aggiorna
 
-```
-URTC-UPDATER/
-├── src/urtc_updater/
-│   ├── registry.py         # ProjectEntry - nessun catalogo statico; costruito a tempo di scoperta dal manifesto proprio di ogni repo
-│   ├── project_manifest.py # Legge/valida un urtc.project.json proprio del repository
-│   ├── version_parse.py   # UN'implementazione di estrazione regex, locale+GitHub
-│   ├── detect.py          # Scansiona una radice di workspace per ciò che è installato
-│   ├── github_client.py   # Recupero concorrente del contenuto raw + ritentativo/backoff reale per errori di rete transitori
-│   ├── install.py         # git clone/pull + delega allo script di build proprio
-│   ├── signature.py       # Politica opzionale dei commit firmati (git verify-commit prima della build)
-│   ├── security.py        # Le due protezioni di un'installazione (commit firmati, chiedere prima del controllo di compilazione) e come cambiarle
-│   ├── package.py         # Installare un programma dal pacchetto firmato della sua versione pubblicata (elenco, verifica, installazione, ripristino)
-│   ├── commits.py          # Confronta una copia con il suo remoto per commit (git ls-remote)
-│   ├── messages.py         # Messaggi di installazione/aggiornamento come codici più parametri
-│   ├── evidence.py         # Registro concatenato con hash di ogni tentativo
-│   ├── settings.py         # Preferenze ricordate (lingua, area di lavoro, conservazione, profili)
-│   ├── profiles.py         # Profili di postazione con nome
-│   ├── notify.py           # Notifica desktop per il controllo di sola segnalazione
-│   ├── logs.py             # Rotazione dei file di log della finestra
-│   ├── i18n.py             # Traduzioni reali e complete della GUI (8 lingue)
-│   ├── translations_data.py # I testi della finestra, generati dal catalogo di URTC-COMMON
-│   ├── qt_gui.py           # Bridge Qt Quick verso i servizi reali di scoperta/aggiornamento
-│   ├── packages_qt.py      # La finestra Pacchetti: i pacchetti firmati delle versioni
-│   ├── qml/Main.qml        # Shell desktop a tema con checkpoint e About
-│   ├── qml/HelpDialog.qml  # La finestra della guida rapida (condivisa)
-│   ├── qml/UpdateDialog.qml # La finestra di ricerca aggiornamenti (condivisa)
-│   ├── qml/PackagesDialog.qml # La finestra dei Pacchetti: i pacchetti firmati delle versioni pubblicate
-│   ├── gui.py              # Fallback Tkinter se PySide6 non è disponibile
-│   ├── flasher_handoff.py  # Propone di avviare il Flasher con un'immagine firmware la cui firma di rilascio è stata verificata qui (non flasha mai)
-│   ├── main.py             # Dispatch: GUI predefinita, --cli per status/install/update
-│   ├── urtc_pkg/           # Codice condiviso copiato da URTC-COMMON: autoaggiornamento da un pacchetto firmato, la finestra di aggiornamento e la guida rapida
-│   └── assets/             # I file di icona forniti con il programma
-├── tests/                  # Test reali di ogni modulo (`python -m pytest`)
-├── docs/
-│   ├── CLI_REFERENCE.md     # Riferimento comandi
-│   ├── QML_DESKTOP_GUI.md   # Architettura della GUI Qt Quick
-│   ├── WINDOW_GUIDE.md      # La finestra passo dopo passo, in immagini
-│   └── screenshots/         # La finestra nelle otto lingue (scritte da tools/capture_screens.py)
-├── images/                 # Media, icone dell'app e screenshot dell'interfaccia
-├── tools/
-│   ├── build_test.py        # Controllo build senza versionamento
-│   ├── capture_screens.py   # Crea le immagini della guida dalla finestra reale, senza schermo
-│   ├── ci_validate.py       # Validazione manifest/CHANGELOG/docs usata dalla CI
-│   ├── generate_app_icon.py # Renderizza l'SVG pubblico di HYDRA-UMC nell'icona usata da Windows
-│   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # Controlli condivisi usati da ci_validate.py
-├── .env.example            # Modello delle variabili d'ambiente
-├── build.sh / build.bat    # venv + installazione editabile + compile-check
-├── run.sh / run.bat        # GUI predefinita / ingresso CLI
-├── run-gui.vbs             # Launcher grafico Windows senza console
-├── pyproject.toml / requirements-dev.lock # Pacchettizzazione e dipendenze di sviluppo bloccate con hash
-├── ruff.toml               # Impostazioni dei controlli statici
-├── urtc_i18n.lock.json     # Lock dei testi della finestra generati dal catalogo di URTC-COMMON
-├── urtc.project.json       # Manifesto del progetto (versione, maturità, evidenze)
-├── bump.py                 # Comando esplicito per alzare la versione (compilare non la alza mai)
-├── bump_version.py         # Incremento "contachilometri" dell'ecosistema (pyproject.toml + __init__.py)
-└── bump_manifest_version.py # Sincronizza la versione di urtc.project.json con quella nativa (--sync)
-```
+Questo programma può cercare una versione più recente di sé stesso: il pulsante «Cerca aggiornamenti» interroga GitHub una volta e propone un pacchetto firmato solo se è per il tuo sistema e più recente. Nulla viene controllato o installato da solo a meno che tu non attivi il controllo, e un aggiornamento richiede la tua conferma. Il pacchetto deve corrispondere al suo SHA-256 e alla firma della chiave delle release fissata nel programma; la versione precedente viene conservata e ripristinata da sola se la nuova non si avvia. `urtc-updater --cli package list|check|install|rollback` fa lo stesso da riga di comando per il flasher e il tester, e `install --file` funziona senza rete.
+<!-- /urtc-section:updates -->
 
-## ⚙️ COMPILAZIONE ED ESECUZIONE
+## 🖼️ Schermate
+
+Queste immagini mostrano la finestra reale, disegnata senza schermo com'è quando si apre (niente controllato, niente installato). La guida percorre la finestra, l'aiuto, la finestra di aggiornamento e quella dei pacchetti, e le mostra nelle otto lingue del programma.
+
+![La finestra, passo dopo passo](docs/screenshots/updater-deck.png)
+
+[Guida con immagini](docs/WINDOW_GUIDE.md)
+
+## 🔒 Sicurezza e protezione
+
+| Minaccia | Difesa |
+|---|---|
+| Un aggiornamento che nessuno ha approvato, per esempio di notte su una cella robot | Niente cambia da solo: un'azione su un progetto richiede una conferma esplicita, un lotto si conferma a parte e procede un progetto alla volta |
+| Un aggiornamento rotto o a metà rende inutilizzabile un'installazione funzionante | Il candidato viene clonato, unito in fast-forward (mai un reset forzato, così le modifiche locali falliscono in modo evidente) e compilato prima in un clone di preparazione; l'installazione in uso viene sostituita, con due rinomine di cartella, solo se quella compilazione riesce, e la precedente resta come `<nome>.backup-xxxxxxxx` |
+| Una verifica che qui non può essere eseguita | Un build-test che risponde 75 significa che la validazione non è disponibile: l'aggiornamento viene rifiutato salvo che la persona lo accetti nelle impostazioni |
+| Un commit che nessuno ha firmato | Una revisione senza firma valida viene installata con un avviso; con `"signature_policy": "require"` viene rifiutata |
+| Un pacchetto manomesso | Un pacchetto è accettato solo se dimensione, SHA-256 e firma Ed25519 coincidono e viene dagli host di download di GitHub; si installa solo dopo una conferma, mai mentre gira un'altra installazione, e la versione precedente si può ripristinare |
+| Si perde la traccia di ciò che è stato fatto | Ogni installazione, aggiornamento e ripristino viene scritto, con ora, macchina e utente, in un registro concatenato da hash |
+
+Il resto della politica segue, con le parole del programma.
+
+**Cosa può rispondere il build-test:** il codice di uscita 0 significa convalidato e qualsiasi altro significa fallito, tranne 75, che significa che la convalida è *non disponibile* (manca uno strumento necessario). Viene segnalato come tale e l'aggiornamento viene rifiutato, a meno che tu non lo accetti impostando `validation_unavailable` su `accept` nelle impostazioni (o `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`). Un build-test deve lasciare l'albero come l'ha trovato: se cambia un file tracciato da git, il file viene riportato al contenuto registrato prima della promozione e i passaggi dicono quale.
+
+**Commit firmati (solo avviso per impostazione predefinita; richiederli è opzionale e disattivato per impostazione predefinita):** una revisione senza firma valida (`git verify-commit`: portachiavi GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) viene installata comunque, e i passi della finestra e della riga di comando dicono che non è firmata. Con `"signature_policy": "require"` in `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=1`; il vecchio `"require_signed_commits": true` significa lo stesso) il candidato - l'`HEAD` di un clone nuovo o il `FETCH_HEAD` scaricato di un aggiornamento - deve superare `git verify-commit` prima di leggere il suo manifest o costruire qualcosa, e un candidato rifiutato lascia intatto il checkout installato.
+
+**Opzioni di sicurezza (entrambe disattivate per impostazione predefinita; modificabili dal pulsante Sicurezza della finestra, dal comando `security`, dal file delle impostazioni, dall'ambiente e dalla riga di comando):** oltre a richiedere commit firmati, l'updater può *chiedere prima di eseguire il controllo di build* di un candidato (`"confirm_before_build": true`, `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Scarica e convalida il candidato, mostra il progetto, il commit, il suo autore, la sua firma e gli script di build o di strumenti modificati, e non esegue nulla finché non rispondi; senza finestra né terminale a cui chiedere, non esegue nulla (`--yes` risponde per gli script). `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valgono per una sola esecuzione, e un'esecuzione che disattiva una protezione attiva nelle impostazioni salvate lo segnala; la finestra, e `urtc-updater --cli security --require-signed off`, chiedono conferma prima di salvare un livello più basso. Un file di impostazioni che esiste ma non può essere letto conta come «firme richieste» finché non viene riparato o rimosso. Al controllo di build viene passato anche `URTC_PYTHON`, l'interprete che esegue l'updater, così un progetto prova con quel Python e non con il primo che il sistema trova.
+
+## 🔌 Interfacce
+
+Il programma apre la finestra Qt Quick quando viene avviato senza argomenti e ha una riga di comando completa con `--cli` (senza schermo né PySide6): `status [--offline]`, `install PROGETTO`, `update PROGETTO [--preview]`, `restore-backup PROGETTO [--list]`, `clean-backups [--keep N] [--dry-run]`, `check [--notify] [--quiet]` (codice di uscita 10 quando qualcosa si può aggiornare), `package list|check|install|rollback`, `evidence [--export FILE]` e `security`. Ogni comando, opzione e codice di uscita, con output reale, è in [docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md); la finestra è descritta in [docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md). Che cosa fanno i comandi di manutenzione e di postazione:
+
+- **Installazioni precedenti conservate.** Ogni aggiornamento conserva l'installazione sostituita in `<nome>.backup-xxxxxxxx`. Vengono tenute le 2 più recenti per progetto (`"backups_to_keep"` in `~/.urtc_updater_settings.json` cambia il numero) e quelle più vecchie vengono rimosse dopo un aggiornamento riuscito. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` le rimuove su richiesta, insieme a ogni cartella temporanea nascosta lasciata da un'esecuzione interrotta.
+- **In via opzionale, installazione dal pacchetto firmato di una release.** `urtc-updater --cli package list|check|install|rollback` installa un programma (il flasher, il tester o questo updater) dallo `.zip` / `.tar.gz` della sua release, invece di un clone e di una compilazione. Si propone solo una versione strettamente superiore, solo dagli host di download di GitHub, e il pacchetto deve corrispondere a dimensione e SHA-256 annunciati e alla firma Ed25519 della chiave delle release fissata nel programma; un pacchetto che non supera un controllo viene eliminato. Chiede prima di installare (`--yes` risponde per gli script), conserva le due ultime release e `rollback` torna alla precedente. `install --file PACCHETTO` funziona da un file su disco con `.sha256` e `.sig` accanto, senza rete. La finestra ha un pulsante «Cerca aggiornamenti» per l'updater stesso con le stesse regole; il controllo automatico all'avvio è un'opzione, spenta per impostazione predefinita. Provato con pacchetti generati su un computer, non ancora con una release pubblicata.
+- **Una finestra Pacchetti e una finestra Aiuto.** Il pulsante «Pacchetti» elenca i pacchetti firmati del flasher, del tester e di questo updater: ogni riga controlla la sua versione quando premi «Cerca aggiornamenti», scarica e verifica il pacchetto, chiede prima di installare e torna alla versione precedente, con le stesse regole e opzioni di sicurezza del comando `package`; non si installa nulla mentre un progetto viene installato o aggiornato. Il pulsante «Aiuto» apre una guida in cinque passi nella lingua della finestra.
+- **Ripristinarne una.** `urtc-updater --cli restore-backup <PROGETTO> [--backup CARTELLA] [--list]` rimette a posto un'installazione conservata. Anche l'installazione sostituita viene conservata, quindi lo scambio si può annullare. La finestra offre le stesse due azioni accanto ad Aggiorna selezionato: Anteprima dell'aggiornamento (cosa porterebbe, senza modificare nulla) e Ripristina la versione precedente.
+- **Stessa versione, nuovi commit.** La versione cambia solo in un build di rilascio, quindi `status` confronta anche il commit di ogni progetto installato con quello remoto (`git ls-remote`) e mostra `NEW COMMITS` quando GitHub ha lavoro che la copia non ha. La finestra mostra lo stesso stato e offre l'aggiornamento.
+- **Guardare prima di approvare.** `urtc-updater --cli update <PROGETTO> --preview` scarica il candidato e mostra il suo commit, autore, versione, stato della firma e i file di build o di strumenti che modifica, senza toccare la copia.
+- **Solo avviso.** `urtc-updater --cli check [--notify] [--quiet]` elenca ciò che si potrebbe aggiornare e non cambia nulla. Termina con codice 10 quando c'è qualcosa da aggiornare, così un'attività pianificata può avvisare una persona; `--notify` mostra anche una notifica desktop.
+- **Evidenze.** Ogni installazione, aggiornamento e ripristino viene registrato con ora, macchina e utente in `.urtc-updater/evidence.jsonl`, con ogni riga concatenata alla precedente tramite hash. `urtc-updater --cli evidence [--export FILE]` verifica la catena e può esportarla come un unico documento JSON.
+- **Profili di postazione.** `"profiles"` nel file delle impostazioni indica i progetti con cui lavora una macchina e se i lotti sono consentiti; `--profile NOME` (o `"profile"` nelle impostazioni) vi limita `status`, `check`, `install` e `update`, e la finestra segue lo stesso profilo.
+
+## 🚀 Avvio rapido
 
 ```bash
 chmod +x build.sh   # una tantum
@@ -319,7 +307,21 @@ La GUI preferita richiede il runtime Qt opzionale (`pip install -e ".[gui]"`;
 l'ingresso corretto per una CM5 headless. Senza Qt, la vecchia finestra
 Tkinter resta solo un fallback di compatibilità.
 
-**Risoluzione dei problemi**
+<!-- urtc-section:compatibility -->
+### Requisiti e compatibilità
+
+Quali versioni dei programmi URTC funzionano insieme, e quale versione del protocollo parla ciascuna, è elencato nella tabella di compatibilità generata da URTC-COMMON: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
+<!-- /urtc-section:compatibility -->
+
+## 🧪 Test
+
+La suite ha 425 test (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alcuni vengono saltati se manca una dipendenza opzionale): il rilevamento e i manifesti, l'unico parser di versioni, il client GitHub contro un server locale (tentativi, errori, un catalogo malformato), installazione e aggiornamento su veri repository git locali (preparazione, promozione, backup, rifiuti, un build-test che risponde 75, sicurezza dell'area di lavoro), ripristino e pulizia dei backup, la politica dei commit firmati, le opzioni di sicurezza, i pacchetti firmati e il loro rollback, la catena delle prove, impostazioni e profili, i testi della finestra nelle otto lingue e il ponte Qt, e le immagini della guida della finestra, disegnate senza schermo. `python -m mypy` e `ruff check .` girano in CI.
+
+## 🏗️ Compilazione e rilascio
+
+`build.sh` / `build.bat` creano il `.venv`, installano il pacchetto (`pip install -e .`, con l'ambiente Qt per la finestra) e controllano la compilazione di tutto; `build-test.sh` / `build-test.bat` controllano senza installare; `run.sh` / `run.bat` aprono la finestra, o la riga di comando con `--cli`; `run-gui.vbs` la apre su Windows senza finestra di console. Un eseguibile autonomo confezionato non viene ancora costruito.
+
+## 🩺 Risoluzione dei problemi
 
 - `status` mostra `?` nella versione GitHub di un progetto: non è stato possibile leggere GitHub per esso. La colonna STATE dice perché (per esempio `installed, GitHub unknown (HTTP 404)` o un avviso di limite di richieste).
 - `status` mostra `-` per GitHub senza alcun errore mostrato: esegui
@@ -331,19 +333,41 @@ Tkinter resta solo un fallback di compatibilità.
   status` nella directory propria del progetto) prima di riprovare
   `update`. Questo strumento non forza mai un reset di un checkout.
 
-## 🧹 MANUTENZIONE E COMANDI DI POSTAZIONE
+## 📂 Struttura del repository
 
-- **Installazioni precedenti conservate.** Ogni aggiornamento conserva l'installazione sostituita in `<nome>.backup-xxxxxxxx`. Vengono tenute le 2 più recenti per progetto (`"backups_to_keep"` in `~/.urtc_updater_settings.json` cambia il numero) e quelle più vecchie vengono rimosse dopo un aggiornamento riuscito. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` le rimuove su richiesta, insieme a ogni cartella temporanea nascosta lasciata da un'esecuzione interrotta.
-- **In via opzionale, installazione dal pacchetto firmato di una release.** `urtc-updater --cli package list|check|install|rollback` installa un programma (il flasher, il tester o questo updater) dallo `.zip` / `.tar.gz` della sua release, invece di un clone e di una compilazione. Si propone solo una versione strettamente superiore, solo dagli host di download di GitHub, e il pacchetto deve corrispondere a dimensione e SHA-256 annunciati e alla firma Ed25519 della chiave delle release fissata nel programma; un pacchetto che non supera un controllo viene eliminato. Chiede prima di installare (`--yes` risponde per gli script), conserva le due ultime release e `rollback` torna alla precedente. `install --file PACCHETTO` funziona da un file su disco con `.sha256` e `.sig` accanto, senza rete. La finestra ha un pulsante «Cerca aggiornamenti» per l'updater stesso con le stesse regole; il controllo automatico all'avvio è un'opzione, spenta per impostazione predefinita. Provato con pacchetti generati su un computer, non ancora con una release pubblicata.
-- **Una finestra Pacchetti e una finestra Aiuto.** Il pulsante «Pacchetti» elenca i pacchetti firmati del flasher, del tester e di questo updater: ogni riga controlla la sua versione quando premi «Cerca aggiornamenti», scarica e verifica il pacchetto, chiede prima di installare e torna alla versione precedente, con le stesse regole e opzioni di sicurezza del comando `package`; non si installa nulla mentre un progetto viene installato o aggiornato. Il pulsante «Aiuto» apre una guida in cinque passi nella lingua della finestra.
-- **Ripristinarne una.** `urtc-updater --cli restore-backup <PROGETTO> [--backup CARTELLA] [--list]` rimette a posto un'installazione conservata. Anche l'installazione sostituita viene conservata, quindi lo scambio si può annullare. La finestra offre le stesse due azioni accanto ad Aggiorna selezionato: Anteprima dell'aggiornamento (cosa porterebbe, senza modificare nulla) e Ripristina la versione precedente.
-- **Stessa versione, nuovi commit.** La versione cambia solo in un build di rilascio, quindi `status` confronta anche il commit di ogni progetto installato con quello remoto (`git ls-remote`) e mostra `NEW COMMITS` quando GitHub ha lavoro che la copia non ha. La finestra mostra lo stesso stato e offre l'aggiornamento.
-- **Guardare prima di approvare.** `urtc-updater --cli update <PROGETTO> --preview` scarica il candidato e mostra il suo commit, autore, versione, stato della firma e i file di build o di strumenti che modifica, senza toccare la copia.
-- **Solo avviso.** `urtc-updater --cli check [--notify] [--quiet]` elenca ciò che si potrebbe aggiornare e non cambia nulla. Termina con codice 10 quando c'è qualcosa da aggiornare, così un'attività pianificata può avvisare una persona; `--notify` mostra anche una notifica desktop.
-- **Evidenze.** Ogni installazione, aggiornamento e ripristino viene registrato con ora, macchina e utente in `.urtc-updater/evidence.jsonl`, con ogni riga concatenata alla precedente tramite hash. `urtc-updater --cli evidence [--export FILE]` verifica la catena e può esportarla come un unico documento JSON.
-- **Profili di postazione.** `"profiles"` nel file delle impostazioni indica i progetti con cui lavora una macchina e se i lotti sono consentiti; `--profile NOME` (o `"profile"` nelle impostazioni) vi limita `status`, `check`, `install` e `update`, e la finestra segue lo stesso profilo.
+<p align="center">
+  <img src="images/repository-structure.svg" alt="Struttura del repository URTC-UPDATER" width="100%">
+</p>
 
-## 🚀 TABELLA DI MARCIA
+<details>
+<summary>Versione testuale dell'albero</summary>
+
+```text
+URTC-UPDATER/
+├── src/urtc_updater/                                  il programma: rilevamento, versioni, installazione e aggiornamento, sicurezza, pacchetti firmati, la finestra Qt Quick e i suoi testi in otto lingue
+├── tests/                                             test reali per ogni modulo
+├── docs/                                              riferimento dei comandi, interfaccia e guida della finestra
+├── tools/                                             controllo di compilazione, schermate, icona e strumenti condivisi
+├── images/                                            banner e immagini di questo README
+├── .github/                                           workflow di CI e modelli per issue e pull request
+├── build.sh build.bat                                 script di compilazione
+├── build-test.sh build-test.bat                       script di compilazione e test che non cambiano nulla nel repository
+├── test.sh test.bat                                   eseguono i test
+├── run.sh run.bat                                     avviano il programma
+├── urtc.project.json                                  manifesto: versione, ruolo, maturità e comando di compilazione
+├── CHANGELOG.md                                       che cosa è cambiato in ogni versione
+├── SECURITY.md SUPPORT.md LICENSE                     politica di sicurezza, supporto e licenza
+├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 come contribuire e codice di condotta
+├── .gitattributes .gitignore                          impostazioni di Git
+├── run-gui.vbs                                        avvio per Windows senza finestra di console
+├── bump.py bump_version.py bump_manifest_version.py   script che alzano la versione
+├── LICENSE.md, urtc_i18n.lock.json, .env.example      licenza della documentazione e modello delle variabili
+└── pyproject.toml requirements-dev.lock ruff.toml     pacchetto, strumenti bloccati, impostazioni di lint e blocco dei testi
+```
+
+</details>
+
+## 🗺️ Roadmap e limiti noti
 
 - Un eseguibile GUI autonomo pacchettizzato (PyInstaller, seguendo la
   propria convenzione `build_exe.bat`/`.sh` di HYDRA-UMC-SUITE) per
@@ -357,7 +381,11 @@ Tkinter resta solo un fallback di compatibilità.
   appena ci sarà una reale necessità oltre l'unico componente
   rappresentativo tracciato oggi.
 
-## 🔗 Progetti Correlati
+## 🌍 Lingue
+
+Il README e i testi esistono in inglese, spagnolo, francese, italiano, tedesco, cinese, giapponese e portoghese europeo.
+
+## 🔗 Progetti correlati
 
 **URTC** (Universal Robot Tool Controller) e una piattaforma fisica reale di cambio utensile robotico, dello stesso autore (JuanenRac / Electro Hobby 3D). Ogni repository ha la propria versione, i propri test e il proprio README; questa e l'intera famiglia:
 
@@ -374,37 +402,26 @@ Tkinter resta solo un fallback di compatibilità.
 
 Il design di questo strumento (scoperta tramite manifesto, installazione/aggiornamento atomico-per-verifica, registro delle prove) e condiviso con **[HYDRA-UMC-UPDATER](https://github.com/JuanenRac/HYDRA-UMC-UPDATER)** e **[ARMOR-UPDATER](https://github.com/JuanenRac/ARMOR-UPDATER)** - gli updater dello stesso autore per gli ecosistemi HYDRA-UMC e A.R.M.O.R., ciascuno limitato ai propri repository.
 
-## 🖼️ La finestra, passo dopo passo
-
-Queste immagini mostrano la finestra reale, disegnata senza schermo com'è quando si apre (niente controllato, niente installato). La guida percorre la finestra, l'aiuto, la finestra di aggiornamento e quella dei pacchetti, e le mostra nelle otto lingue del programma.
-
-![La finestra, passo dopo passo](docs/screenshots/updater-deck.png)
-
-[Guida con immagini](docs/WINDOW_GUIDE.md)
-
-## 📚 Documentazione e Comunita
+## 📚 Documentazione
 
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — ogni sottocomando `--cli`, output reale catturato da un'esecuzione reale installata, e il contratto dei codici di uscita.
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — come e strutturato il client desktop Qt Quick/QML, e come resta una vera superficie di controllo sullo stesso backend usato da `--cli`, non una seconda implementazione.
 * **[Changelog di questo repository](CHANGELOG.md)**
 * Domande, idee e segnalazioni: electrohobby3d@gmail.com
 
+## 🤝 Contribuire e comunità
+
+* Prima di una pull request esegui `URTC_CI=1 python tools/ci_validate.py`: deve passare. Vedi [CONTRIBUTING.md](CONTRIBUTING.md) e il [codice di condotta](CODE_OF_CONDUCT.md).
+* Il README esiste in otto lingue: una modifica del testo si fa in tutti e otto i file, e le sezioni condivise con altri repository le scrive `tools/readme_sections.py` di URTC-COMMON.
+* Una modifica al protocollo CAN parte da URTC-COMMON (`spec/can_protocol.json`) e arriva in questo repository tramite la copia verificata.
+* Non descrivere come funzionante su una scheda ciò che è stato solo compilato.
+* Segnala una vulnerabilità in privato: [SECURITY.md](SECURITY.md). Domande, idee e segnalazioni: electrohobby3d@gmail.com ([SUPPORT.md](SUPPORT.md)).
+
 ## 👤 AUTORE
+
 **JuanenRac** (Electro Hobby 3D)
 📧 electrohobby3d@gmail.com
 📺 [youtube.com/@electrohobby3d](https://youtube.com/@electrohobby3d)
-
-<!-- urtc-section:updates -->
-## 🔄 Come si aggiorna
-
-Questo programma può cercare una versione più recente di sé stesso: il pulsante «Cerca aggiornamenti» interroga GitHub una volta e propone un pacchetto firmato solo se è per il tuo sistema e più recente. Nulla viene controllato o installato da solo a meno che tu non attivi il controllo, e un aggiornamento richiede la tua conferma. Il pacchetto deve corrispondere al suo SHA-256 e alla firma della chiave delle release fissata nel programma; la versione precedente viene conservata e ripristinata da sola se la nuova non si avvia. `urtc-updater --cli package list|check|install|rollback` fa lo stesso da riga di comando per il flasher e il tester, e `install --file` funziona senza rete.
-<!-- /urtc-section:updates -->
-
-<!-- urtc-section:compatibility -->
-## 🧩 Compatibilità
-
-Quali versioni dei programmi URTC funzionano insieme, e quale versione del protocollo parla ciascuna, è elencato nella tabella di compatibilità generata da URTC-COMMON: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
-<!-- /urtc-section:compatibility -->
 
 ## 📜 LICENZA
 
