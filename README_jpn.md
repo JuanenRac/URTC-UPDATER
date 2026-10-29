@@ -41,7 +41,7 @@
 
 | | |
 |---|---|
-| バージョン | `0.1.8` |
+| バージョン | `0.1.9` |
 | 成熟度 | 確立 |
 | テスト | 425 (`python -m pytest`) |
 | 技術 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |

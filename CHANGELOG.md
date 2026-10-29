@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.1.9] - The compatibility window and command, the export of evidence and the universal README
 
 - **The install log can be exported in the shape the other programs use:** `urtc-updater --cli evidence --export-common FILE` writes the attempts as `urtc-evidence/1` records (one JSON document per line, each with its digest), the same shape the flasher writes for an update, and says how many lines it left out because they do not fit. The hash chain of the log itself is unchanged.
 - **A compatibility window and command:** the Compatibility button and `urtc-updater --cli compat` compare the projects of the workspace with the compatibility matrix of the release the program carries (as released, newer, older, not installed or unknown, plus the copy of the shared code each carries) and warn when URTC-FLASHER or URTC-WEB-STUDIO bundle firmware other than the one of the tool head repository. It only reads; the texts are in the eight languages.
