@@ -248,9 +248,22 @@ Este programa puede buscar una versión más nueva de sí mismo: el botón «Bus
 
 ## 🖼️ Capturas de pantalla
 
-Estas imágenes son la ventana real, dibujada sin pantalla tal como se abre (nada comprobado, nada instalado). La guía recorre la ventana, la ayuda, la ventana de actualización y la de paquetes, y las muestra en los ocho idiomas del programa.
+<!-- urtc-shots -->
+Capturadas a 1920×1080 en un banco de pruebas, con datos de ejemplo y sin ninguna instalación real detrás.
 
-![La ventana, paso a paso](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="La ventana sobre un espacio de trabajo con la familia: cada proyecto con su madurez, pila y versión local, y las acciones de actualización segura." width="100%"><br><sub>La ventana sobre un espacio de trabajo con la familia: cada proyecto con su madurez, pila y versión local, y las acciones de actualización segura.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="La ventana de Paquetes: los programas de la familia que una versión publica como paquete firmado, cada uno comprobando su propia versión." width="100%"><br><sub>La ventana de Paquetes: los programas de la familia que una versión publica como paquete firmado, cada uno comprobando su propia versión.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="La ventana de Ayuda: los pasos para usar el programa, escritos en el idioma de la ventana." width="100%"><br><sub>La ventana de Ayuda: los pasos para usar el programa, escritos en el idioma de la ventana.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="La ventana de actualizaciones: un paquete firmado más reciente solo se instala después de que lo confirmes." width="100%"><br><sub>La ventana de actualizaciones: un paquete firmado más reciente solo se instala después de que lo confirmes.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+Estas imágenes son la ventana real, dibujada sin pantalla tal como se abre (nada comprobado, nada instalado). La guía recorre la ventana, la ayuda, la ventana de actualización y la de paquetes, y las muestra en los ocho idiomas del programa.
 
 [Guía con imágenes](docs/WINDOW_GUIDE.md)
 

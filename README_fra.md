@@ -245,9 +245,22 @@ Ce programme peut chercher une version plus récente de lui-même : le bouton «
 
 ## 🖼️ Captures d'écran
 
-Ces images montrent la vraie fenêtre, dessinée sans écran telle qu'elle s'ouvre (rien de vérifié, rien d'installé). Le guide parcourt la fenêtre, l'aide, la fenêtre de mise à jour et celle des paquets, et les montre dans les huit langues du programme.
+<!-- urtc-shots -->
+Capturées en 1920×1080 sur un banc d'essai, avec des données d'exemple et sans installation réelle derrière.
 
-![La fenêtre, pas à pas](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="La fenêtre sur un espace de travail contenant la famille : chaque projet avec sa maturité, sa pile et sa version locale, et les actions de mise à jour sûres." width="100%"><br><sub>La fenêtre sur un espace de travail contenant la famille : chaque projet avec sa maturité, sa pile et sa version locale, et les actions de mise à jour sûres.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="La fenêtre des paquets : les programmes de la famille qu'une version publie comme paquet signé, chacun vérifiant sa propre version." width="100%"><br><sub>La fenêtre des paquets : les programmes de la famille qu'une version publie comme paquet signé, chacun vérifiant sa propre version.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="La fenêtre d'aide : les étapes d'utilisation du programme, dans la langue de la fenêtre." width="100%"><br><sub>La fenêtre d'aide : les étapes d'utilisation du programme, dans la langue de la fenêtre.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="La fenêtre de mise à jour : un paquet signé plus récent n'est installé qu'après votre confirmation." width="100%"><br><sub>La fenêtre de mise à jour : un paquet signé plus récent n'est installé qu'après votre confirmation.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+Ces images montrent la vraie fenêtre, dessinée sans écran telle qu'elle s'ouvre (rien de vérifié, rien d'installé). Le guide parcourt la fenêtre, l'aide, la fenêtre de mise à jour et celle des paquets, et les montre dans les huit langues du programme.
 
 [Guide avec images](docs/WINDOW_GUIDE.md)
 

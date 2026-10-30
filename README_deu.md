@@ -249,9 +249,22 @@ Dieses Programm kann nach einer neueren Version seiner selbst suchen: Die Schalt
 
 ## 🖼️ Screenshots
 
-Diese Bilder zeigen das echte Fenster, ohne Bildschirm gezeichnet, so wie es sich öffnet (nichts geprüft, nichts installiert). Die Anleitung führt durch das Fenster, das Hilfefenster, das Update-Fenster und das Paketfenster und zeigt sie in den acht Sprachen des Programms.
+<!-- urtc-shots -->
+Aufgenommen mit 1920×1080 auf einem Prüfstand, mit Beispieldaten und ohne eine echte Anlage dahinter.
 
-![Das Fenster, Schritt für Schritt](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="Das Fenster über einem Arbeitsbereich mit der Familie darin: jedes Projekt mit Reifegrad, Stack und lokaler Version sowie die sicheren Aktualisierungsaktionen." width="100%"><br><sub>Das Fenster über einem Arbeitsbereich mit der Familie darin: jedes Projekt mit Reifegrad, Stack und lokaler Version sowie die sicheren Aktualisierungsaktionen.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="Das Paket-Fenster: die Programme der Familie, die ein Release als signiertes Paket veröffentlicht, jedes prüft sein eigenes Release." width="100%"><br><sub>Das Paket-Fenster: die Programme der Familie, die ein Release als signiertes Paket veröffentlicht, jedes prüft sein eigenes Release.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="Das Hilfefenster: die Schritte zur Benutzung des Programms, in der Sprache des Fensters." width="100%"><br><sub>Das Hilfefenster: die Schritte zur Benutzung des Programms, in der Sprache des Fensters.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="Das Update-Fenster: ein neueres signiertes Paket wird erst nach deiner Bestätigung installiert." width="100%"><br><sub>Das Update-Fenster: ein neueres signiertes Paket wird erst nach deiner Bestätigung installiert.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+Diese Bilder zeigen das echte Fenster, ohne Bildschirm gezeichnet, so wie es sich öffnet (nichts geprüft, nichts installiert). Die Anleitung führt durch das Fenster, das Hilfefenster, das Update-Fenster und das Paketfenster und zeigt sie in den acht Sprachen des Programms.
 
 [Anleitung mit Bildern](docs/WINDOW_GUIDE.md)
 

@@ -161,9 +161,22 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 
 ## 🖼️ 屏幕截图
 
-这些图片是真实的窗口，在没有屏幕的情况下按打开时的样子绘制（未检查任何内容，未安装任何东西）。指南依次介绍主窗口、帮助窗口、更新窗口和软件包窗口，并以程序的八种语言展示。
+<!-- urtc-shots -->
+在测试台上以 1920×1080 截取，使用示例数据，背后没有真实的安装。
 
-![窗口分步指南](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="显示包含整个系列的工作区的窗口：每个项目的成熟度、技术栈和本地版本，以及安全更新操作。" width="100%"><br><sub>显示包含整个系列的工作区的窗口：每个项目的成熟度、技术栈和本地版本，以及安全更新操作。</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="软件包窗口：系列中以已签名软件包形式发布的程序，每个程序检查各自的发布版本。" width="100%"><br><sub>软件包窗口：系列中以已签名软件包形式发布的程序，每个程序检查各自的发布版本。</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="帮助窗口：使用该程序的各个步骤，使用窗口的语言显示。" width="100%"><br><sub>帮助窗口：使用该程序的各个步骤，使用窗口的语言显示。</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="更新窗口：只有在你确认之后，才会安装较新的已签名软件包。" width="100%"><br><sub>更新窗口：只有在你确认之后，才会安装较新的已签名软件包。</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+这些图片是真实的窗口，在没有屏幕的情况下按打开时的样子绘制（未检查任何内容，未安装任何东西）。指南依次介绍主窗口、帮助窗口、更新窗口和软件包窗口，并以程序的八种语言展示。
 
 [图文指南](docs/WINDOW_GUIDE.md)
 

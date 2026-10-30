@@ -248,9 +248,22 @@ Questo programma può cercare una versione più recente di sé stesso: il pulsan
 
 ## 🖼️ Schermate
 
-Queste immagini mostrano la finestra reale, disegnata senza schermo com'è quando si apre (niente controllato, niente installato). La guida percorre la finestra, l'aiuto, la finestra di aggiornamento e quella dei pacchetti, e le mostra nelle otto lingue del programma.
+<!-- urtc-shots -->
+Catturate a 1920×1080 su un banco di prova, con dati di esempio e senza alcuna installazione reale dietro.
 
-![La finestra, passo dopo passo](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="La finestra su uno spazio di lavoro con la famiglia: ogni progetto con maturità, stack e versione locale, e le azioni di aggiornamento sicuro." width="100%"><br><sub>La finestra su uno spazio di lavoro con la famiglia: ogni progetto con maturità, stack e versione locale, e le azioni di aggiornamento sicuro.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="La finestra dei pacchetti: i programmi della famiglia che una versione pubblica come pacchetto firmato, ciascuno con il controllo della propria versione." width="100%"><br><sub>La finestra dei pacchetti: i programmi della famiglia che una versione pubblica come pacchetto firmato, ciascuno con il controllo della propria versione.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="La finestra della Guida: i passi per usare il programma, scritti nella lingua della finestra." width="100%"><br><sub>La finestra della Guida: i passi per usare il programma, scritti nella lingua della finestra.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="La finestra degli aggiornamenti: un pacchetto firmato più recente viene installato solo dopo la tua conferma." width="100%"><br><sub>La finestra degli aggiornamenti: un pacchetto firmato più recente viene installato solo dopo la tua conferma.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+Queste immagini mostrano la finestra reale, disegnata senza schermo com'è quando si apre (niente controllato, niente installato). La guida percorre la finestra, l'aiuto, la finestra di aggiornamento e quella dei pacchetti, e le mostra nelle otto lingue del programma.
 
 [Guida con immagini](docs/WINDOW_GUIDE.md)
 

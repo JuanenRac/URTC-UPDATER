@@ -9,6 +9,7 @@
 of the person is read or written: the window looks at an empty workspace and keeps its settings in a folder that is thrown away.
 
     python tools/capture_screens.py                          # docs/screenshots/updater-deck.png, -help.png, -updates.png and -packages.png
+    python tools/capture_screens.py --readme                 # the pictures of the README: images/screenshots/<screen>.png at 1920x1080
     python tools/capture_screens.py --out DIR                # another folder
     python tools/capture_screens.py --language german        # the same pictures in German: updater-deck-de.png ...
     python tools/capture_screens.py --all-languages          # the English ones and those of the seven other languages
@@ -40,6 +41,7 @@ DIALOGS = (("helpDialog", "help"), ("updateDialog", "updates"), ("packagesDialog
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out", default=str(ROOT / "docs" / "screenshots"))
+    parser.add_argument("--readme", action="store_true", help="the pictures of the README: 1920x1080, in images/screenshots/, named after the screen only")
     parser.add_argument("--language", choices=sorted(LANGUAGE_NAME.values()), default="english", help="the interface language of the pictures")
     parser.add_argument("--all-languages", action="store_true", help="one run per language (each in its own process)")
     args = parser.parse_args(argv)
@@ -57,6 +59,11 @@ def main(argv: list[str] | None = None) -> int:
     os.chdir(scratch)  # whatever the program writes next to where it runs does not go into the repository
     workspace = scratch / "workspace"
     workspace.mkdir()
+    if args.readme:
+        # the pictures of the README show a workspace with the family in it: the manifests of the sibling repositories are copied in (nothing else of them)
+        for manifest in sorted(ROOT.parent.glob("URTC-*/urtc.project.json")):
+            (workspace / manifest.parent.name).mkdir()
+            (workspace / manifest.parent.name / "urtc.project.json").write_bytes(manifest.read_bytes())
 
     from PySide6.QtCore import QMetaObject, QObject, Qt, QUrl
     from PySide6.QtGui import QGuiApplication, QWindow
@@ -98,16 +105,17 @@ def main(argv: list[str] | None = None) -> int:
             time.sleep(0.01)
 
     root.setVisibility(QWindow.Visibility.Windowed)
-    root.setWidth(SIZE[0])
-    root.setHeight(SIZE[1])
+    size = (1920, 1080) if args.readme else SIZE
+    root.setWidth(size[0])
+    root.setHeight(size[1])
     pump(1.0)
-    out = Path(args.out)
+    out = Path(args.out) if not args.readme or args.out != str(ROOT / "docs" / "screenshots") else ROOT / "images" / "screenshots"
     out.mkdir(parents=True, exist_ok=True)
     written = []
 
     def shot(label: str) -> None:
         image = QQuickWindow.grabWindow(root)
-        path = out / f"updater-{label}{LANGUAGE_SUFFIX[code]}.png"
+        path = out / (f"{label}.png" if args.readme else f"updater-{label}{LANGUAGE_SUFFIX[code]}.png")
         if not image.save(str(path)):
             raise SystemExit(f"CAPTURE=FAIL could not write {path}")
         written.append(path.name)

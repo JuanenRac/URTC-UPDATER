@@ -228,9 +228,22 @@ Este programa pode procurar uma versão mais recente de si próprio: o botão «
 
 ## 🖼️ Capturas de ecrã
 
-Estas imagens são a janela real, desenhada sem ecrã tal como abre (nada verificado, nada instalado). O guia percorre a janela, a ajuda, a janela de atualização e a dos pacotes, e mostra-as nas oito línguas do programa.
+<!-- urtc-shots -->
+Capturadas a 1920×1080 numa bancada de testes, com dados de exemplo e sem qualquer instalação real por trás.
 
-![A janela, passo a passo](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura." width="100%"><br><sub>A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão." width="100%"><br><sub>A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="A janela de Ajuda: os passos para utilizar o programa, escritos no idioma da janela." width="100%"><br><sub>A janela de Ajuda: os passos para utilizar o programa, escritos no idioma da janela.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar." width="100%"><br><sub>A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+Estas imagens são a janela real, desenhada sem ecrã tal como abre (nada verificado, nada instalado). O guia percorre a janela, a ajuda, a janela de atualização e a dos pacotes, e mostra-as nas oito línguas do programa.
 
 [Guia com imagens](docs/WINDOW_GUIDE.md)
 

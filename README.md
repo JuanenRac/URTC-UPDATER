@@ -221,9 +221,22 @@ This program can look for a newer version of itself: the "Check for updates" but
 
 ## 🖼️ Screenshots
 
-These pictures are the real window, drawn without a screen as it opens (nothing checked, nothing installed). The guide goes through the window, the Help window, the update window and the Packages window, and shows them in the eight languages of the program.
+<!-- urtc-shots -->
+Captured at 1920×1080 on a test bench, with sample data and no real installation behind them.
 
-![The window, step by step](docs/screenshots/updater-deck.png)
+<table>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="The window over a workspace with the family in it: every project with its maturity, stack and local version, and the safe update actions." width="100%"><br><sub>The window over a workspace with the family in it: every project with its maturity, stack and local version, and the safe update actions.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="The Packages window: the programs of the family that a release publishes as a signed package, each checking its own release." width="100%"><br><sub>The Packages window: the programs of the family that a release publishes as a signed package, each checking its own release.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="The Help window: the steps for using the program, written in the language of the window." width="100%"><br><sub>The Help window: the steps for using the program, written in the language of the window.</sub></td>
+<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="The update window: a newer signed package is installed only after you confirm it." width="100%"><br><sub>The update window: a newer signed package is installed only after you confirm it.</sub></td>
+</tr>
+</table>
+<!-- /urtc-shots -->
+
+These pictures are the real window, drawn without a screen as it opens (nothing checked, nothing installed). The guide goes through the window, the Help window, the update window and the Packages window, and shows them in the eight languages of the program.
 
 [Guide with pictures](docs/WINDOW_GUIDE.md)
 
