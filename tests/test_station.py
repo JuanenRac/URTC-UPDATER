@@ -138,6 +138,29 @@ def test_the_evidence_command_exports_and_sets_the_exit_code(tmp_path: Path, cap
     assert "PROBLEM" in capsys.readouterr().err
 
 
+def test_the_evidence_history_lists_the_records_of_a_folder_and_fails_on_an_edited_one(tmp_path: Path, capsys):
+    from urtc_updater.urtc_pkg import evidence as common
+
+    folder = tmp_path / "records"
+    folder.mkdir()
+    good = common.build(kind="install", outcome="pass", timestamp_utc="2026-01-02T10:00:00Z", tool="URTC-UPDATER", tool_version="0.1.9", subject={"name": "URTC-FLASHER"})
+    (folder / "a.json").write_text(json.dumps(good), encoding="utf-8")
+    args = argparse.Namespace(workspace=None, export=None, export_common=None, history=str(folder), json=False)
+    assert main_module.cmd_evidence(args) == 0
+    assert "URTC-FLASHER" in capsys.readouterr().out
+    args.json = True
+    assert main_module.cmd_evidence(args) == 0
+    assert json.loads(capsys.readouterr().out)["summary"]["records"] == 1
+    (folder / "b.json").write_text(json.dumps(dict(good, outcome="fail")), encoding="utf-8")   # edited after it was written
+    args.json = False
+    assert main_module.cmd_evidence(args) == 1
+    assert "NOT VALID" in capsys.readouterr().out
+    args.history = str(tmp_path / "missing")
+    assert main_module.cmd_evidence(args) == 2
+    parsed = main_module.build_parser().parse_args(["evidence", "--history", str(folder), "--json"])
+    assert parsed.history == str(folder) and parsed.json is True
+
+
 # --- profiles ----------------------------------------------------------------
 
 def test_without_a_profile_nothing_is_restricted():

@@ -315,7 +315,22 @@ def cmd_restore_backup(args: argparse.Namespace) -> int:
     return 0 if result.ok else 1
 
 
+def _evidence_history(folder: str, as_json: bool) -> int:
+    """The ``urtc-evidence/1`` records of a folder (the ones the flasher, the tester and this tool write), newest first, each one checked. Reads only."""
+    from .urtc_pkg import evidence_history
+
+    try:
+        entries = evidence_history.select(evidence_history.load_folder(folder))
+    except FileNotFoundError as error:
+        print(f"ERROR {error}", file=sys.stderr)
+        return 2
+    print(evidence_history.to_json(entries).rstrip("\n") if as_json else evidence_history.to_text(entries))
+    return 1 if any(not entry.valid for entry in entries) else 0
+
+
 def cmd_evidence(args: argparse.Namespace) -> int:
+    if getattr(args, "history", None):
+        return _evidence_history(args.history, bool(getattr(args, "json", False)))
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     problems = verify_chain(workspace_root)
     if args.export:
@@ -575,6 +590,9 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
     evidence_p.add_argument("--export", metavar="FILE", help="Write the entries and the verification result to FILE.")
     evidence_p.add_argument("--export-common", metavar="FILE", help="Write the attempts as urtc-evidence/1 records (one JSON document per line), the shape the flasher and the tester use.")
+    evidence_p.add_argument("--history", metavar="FOLDER", help="List the urtc-evidence/1 records of FOLDER (flasher, tester and updater alike), newest first, checking each one: "
+                                                               "a record edited after it was written is listed as NOT VALID and the exit status is 1. Reads only.")
+    evidence_p.add_argument("--json", action="store_true", help="With --history: print the list with its summary as one JSON document.")
     evidence_p.set_defaults(func=cmd_evidence)
 
     package.add_parser(subparsers)

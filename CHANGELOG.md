@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The evidence of the programs can be listed from the command line:** `urtc-updater --cli evidence --history FOLDER [--json]` reads the evidence records (`urtc-evidence/1`) that the flasher, the tester and this tool write into a folder, checks each one and lists them newest first with a summary; a record edited after it was written is listed as not valid and the exit status is 1. It reads only. The shared code is the history of the common evidence.
+
 ## [0.1.9] - The compatibility window and command, the export of evidence and the universal README
 
 - **The install log can be exported in the shape the other programs use:** `urtc-updater --cli evidence --export-common FILE` writes the attempts as `urtc-evidence/1` records (one JSON document per line, each with its digest), the same shape the flasher writes for an update, and says how many lines it left out because they do not fit. The hash chain of the log itself is unchanged.

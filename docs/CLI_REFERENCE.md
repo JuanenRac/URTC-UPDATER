@@ -325,12 +325,13 @@ $ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
 
 Compares the projects found in the workspace with the compatibility matrix of the release this program carries: each one is shown as released, newer, older, not installed or of unknown version, with the copy of the shared code it carries, and the firmware that URTC-FLASHER and URTC-WEB-STUDIO bundle is compared with the firmware of the tool head repository. It only reads manifests and file names: it changes nothing and does not use the network. `--json` prints the same result as data; `--language` picks one of the eight languages of the table.
 
-### `evidence [--workspace PATH] [--export FILE] [--export-common FILE]`
+### `evidence [--workspace PATH] [--export FILE] [--export-common FILE] [--history FOLDER [--json]]`
 
 ```
 $ urtc-updater --cli evidence -h
 usage: urtc-updater --cli evidence [-h] [--workspace WORKSPACE]
                                    [--export FILE] [--export-common FILE]
+                                   [--history FOLDER] [--json]
 
 options:
   -h, --help            show this help message and exit
@@ -341,7 +342,19 @@ options:
   --export-common FILE  Write the attempts as urtc-evidence/1 records (one
                         JSON document per line), the shape the flasher and the
                         tester use.
+  --history FOLDER      List the urtc-evidence/1 records of FOLDER (flasher,
+                        tester and updater alike), newest first, checking each
+                        one: a record edited after it was written is listed as
+                        NOT VALID and the exit status is 1. Reads only.
+  --json                With --history: print the list with its summary as one
+                        JSON document.
 ```
+
+`--history FOLDER` does not read the evidence log of the workspace: it is the one
+view of the `.json` and `.jsonl` records that any of the programs wrote into a
+folder (`--export-common` writes this updater's own attempts in that shape).
+Exit `0` when every record is valid, `1` when one fails its check, `2` when the
+folder does not exist.
 
 Every install, update and restore appends a line to
 `<workspace>/.urtc-updater/evidence.jsonl` with the time (UTC), updater
