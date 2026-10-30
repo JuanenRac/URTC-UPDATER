@@ -176,3 +176,62 @@ def test_the_restore_button_needs_an_installed_project_with_a_kept_installation(
     assert bridge.canRestore is True
     bridge._locals = [_local(installed=False)]
     assert bridge.canRestore is False
+
+
+# -- the Firmware window: check the signature of an image, open the Flasher with it ------------------------------------------------------------------------
+
+
+def _signed_image(tmp_path: Path, monkeypatch, signed: bool = True) -> Path:
+    import test_flasher_handoff as handoff
+    from urtc_updater.urtc_pkg import update_service as svc
+
+    monkeypatch.setattr(svc, "RELEASE_PUBLIC_KEY_HEX", handoff.PUBLIC)
+    return handoff._image(tmp_path, signed=signed)
+
+
+def test_the_firmware_window_confirms_a_signed_image_in_the_language_of_the_window(bridge, tmp_path, monkeypatch):
+    image = _signed_image(tmp_path, monkeypatch)
+    answer = bridge.firmwareCheck(str(image))
+    assert answer == i18n.t("pt", "fw_valid", name=image.name, size=image.stat().st_size, digest=__import__("hashlib").sha256(image.read_bytes()).hexdigest())
+    assert "assinatura" in answer
+    assert bridge.firmwareCheck(image.as_uri()) == answer  # the chooser gives a file: address
+
+
+def test_the_firmware_window_refuses_an_unsigned_image_with_its_reason_translated(bridge, tmp_path, monkeypatch):
+    image = _signed_image(tmp_path, monkeypatch, signed=False)
+    assert bridge.firmwareCheck(str(image)) == i18n.t("pt", "fw_refused", reason=i18n.t("pt", "fw_err_signature_missing"))
+    assert bridge.firmwareCheck(str(tmp_path / "nothing.bin")) == i18n.t("pt", "fw_refused", reason=i18n.t("pt", "fw_err_image_missing"))
+
+
+def test_opening_the_flasher_starts_it_with_the_image_selected_and_never_without_a_valid_signature(bridge, tmp_path, monkeypatch):
+    started: list[tuple[object, list[str]]] = []
+    done = __import__("threading").Event()
+
+    def fake_launch(root, arguments):
+        started.append((root, list(arguments)))
+        done.set()
+        return 0
+
+    monkeypatch.setattr(qt_gui.launcher, "launch", fake_launch)
+    monkeypatch.setattr(qt_gui.launcher, "resolve_entry", lambda root: Path(root) / "run")
+    monkeypatch.setattr(qt_gui.flasher_handoff, "root_of", lambda app: tmp_path / "flasher-root")
+    image = _signed_image(tmp_path, monkeypatch)
+    assert bridge.firmwareOpen(str(image)) == i18n.t("pt", "fw_started", name=image.name)
+    assert done.wait(5) and started == [(tmp_path / "flasher-root", ["--firmware", str(image.resolve())])]
+    started.clear()
+    (tmp_path / "other").mkdir()
+    unsigned = _signed_image(tmp_path / "other", monkeypatch, signed=False)
+    assert bridge.firmwareOpen(str(unsigned)) == i18n.t("pt", "fw_refused", reason=i18n.t("pt", "fw_err_signature_missing"))
+    assert started == []
+
+
+def test_opening_the_flasher_says_so_when_the_flasher_is_not_installed(bridge, tmp_path, monkeypatch):
+    from urtc_updater.urtc_pkg import self_update as su
+
+    def missing(root):
+        raise su.UpdateError("no_current_release", "current.txt is missing")
+
+    monkeypatch.setattr(qt_gui.launcher, "resolve_entry", missing)
+    monkeypatch.setattr(qt_gui.flasher_handoff, "root_of", lambda app: tmp_path / "none")
+    image = _signed_image(tmp_path, monkeypatch)
+    assert bridge.firmwareOpen(str(image)) == i18n.t("pt", "fw_refused", reason=i18n.t("pt", "fw_err_flasher"))

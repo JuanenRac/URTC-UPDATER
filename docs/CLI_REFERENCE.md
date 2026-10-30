@@ -320,6 +320,7 @@ $ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
 - Both read `<IMAGE>.sig` next to the image: the Ed25519 signature, by the key of the releases pinned in this tool, over the name of the file and its SHA-256. A file that is not a `.bin`, an image with no signature, with an unreadable one or with one that does not match is refused (exit code `1`, `FIRMWARE=FAIL <code>`), and nothing is started.
 - `open` shows the size and SHA-256, then asks `Open the Flasher with ... selected? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is started). It starts the Flasher installed with `package install urtc-flasher` as `--firmware IMAGE`.
 - The Flasher only selects the file. This tool never writes to a board: you connect an adapter, choose the options and confirm the update in the Flasher, which checks the image again.
+- The same two steps are in the window: the Firmware button asks for the image (a box with a chooser), checks the signature on request and opens the Flasher with the image selected, in the eight languages. The window never writes to a board either.
 
 ### `firmware sync [--workspace PATH] [--dry-run] [--yes] [--option on|off]`
 

@@ -53,7 +53,8 @@ assert engine.rootObjects(), warnings
 root = engine.rootObjects()[0]
 packages_dialog = root.findChild(QObject, "packagesDialog")
 help_dialog = root.findChild(QObject, "helpDialog")
-assert packages_dialog is not None and help_dialog is not None
+firmware_dialog = root.findChild(QObject, "firmwareDialog")
+assert packages_dialog is not None and help_dialog is not None and firmware_dialog is not None
 
 model = bridge.packages
 assert list(model.apps) == list(package.KNOWN_APPS) and len(model.entries) == 3
@@ -64,7 +65,7 @@ for code, _label in i18n.LANGUAGES:
     pump(0.1)
     assert model.t("pkg_title") == i18n.t(code, "pkg_title")
     assert [section["title"] for section in bridge.help.sections] and len(bridge.help.sections) == 5, code
-    for dialog in (packages_dialog, help_dialog):
+    for dialog in (packages_dialog, help_dialog, firmware_dialog):
         call(dialog, "open")
         pump(0.15)
         assert dialog.property("visible"), (code, dialog.objectName())
@@ -75,7 +76,7 @@ bridge.setLanguage("es")
 assert model.entry("urtc-flasher").installedText == "no instalado"
 assert model.entry("urtc-flasher").t("UPD_BTN_CHECK") == "Buscar actualización"
 
-errors = [w for w in warnings if "does not support customization" not in w and ("Packages" in w or "Help" in w or "TypeError" in w or "ReferenceError" in w or "Cannot read" in w)]
+errors = [w for w in warnings if "does not support customization" not in w and ("Packages" in w or "Help" in w or "Firmware" in w or "TypeError" in w or "ReferenceError" in w or "Cannot read" in w)]
 assert not errors, errors
 print("QT_PACKAGES=PASS")
 sys.stdout.flush()

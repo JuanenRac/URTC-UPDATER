@@ -33,13 +33,15 @@ from . import __version__, i18n, profiles, security, settings
 from .commits import NEW_COMMITS, commit_states
 from .compat_view import compat_matrix_path
 from .detect import LocalStatus, discover_workspace
+from . import flasher_handoff
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
 from .install import InstallError, install_or_update, is_running_checkout, list_backups, preview_update, restore_backup
 from .logs import prune_logs
 from .messages import localize
 from .registry import GITHUB_OWNER
 from .packages_qt import PackagesModel
-from .urtc_pkg import update_service
+from .urtc_pkg import launcher, update_service
+from .urtc_pkg import self_update as _self_update
 from .urtc_pkg import compat
 from .urtc_pkg.compat_qt import CompatModel
 from .urtc_pkg.help_qt import HelpModel
@@ -464,6 +466,54 @@ class UpdaterBridge(QObject):
             return  # the first answer of a request is the answer; a later one (the dialog closing) changes nothing
         self._build_answer = bool(allowed)
         self._build_event.set()
+
+    # -- Firmware image: check its release signature, open the Flasher with it ------
+    @staticmethod
+    def _local_path(path: str) -> str:
+        """A path typed in the box or a ``file:`` address given by the file chooser, as a plain path."""
+        text = path.strip()
+        return QUrl(text).toLocalFile() if text.startswith("file:") else text
+
+    @Slot(str, result=str)
+    def firmwareLocalPath(self, url: str) -> str:
+        """The plain path of a ``file:`` address (what the file chooser gives)."""
+        return self._local_path(url)
+
+    def _firmware_refusal(self, error: _self_update.UpdateError) -> str:
+        key = f"fw_err_{error.code}"
+        reason = self._t(key) if key in i18n.TRANSLATIONS.get(self._lang, {}) else str(error)
+        return self._t("fw_refused", reason=reason)
+
+    @Slot(str, result=str)
+    def firmwareCheck(self, path: str) -> str:
+        """Checks the release signature of an image (nothing is written, nothing is started); the answer is in the window's language."""
+        try:
+            checked = flasher_handoff.check_image(self._local_path(path))
+        except _self_update.UpdateError as error:
+            return self._firmware_refusal(error)
+        return self._t("fw_valid", name=checked.path.name, size=checked.size, digest=checked.sha256)
+
+    @Slot(str, result=str)
+    def firmwareOpen(self, path: str) -> str:
+        """Checks the image again and starts the installed Flasher with it selected. The Flasher selects the file only: the update to a board is
+        connected, configured and confirmed there by the person."""
+        try:
+            checked = flasher_handoff.check_image(self._local_path(path))
+            root = flasher_handoff.root_of(flasher_handoff.FLASHER_APP)
+            launcher.resolve_entry(root)
+        except _self_update.UpdateError as error:
+            if error.code in {"signature_missing", "signature_unreadable", "signature_bad", "not_an_image", "image_missing", "image_size"}:
+                return self._firmware_refusal(error)
+            return self._t("fw_refused", reason=self._t("fw_err_flasher"))
+        threading.Thread(target=self._run_flasher, args=(root, str(checked.path)), daemon=True).start()
+        return self._t("fw_started", name=checked.path.name)
+
+    @staticmethod
+    def _run_flasher(root: Path, image: str) -> None:
+        try:
+            launcher.launch(root, ["--firmware", image])
+        except (OSError, _self_update.UpdateError):
+            logging.getLogger(__name__).exception("the Flasher could not be started")
 
     # -- Localisation / selection ---------------------------------------
     @Slot(str, result=str)
