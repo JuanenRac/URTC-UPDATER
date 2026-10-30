@@ -34,7 +34,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __version__, commits, compat_view, flasher_handoff, package, profiles, security, settings
+from . import __version__, commits, compat_view, firmware_sync, flasher_handoff, package, profiles, security, settings
 from .detect import LocalStatus, discover_workspace
 from .evidence import export_common, export_evidence, verify_chain
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
@@ -490,6 +490,9 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
     ok = all(r.ok for r in results)
     for r in results:
         print(("OK  " if r.ok else "FAIL ") + r.message)
+    if ok:
+        # When the option is on, the update of the tool head repository ends with the offer to bring its firmware to the Flasher (always a question; the update itself is done).
+        firmware_sync.offer_after_update(workspace_root, entry.name)
     return 0 if ok else 1
 
 

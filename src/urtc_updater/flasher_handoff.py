@@ -84,7 +84,11 @@ def cmd_firmware(
     ask: Callable[[str], str] | None = None,
     start: Callable[..., int] | None = None,
 ) -> int:
-    """``firmware check IMAGE`` and ``firmware open IMAGE``. ``start`` replaces the launcher (tests)."""
+    """``firmware check IMAGE``, ``firmware open IMAGE`` and ``firmware sync``. ``start`` replaces the launcher (tests)."""
+    if args.firmware_command == "sync":
+        from . import firmware_sync
+
+        return firmware_sync.cmd_sync(args, ask)
     try:
         checked = check_image(args.image)
     except su.UpdateError as error:
@@ -116,10 +120,15 @@ def cmd_firmware(
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     """Adds ``firmware`` and its two actions to the command line."""
-    firmware_p = subparsers.add_parser("firmware", help="Check the release signature of a firmware image and offer to open the Flasher with it (check, open).")
+    firmware_p = subparsers.add_parser("firmware", help="Check the release signature of a firmware image and offer to open the Flasher with it (check, open), or bring the firmware of the tool head repository to the Flasher (sync).")
     firmware_p.set_defaults(func=cmd_firmware)
     actions = firmware_p.add_subparsers(dest="firmware_command", required=True)
     actions.add_parser("check", help="Check the .sig next to the image; nothing is started.").add_argument("image")
     open_p = actions.add_parser("open", help="Check the image, ask, and start the installed Flasher with the image selected (it never flashes by itself).")
     open_p.add_argument("image")
     open_p.add_argument("--yes", "-y", action="store_true", help="Answer the question with yes (for scripts). The Flasher still asks before it writes.")
+    sync_p = actions.add_parser("sync", help="Copy the newest firmware images of the tool head repository (URTC) into the Flasher, after checking their release signature; asks first.")
+    sync_p.add_argument("--workspace", help="Workspace root (default: this tool's own parent directory).")
+    sync_p.add_argument("--dry-run", action="store_true", help="Only show what would be copied.")
+    sync_p.add_argument("--yes", "-y", action="store_true", help="Answer the question with yes (for scripts). Nothing is written to a board.")
+    sync_p.add_argument("--option", choices=("on", "off"), help="Save the option that makes an update of the tool head repository end with this offer (off by default) and stop.")

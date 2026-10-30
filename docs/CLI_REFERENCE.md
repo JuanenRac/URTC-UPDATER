@@ -321,6 +321,20 @@ $ urtc-updater --cli firmware open URTC_MAIN_FIRMWARE_v<version>.bin
 - `open` shows the size and SHA-256, then asks `Open the Flasher with ... selected? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is started). It starts the Flasher installed with `package install urtc-flasher` as `--firmware IMAGE`.
 - The Flasher only selects the file. This tool never writes to a board: you connect an adapter, choose the options and confirm the update in the Flasher, which checks the image again.
 
+### `firmware sync [--workspace PATH] [--dry-run] [--yes] [--option on|off]`
+
+Brings the firmware of the tool head repository to the Flasher: after `update URTC`, the images in `URTC/firmware` are newer than the ones `URTC-FLASHER/firmware` carries (`compat` shows it).
+
+```text
+$ urtc-updater --cli firmware sync --dry-run
+$ urtc-updater --cli firmware sync
+$ urtc-updater --cli firmware sync --option on
+```
+
+- It takes the newest image of each kind (main and slave, application and bootloader) with the files that travel with it (`.sig`, `.sha256`, `.manifest.json` and their signatures) and the set manifest. An image whose release signature does not match the key of the releases pinned in this tool is left out and said so (`left out (its release signature is not valid)`), and the image of its kind that the Flasher already carries stays where it is.
+- It shows what it would do and asks `Copy the firmware of URTC into URTC-FLASHER? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is copied; `--dry-run` only shows). The images that are replaced are not deleted: they are moved to `.urtc-updater/firmware-replaced/<time>` of the workspace. Files are written next to their final name and renamed, so a stop in the middle leaves no half-written image. Exit code `1` when nothing could be copied (the Flasher or the firmware folder is missing, an image is refused, or the answer was no).
+- The option is OFF by default. `--option on` saves it (`--option off` switches it off again; `URTC_UPDATER_SYNC_FIRMWARE=1` does it for one run): with it on, an `update URTC` ends with this same offer, which is always a question. Nothing is written to a board: the Flasher checks every image again before it flashes.
+
 ### `compat [--workspace PATH] [--json] [--language NAME]`
 
 Compares the projects found in the workspace with the compatibility matrix of the release this program carries: each one is shown as released, newer, older, not installed or of unknown version, with the copy of the shared code it carries, and the firmware that URTC-FLASHER and URTC-WEB-STUDIO bundle is compared with the firmware of the tool head repository. It only reads manifests and file names: it changes nothing and does not use the network. `--json` prints the same result as data; `--language` picks one of the eight languages of the table.

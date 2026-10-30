@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **Optional: bring the firmware of the tool head repository to the Flasher:** `urtc-updater --cli firmware sync` copies the newest image of each kind (main and slave, application and bootloader) from `URTC/firmware` into `URTC-FLASHER/firmware` with the files that travel with it, after checking each image against the release signature (an image that does not match is left out and said so), shows what it will do and asks first (`--yes` answers, `--dry-run` only shows; without a terminal nothing is copied); the images it replaces are moved to the workspace, never deleted. `--option on` makes `update URTC` end with the same question; the option is OFF by default and `--option off` switches it off again.
 - **The evidence of the programs can be listed from the command line:** `urtc-updater --cli evidence --history FOLDER [--json]` reads the evidence records (`urtc-evidence/1`) that the flasher, the tester and this tool write into a folder, checks each one and lists them newest first with a summary; a record edited after it was written is listed as not valid and the exit status is 1. It reads only. The shared code is the history of the common evidence.
 
 ## [0.1.9] - The compatibility window and command, the export of evidence and the universal README
