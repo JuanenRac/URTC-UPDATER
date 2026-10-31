@@ -424,7 +424,10 @@ options:
 view of the `.json` and `.jsonl` records that any of the programs wrote into a
 folder (`--export-common` writes this updater's own attempts in that shape).
 Exit `0` when every record is valid, `1` when one fails its check, `2` when the
-folder does not exist.
+folder does not exist. The update reports of the flasher and the result records of
+the tester that share the folder are not evidence: they are recognized by their
+shape, counted apart as "other records" and listed by name and type (`others` with
+`--json`), never as NOT VALID, and they do not make the command fail.
 
 Every install, update and restore appends a line to
 `<workspace>/.urtc-updater/evidence.jsonl` with the time (UTC), updater

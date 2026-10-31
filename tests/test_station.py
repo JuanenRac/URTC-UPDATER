@@ -161,6 +161,33 @@ def test_the_evidence_history_lists_the_records_of_a_folder_and_fails_on_an_edit
     assert parsed.history == str(folder) and parsed.json is True
 
 
+
+def test_the_evidence_history_lists_the_reports_of_the_other_programs_apart_and_does_not_fail_on_them(tmp_path: Path, capsys):
+    from urtc_updater.urtc_pkg import evidence as common
+
+    folder = tmp_path / "records"
+    folder.mkdir()
+    good = common.build(kind="install", outcome="pass", timestamp_utc="2026-01-02T10:00:00Z", tool="URTC-UPDATER", tool_version="0.2.0", subject={"name": "URTC-FLASHER"})
+    (folder / "urtc_evidence_1.json").write_text(json.dumps(good), encoding="utf-8")
+    sha = "a" * 64
+    (folder / "urtc_update_report_20260105_100000.json").write_text(json.dumps({
+        "tool": "URTC Flasher", "tool_version": "0.4.3", "timestamp_utc": "2026-01-05T10:00:00Z", "target": "s", "image": {"file": "fw.bin"}, "result": "OK",
+        "report_sha256": sha}), encoding="utf-8")
+    (folder / "ping_20260106_090000.json").write_text(json.dumps({
+        "test_name": "ping", "outcome": "pass", "adapter": "simulate", "firmware_version": "0.4.1", "bus": "can", "bitrate": 500000, "log_file": "p.log",
+        "log_sha256": sha}), encoding="utf-8")
+    args = argparse.Namespace(workspace=None, export=None, export_common=None, history=str(folder), json=False)
+    assert main_module.cmd_evidence(args) == 0
+    out = capsys.readouterr().out
+    assert "NOT VALID" not in out and "2 other record(s)" in out and "[update_report]" in out and "[result_record]" in out
+    args.json = True
+    assert main_module.cmd_evidence(args) == 0
+    document = json.loads(capsys.readouterr().out)
+    assert document["summary"]["records"] == 1 and document["summary"]["others"] == 2 and len(document["others"]) == 2
+    (folder / "odd.json").write_text(json.dumps({"something": "else"}), encoding="utf-8")      # any other shape is still not valid
+    args.json = False
+    assert main_module.cmd_evidence(args) == 1
+
 # --- profiles ----------------------------------------------------------------
 
 def test_without_a_profile_nothing_is_restricted():

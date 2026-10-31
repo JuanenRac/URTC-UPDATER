@@ -320,11 +320,12 @@ def _evidence_history(folder: str, as_json: bool) -> int:
     from .urtc_pkg import evidence_history
 
     try:
-        entries = evidence_history.select(evidence_history.load_folder(folder))
+        loaded = evidence_history.load_folder(folder)
     except FileNotFoundError as error:
         print(f"ERROR {error}", file=sys.stderr)
         return 2
-    print(evidence_history.to_json(entries).rstrip("\n") if as_json else evidence_history.to_text(entries))
+    entries, others = evidence_history.select(loaded), evidence_history.others_of(loaded)    # records that are not evidence are listed apart, never as not valid
+    print(evidence_history.to_json(entries, others).rstrip("\n") if as_json else evidence_history.to_text(entries, others))
     return 1 if any(not entry.valid for entry in entries) else 0
 
 
