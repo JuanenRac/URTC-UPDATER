@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The history says who signed:** a `trusted_keys` object in the saved settings lists public keys by alias (public keys only, never a seed); `evidence --history` and the History window then say "Signed by <alias>" for a good signature by one of them, "Valid signature, unknown key" for any other good one (shown, it does not fail the status) and "SIGNATURE NOT VALID" for one that fails, which makes the command exit `1`. `--public-key HEX` wins over the store. The History window has a Signature column. The shared copy and its lock files are synchronized.
+
 ## [0.2.2] - The shared evidence modules accept the optional Ed25519 signature of an evidence record and the history shows its state
 
 - **The shared evidence modules accept the optional Ed25519 signature of an evidence record:** a signed record keeps its digest and is no longer refused for the extra field; the history lists the state of each signature (matches, does not match, not signed) and the HTML and PDF report show it in the eight languages (Portuguese of Portugal). The history and the report of the updater now check and show the signature of an evidence record (the copy carries the signing module). The copies and their lock files are synchronized with the shared repository, and the font data of the PDF report was regenerated.

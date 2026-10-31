@@ -252,7 +252,8 @@ class UpdaterBridge(QObject):
     def history(self) -> QObject:
         """The history of operations: what this tool did in the workspace, each record checked (the window only reads)."""
         if self._history_model is None:
-            self._history_model = EvidenceHistoryModel(self._history_folder, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
+            self._history_model = EvidenceHistoryModel(self._history_folder, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self,
+                                                  trusted=lambda: settings.trusted_keys_store()[0] or None)
         return self._history_model
 
     # -- QML-visible properties -----------------------------------------

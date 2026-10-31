@@ -315,23 +315,37 @@ def cmd_restore_backup(args: argparse.Namespace) -> int:
     return 0 if result.ok else 1
 
 
-def _evidence_history(folder: str, as_json: bool) -> int:
+def _evidence_history(folder: str, as_json: bool, public_key: str | None = None) -> int:
     """The ``urtc-evidence/1`` records of a folder (the ones the flasher, the tester and this tool write), newest first, each one checked. Reads only."""
-    from .urtc_pkg import evidence_history
+    from . import settings
+    from .urtc_pkg import evidence_history, record_signing
 
     try:
+        public = record_signing.parse_public_key(public_key) if public_key else None
         loaded = evidence_history.load_folder(folder)
-    except FileNotFoundError as error:
+    except (FileNotFoundError, record_signing.SigningError) as error:
         print(f"ERROR {error}", file=sys.stderr)
         return 2
     entries, others = evidence_history.select(loaded), evidence_history.others_of(loaded)    # records that are not evidence are listed apart, never as not valid
     print(evidence_history.to_json(entries, others).rstrip("\n") if as_json else evidence_history.to_text(entries, others))
-    return 1 if any(not entry.valid for entry in entries) else 0
+    trusted = None
+    if public is None:    # a key given on the command line wins over the trusted_keys of the settings
+        store, problems = settings.trusted_keys_store()
+        for problem in problems:
+            print(f"WARNING {problem}", file=sys.stderr)
+        trusted = store or None
+    states = [evidence_history.signature_state(entry, public, trusted) for entry in entries]
+    if trusted and not as_json:
+        names = sorted({evidence_history.signature_alias(e, trusted) for e, s in zip(entries, states) if s == "trusted"})
+        print(f"Signatures against the trust store: {states.count('trusted')} signed by a trusted key ({', '.join(names) or '-'}), {states.count('unknown_key')} by an unknown key, "
+              f"{states.count('invalid')} not valid, {states.count('unsigned')} unsigned.")
+    bad = "invalid" in states or (public is not None and "other_key" in states)
+    return 1 if any(not entry.valid for entry in entries) or bad else 0
 
 
 def cmd_evidence(args: argparse.Namespace) -> int:
     if getattr(args, "history", None):
-        return _evidence_history(args.history, bool(getattr(args, "json", False)))
+        return _evidence_history(args.history, bool(getattr(args, "json", False)), getattr(args, "public_key", None))
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     problems = verify_chain(workspace_root)
     if args.export:
@@ -598,6 +612,8 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_p.add_argument("--history", metavar="FOLDER", help="List the urtc-evidence/1 records of FOLDER (flasher, tester and updater alike), newest first, checking each one: "
                                                                "a record edited after it was written is listed as NOT VALID and the exit status is 1. Reads only.")
     evidence_p.add_argument("--json", action="store_true", help="With --history: print the list with its summary as one JSON document.")
+    evidence_p.add_argument("--public-key", metavar="HEX", help="With --history: the public key (64 hexadecimal digits) you trust; a signature by another key fails the status. "
+                                                               "It wins over the trusted_keys of the settings.")
     evidence_p.set_defaults(func=cmd_evidence)
 
     package.add_parser(subparsers)

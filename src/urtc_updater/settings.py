@@ -46,6 +46,14 @@ def load_settings() -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def trusted_keys_store(data: dict[str, Any] | None = None) -> tuple[dict[str, bytes], list[str]]:
+    """(trust store, problems) from the saved settings: ``"trusted_keys": {"alias": "<public key, 64 hexadecimal digits>"}``. Public keys only; an entry that is
+    not one is left out (so it is not trusted) and named in the problems, without its value."""
+    from .urtc_pkg import record_signing
+
+    return record_signing.trust_store_from_config(load_settings() if data is None else data)
+
+
 def settings_state() -> str:
     """"missing" when there is no settings file, "ok" when it holds a JSON object, "corrupt" when it exists but cannot be read as one (truncated, not JSON, not an
     object). The signature policy treats "corrupt" as "signatures required": a damaged file must not silently turn a protection off."""

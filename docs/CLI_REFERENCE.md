@@ -402,6 +402,7 @@ $ urtc-updater --cli evidence -h
 usage: urtc-updater --cli evidence [-h] [--workspace WORKSPACE]
                                    [--export FILE] [--export-common FILE]
                                    [--history FOLDER] [--json]
+                                   [--public-key HEX]
 
 options:
   -h, --help            show this help message and exit
@@ -418,6 +419,9 @@ options:
                         NOT VALID and the exit status is 1. Reads only.
   --json                With --history: print the list with its summary as one
                         JSON document.
+  --public-key HEX      With --history: the public key (64 hexadecimal digits)
+                        you trust; a signature by another key fails the
+                        status. It wins over the trusted_keys of the settings.
 ```
 
 `--history FOLDER` does not read the evidence log of the workspace: it is the one
@@ -428,6 +432,8 @@ folder does not exist. The update reports of the flasher and the result records 
 the tester that share the folder are not evidence: they are recognized by their
 shape, counted apart as "other records" and listed by name and type (`others` with
 `--json`), never as NOT VALID, and they do not make the command fail.
+
+**Trusting keys by name.** A reader keeps a **trust store** in its configuration: `"trusted_keys": {"alias": "<public key, 64 hexadecimal digits>"}` (in the updater, the saved settings). It holds public keys only, never a seed; an alias is 1 to 40 letters, digits, spaces or `._@-`, and an entry that is not a public key is left out, named in a warning without its value, and therefore not trusted. With a store the history and the report say, for a good signature, `Signed by <alias>` when the key is in the store and `Valid signature, unknown key` when it is not, and `SIGNATURE NOT VALID` when the signature fails. An unknown key is shown and does not fail the status; a signature that fails does. A public key given on the command line (`--public-key`) wins over the store: the reader said exactly which key to believe, and a signature by any other key is then `Signed by another key` and fails the status. The History window of each program has a Signature column with the same words. A signature that does not match makes the command exit `1`.
 
 Every install, update and restore appends a line to
 `<workspace>/.urtc-updater/evidence.jsonl` with the time (UTC), updater
