@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.2.2] - The shared evidence modules accept the optional Ed25519 signature of an evidence record and the history shows its state
 
 - **The shared evidence modules accept the optional Ed25519 signature of an evidence record:** a signed record keeps its digest and is no longer refused for the extra field; the history lists the state of each signature (matches, does not match, not signed) and the HTML and PDF report show it in the eight languages (Portuguese of Portugal). The history and the report of the updater now check and show the signature of an evidence record (the copy carries the signing module). The copies and their lock files are synchronized with the shared repository, and the font data of the PDF report was regenerated.
 
