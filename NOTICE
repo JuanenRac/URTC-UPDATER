@@ -1,0 +1,14 @@
+# URTC Updater License and Copyright Notice
+
+URTC Updater is (c) 2026 JuanenRac (Electro Hobby 3D). Its code is available under the GPL-3.0-or-later (see `LICENSE`).
+
+## Third-party font data in the PDF of the evidence report
+
+`src/urtc_updater/urtc_pkg/evidence_report_fonts.py` contains subsets of **Noto Sans CJK** (Simplified Chinese and Japanese forms), Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name "Source".
+The subsets are modified versions of the font (static instance, reduced glyph set) and are distributed under the **SIL Open Font License, Version 1.1**; the full text is in `src/urtc_updater/urtc_pkg/evidence_report_fonts_OFL.txt`.
+Source: https://github.com/notofonts/noto-cjk. The font data keeps its license; the rest of the code is not part of the font and stays under the license above.
+
+---
+
+Author: JuanenRac (Electro Hobby 3D)
+Contact: electrohobby3d@gmail.com
