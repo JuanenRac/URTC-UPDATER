@@ -46,7 +46,7 @@
 
 | | |
 |---|---|
-| Versão | `0.1.9` |
+| Versão | `0.2.0` |
 | Maturidade | Estabelecido |
 | Testes | 482 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |

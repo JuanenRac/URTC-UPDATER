@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.2.0] - A History window with the attempts of the updater, a Firmware window to open the Flasher with a checked image, the evidence listed from the command line and the real options of install and update in the CLI reference
 
 - **The CLI reference shows the real options of `install` and `update`:** the captured help of both commands now lists the signed-commit, build-confirmation, `--yes` and `--accept-unavailable-validation` options, and the README states the real number of tests. The promotion code is also type-checked the same with or without the optional journal installed.
 - **A History window with the attempts of the updater:** a new button in the top bar opens the history of operations, the same window as in the flasher and the tester (shared from URTC-COMMON, in the eight languages): it shows the install and update attempts of the workspace as common evidence records, newest first, each one checked, with filters by result and text. It reads only; the evidence file with its hash chain stays as it is and the window works on a second view of it under `.urtc-updater/common`. The tool that prints the notes of a release (`tools/changelog_section.py`, with `--compat` it adds the compatibility table of `docs/COMPATIBILITY.md`) travels with the program.
