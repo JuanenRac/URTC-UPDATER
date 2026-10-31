@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "urtc_common_version": "0.1.0",
+  "files": {
+    "changelog_section.py": {
+      "from": "tools/changelog_section.py",
+      "sha256": "e5bbc1db12cf78edde79cf4d971529c6773da7404fd0896cf63b4d42549a7e27"
+    }
+  }
+}

@@ -29,7 +29,7 @@ from PySide6.QtCore import Property, QCoreApplication, QEvent, QObject, QUrl, Si
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
-from . import __version__, i18n, profiles, security, settings
+from . import __version__, evidence, i18n, profiles, security, settings
 from .commits import NEW_COMMITS, commit_states
 from .compat_view import compat_matrix_path
 from .detect import LocalStatus, discover_workspace
@@ -44,6 +44,7 @@ from .urtc_pkg import launcher, update_service
 from .urtc_pkg import self_update as _self_update
 from .urtc_pkg import compat
 from .urtc_pkg.compat_qt import CompatModel
+from .urtc_pkg.evidence_history_qt import EvidenceHistoryModel
 from .urtc_pkg.help_qt import HelpModel
 from .urtc_pkg.update_qt import UpdateModel
 
@@ -162,6 +163,7 @@ class UpdaterBridge(QObject):
         self._packages_model: PackagesModel | None = None
         self._help_model: HelpModel | None = None
         self._compat_model: CompatModel | None = None
+        self._history_model: EvidenceHistoryModel | None = None
         self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
         self._actionResult.connect(self._on_action_result)
@@ -233,6 +235,25 @@ class UpdaterBridge(QObject):
         if self._compat_model is None:
             self._compat_model = CompatModel(compat.load_matrix(compat_matrix_path()), lambda: self._workspace_root, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
         return self._compat_model
+
+    def _history_folder(self) -> Path | None:
+        """The folder the history window reads: the attempts of this workspace written as ``urtc-evidence/1`` records (a second view of the evidence file,
+        which stays as it is), or None when the workspace has no attempts yet."""
+        if not evidence.read_attempts(self._workspace_root):
+            return None
+        folder = self._workspace_root / evidence.EVIDENCE_DIRECTORY / "common"
+        try:
+            evidence.export_common(self._workspace_root, folder / "updater.jsonl")
+        except OSError:
+            return None
+        return folder
+
+    @Property(QObject, constant=True)
+    def history(self) -> QObject:
+        """The history of operations: what this tool did in the workspace, each record checked (the window only reads)."""
+        if self._history_model is None:
+            self._history_model = EvidenceHistoryModel(self._history_folder, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
+        return self._history_model
 
     # -- QML-visible properties -----------------------------------------
     @Property(str, notify=languageChanged)
@@ -530,7 +551,7 @@ class UpdaterBridge(QObject):
             return
         self._lang = language
         i18n.save_lang_preference(language)
-        for model in (self._update_model, self._packages_model, self._help_model, self._compat_model):
+        for model in (self._update_model, self._packages_model, self._help_model, self._compat_model, self._history_model):
             if model is not None:
                 model.languageChanged()
         self.languageChanged.emit()

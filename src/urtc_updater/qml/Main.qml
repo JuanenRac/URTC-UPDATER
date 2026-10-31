@@ -315,6 +315,17 @@ ApplicationWindow {
         accentColor: window.cyan
     }
 
+    EvidenceHistoryDialog {
+        id: historyDialog
+        objectName: "historyDialog"
+        model: backend.history
+        panelColor: window.panel
+        borderColor: window.border
+        textColor: window.textPrimary
+        mutedColor: window.textMuted
+        accentColor: window.cyan
+    }
+
     FirmwareDialog {
         id: firmwareDialog
         bridge: backend
@@ -587,6 +598,7 @@ ApplicationWindow {
             GameButton { text: backend.updates.t("UPD_BTN_CHECK"); Layout.preferredWidth: 156; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: updateDialog.open() }
             GameButton { text: ui("pkg_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: packagesDialog.open() }
             GameButton { text: ui("compat_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: compatDialog.open() }
+            GameButton { text: backend.history.text("EH_BTN_OPEN"); objectName: "historyButton"; Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: historyDialog.open() }
             GameButton { text: ui("fw_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: firmwareDialog.open() }
             GameButton { text: ui("menu_help"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: helpDialog.open() }
             GameButton { text: ui("menu_about"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
