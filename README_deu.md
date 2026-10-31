@@ -376,6 +376,7 @@ URTC-UPDATER/
 ├── urtc.project.json                                  Manifest: Version, Rolle, Reifegrad und Build-Befehl
 ├── CHANGELOG.md                                       was sich in jeder Version geändert hat
 ├── SECURITY.md SUPPORT.md LICENSE                     Sicherheitsrichtlinie, Support und Lizenz
+├── NOTICE                                             Lizenzen der enthaltenen Fremdteile
 ├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 wie man mitwirkt, und der Verhaltenskodex
 ├── .gitattributes .gitignore                          Git-Einstellungen
 ├── run-gui.vbs                                        Windows-Starter ohne Konsolenfenster

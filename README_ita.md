@@ -374,6 +374,7 @@ URTC-UPDATER/
 ├── urtc.project.json                                  manifesto: versione, ruolo, maturità e comando di compilazione
 ├── CHANGELOG.md                                       che cosa è cambiato in ogni versione
 ├── SECURITY.md SUPPORT.md LICENSE                     politica di sicurezza, supporto e licenza
+├── NOTICE                                             licenze delle parti di terzi incluse
 ├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 come contribuire e codice di condotta
 ├── .gitattributes .gitignore                          impostazioni di Git
 ├── run-gui.vbs                                        avvio per Windows senza finestra di console

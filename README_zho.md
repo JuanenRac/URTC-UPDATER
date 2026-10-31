@@ -282,6 +282,7 @@ URTC-UPDATER/
 ├── urtc.project.json                                  清单：版本、角色、成熟度和构建命令
 ├── CHANGELOG.md                                       每个版本的变更
 ├── SECURITY.md SUPPORT.md LICENSE                     安全政策、支持和许可证
+├── NOTICE                                             所含第三方部分的许可证
 ├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 如何参与贡献和行为准则
 ├── .gitattributes .gitignore                          Git 设置
 ├── run-gui.vbs                                        无控制台窗口的 Windows 启动器

@@ -283,6 +283,19 @@
           "tree_name": "SECURITY.md SUPPORT.md LICENSE"
         },
         {
+          "name": "NOTICE",
+          "desc": {
+            "en": "licenses of the third-party parts it carries",
+            "es": "licencias de las partes de terceros que incluye",
+            "de": "Lizenzen der enthaltenen Fremdteile",
+            "fr": "licences des parties tierces qu'il contient",
+            "it": "licenze delle parti di terzi incluse",
+            "zh": "所含第三方部分的许可证",
+            "ja": "同梱するサードパーティ部分のライセンス",
+            "pt": "licenças das partes de terceiros que inclui"
+          }
+        },
+        {
           "name": "CONTRIBUTING.md  CODE_OF_CONDUCT.md",
           "desc": {
             "en": "how to contribute and the code of conduct",

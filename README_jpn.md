@@ -299,6 +299,7 @@ URTC-UPDATER/
 ├── urtc.project.json                                  マニフェスト：バージョン、役割、成熟度、ビルドコマンド
 ├── CHANGELOG.md                                       各バージョンの変更内容
 ├── SECURITY.md SUPPORT.md LICENSE                     セキュリティポリシー、サポート、ライセンス
+├── NOTICE                                             同梱するサードパーティ部分のライセンス
 ├── CONTRIBUTING.md CODE_OF_CONDUCT.md                 貢献方法と行動規範
 ├── .gitattributes .gitignore                          Git の設定
 ├── run-gui.vbs                                        コンソールウィンドウなしの Windows 起動用
