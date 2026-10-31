@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.2.1] - The PDF of the evidence report prints Chinese and Japanese, the history no longer lists other files as not valid, the Help window has History and Firmware steps and signed commits and the question before the build check are on by default
 
 - **The PDF of the evidence report prints Chinese and Japanese:** the file embeds a subset of Noto Sans CJK (SIL Open Font License 1.1, see `NOTICE`) as a Type0 / CIDFontType2 font, so the text can be selected and searched; Western reports still use Courier. A character the subset lacks is printed as a hollow square and the report says how many were replaced (no more silent `?`). Copies of the shared report module and its font data are synchronized.
 - **The history of the updater no longer lists the files that are not evidence as NOT VALID:** The update reports of the flasher and the result records of the tester that share a folder with the evidence were counted as records that fail their check. The shared history recognizes them by their shape (never by the file name), counts them apart as "other records" and lists them by name and type in the text, in the JSON (`others`), in the History window (a counter and a list) and in the report, in the eight languages; the exit status of the history is 0 when there is only valid evidence and other records, and JSON of any other shape stays NOT VALID. The copies of the shared code were synchronized (`history_qt`, `history_qml` and `report`, with their locks).
