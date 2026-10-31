@@ -40,7 +40,7 @@
 |---|---|
 | 版本 | `0.2.0` |
 | 成熟度 | 成熟 |
-| 测试 | 482 (`python -m pytest`) |
+| 测试 | 500 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |
@@ -187,7 +187,7 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 | 没有人批准的更新，例如夜间在机器人控制单元上 | 不会自行更改任何东西：对项目的操作需要明确确认，批量操作单独确认并逐个项目运行 |
 | 损坏或做了一半的更新让原本可用的安装无法使用 | 候选版本先被克隆、以快进方式合并（绝不强制重置，本地修改会明显报错），并先在暂存克隆中构建；只有该构建通过，才通过两次目录重命名替换正在使用的安装，之前的安装保留为 `<名称>.backup-xxxxxxxx` |
 | 在这里无法运行的检查 | build-test 返回 75 表示验证不可用：除非此人在设置中接受，否则拒绝更新 |
-| 没有人签名的提交 | 没有有效签名的修订会带警告安装；设置 `"signature_policy": "require"` 后会被拒绝 |
+| 没有人签名的提交 | 没有有效签名的修订默认会被拒绝；设置 `"signature_policy": "warn"` 后会带警告安装 |
 | 被篡改的包 | 只有大小、SHA-256 和 Ed25519 签名都匹配且来自 GitHub 下载主机的包才会被接受；确认后才安装，绝不在另一个安装运行时安装，并可恢复之前的版本 |
 | 所做之事的痕迹丢失 | 每次安装、更新和恢复都会连同时间、主机和用户写入按哈希链接的日志 |
 
@@ -195,9 +195,9 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 
 **build-test 可以返回什么：** 退出码 0 表示已验证，其他任何退出码都表示失败，唯独 75 表示验证*不可用*（缺少它需要的工具）。这会如实报告并拒绝更新，除非你在设置中把 `validation_unavailable` 设为 `accept`（或设置 `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`）来接受。build-test 应让目录树保持原样：如果它修改了 git 跟踪的文件，该文件会在提升之前恢复为已提交的内容，步骤中会说明是哪些文件。
 
-**已签名提交（默认仅警告；强制要求属于可选项，默认关闭）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）仍会安装，窗口和命令行的步骤会说明它未签名。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "require"`（或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）后，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
+**已签名提交（默认要求；改回仅警告需要明确选择）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）会被拒绝。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "warn"`（或 `URTC_UPDATER_REQUIRE_SIGNED=0`，单次运行可用 `--no-require-signed`；旧的 `"require_signed_commits": false` 含义相同）后，它仍会安装，窗口和命令行的步骤会说明它未签名。使用默认值（`"signature_policy": "require"` 或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）时，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
 
-**安全选项（两者默认都关闭；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则什么都不运行（脚本可用 `--yes` 代为回答）。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
+**安全选项（两者默认都开启；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`（默认）、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则以关闭方式失败：不运行也不安装任何内容，并说明如何回答。无人值守的运行通过 `--yes`、`URTC_UPDATER_ASSUME_YES=1` 或设置 "assume_yes_without_asking": true（默认关闭）明确回答“是”。设置 `"signature_policy": "warn"` 和 `"confirm_before_build": false` 即可恢复先前的行为。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
 
 ## 🔌 接口
 
@@ -241,7 +241,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
 ## 🧪 测试
 
-测试套件共有 482 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
+测试套件共有 500 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
 
 ## 🏗️ 构建与发布
 

@@ -8,14 +8,16 @@
 An install or update runs the build check of the candidate (``build-test.sh`` or
 ``.bat`` and what it calls) with the permissions of the person who runs the
 updater. Two options decide how much is trusted before that happens. Both are
-**off by default** - the behaviour of the tool is the same unless one is turned
-on - and both can be turned on and off from the settings window, the settings
+**on by default** - a fresh install is the safe one, and a protection is lowered
+only on purpose - and both can be turned on and off from the settings window, the settings
 file, the environment and the command line:
 
 ``require signed commits``
     The candidate commit must carry a valid GPG or SSH signature before its
     manifest is read or anything in it is built (see ``signature.py``).
-    Settings: ``signature_policy: "require"`` or ``require_signed_commits: true``.
+    Settings: ``signature_policy: "require"`` (the default) or ``"warn"`` to go back to
+    installing an unsigned commit with a warning; the older ``require_signed_commits``
+    key is still read.
     Environment: ``URTC_UPDATER_REQUIRE_SIGNED=1`` (``0`` turns it off).
     Command line: ``--require-signed`` / ``--no-require-signed``.
 
@@ -23,8 +25,10 @@ file, the environment and the command line:
     The candidate is fetched and checked, and then the person is shown the
     project, the commit, its author, its signature and the build or tool scripts
     that changed, and asked before any of that is run. Without an answer (no
-    window, no terminal) nothing is run.
-    Settings: ``confirm_before_build: true``.
+    window, no terminal) nothing is run and the install or update fails closed with a
+    message that says how to answer: ``--yes``, ``URTC_UPDATER_ASSUME_YES=1`` or, for
+    unattended machines, the explicit setting ``assume_yes_without_asking: true``.
+    Settings: ``confirm_before_build: true`` (the default) or ``false``.
     Environment: ``URTC_UPDATER_CONFIRM_BUILD=1`` (``0`` turns it off).
     Command line: ``--confirm-build`` / ``--no-confirm-build``; ``--yes`` (or
     ``URTC_UPDATER_ASSUME_YES=1``) answers yes without asking, for scripts.
@@ -50,6 +54,8 @@ ENV_CONFIRM_BUILD = "URTC_UPDATER_CONFIRM_BUILD"
 ENV_ASSUME_YES = "URTC_UPDATER_ASSUME_YES"
 
 SETTING_CONFIRM_BUILD = "confirm_before_build"
+#: Explicit opt-in for runs without a window or a terminal (a scheduled update): answer yes to the question before the build check. Off by default.
+SETTING_ASSUME_YES = "assume_yes_without_asking"
 
 
 def _env_flag(name: str) -> bool | None:
@@ -62,15 +68,20 @@ def _env_flag(name: str) -> bool | None:
 
 
 def saved_require_signed() -> bool:
-    """What the settings file asks for. A settings file that exists but cannot be read counts as "required": the safe side, until it is fixed or removed."""
+    """What the settings file asks for: required unless it says ``"signature_policy": "warn"`` (or the older ``require_signed_commits: false``). A settings file that exists but cannot be read counts as "required": the safe side, until it is fixed or removed."""
     if settings.settings_state() == "corrupt":
         return True
     data = settings.load_settings()
-    return data.get("signature_policy") == "require" or data.get("require_signed_commits") is True
+    if data.get("signature_policy") == "require" or data.get("require_signed_commits") is True:
+        return True
+    if data.get("signature_policy") == "warn" or data.get("require_signed_commits") is False:
+        return False
+    return True
 
 
 def saved_confirm_build() -> bool:
-    return settings.load_settings().get(SETTING_CONFIRM_BUILD) is True
+    """Asked unless the settings file says ``"confirm_before_build": false``."""
+    return settings.load_settings().get(SETTING_CONFIRM_BUILD) is not False
 
 
 def effective_require_signed() -> bool:
@@ -84,7 +95,11 @@ def effective_confirm_build() -> bool:
 
 
 def assume_yes() -> bool:
-    return _env_flag(ENV_ASSUME_YES) is True
+    """Yes without asking: ``--yes`` / the environment, or the explicit setting for unattended machines. ``URTC_UPDATER_ASSUME_YES=0`` cancels the setting for one run."""
+    override = _env_flag(ENV_ASSUME_YES)
+    if override is not None:
+        return override
+    return settings.load_settings().get(SETTING_ASSUME_YES) is True
 
 
 def lowering_warnings() -> list[CodedText]:

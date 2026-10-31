@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **Signed commits and the question before the build check are now ON by default:** a fresh install refuses a candidate commit without a valid GPG or SSH signature and shows the project, commit, author, signature and changed build scripts before the build check runs. A run with no window and no terminal to ask now fails closed with a message that says how to answer (`--yes`, `URTC_UPDATER_ASSUME_YES=1`, or the new explicit setting `assume_yes_without_asking: true`, off by default). To go back to the previous behaviour set `signature_policy` to `warn` and `confirm_before_build` to `false` in the settings file, or use the Security button or `urtc-updater --cli security --require-signed off --confirm-build off` (both ask before lowering a protection); a settings file that already says either value keeps working as written. The CLI reference, the help texts in the eight languages, the README in the eight languages and the threat model describe the new defaults.
 - **Words left in English are translated:** the workspace, build, build test and wearable labels now read in Spanish, German, French, Italian and Portuguese (Portugal).
 
 ## [0.2.0] - A History window with the attempts of the updater, a Firmware window to open the Flasher with a checked image, the evidence listed from the command line and the real options of install and update in the CLI reference

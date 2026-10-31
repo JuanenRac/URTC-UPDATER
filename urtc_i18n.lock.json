@@ -2,9 +2,9 @@
   "format": 1,
   "urtc_common_version": "0.1.0",
   "catalog": "spec/i18n/catalog/updater.json",
-  "catalog_sha256": "c9818cd2302c9c38273aa0258b4d8fa73fc4b22adb02420751693f306b0c3e0b",
+  "catalog_sha256": "4cc804d4860ab15ef9e1351816ee37109099f948a5a60ed5e926a4d494fdcf4c",
   "files": {
-    "src/urtc_updater/translations_data.py": "037e22f6c57e27a611737098c166741eaa407d22d48a4dc63c3d4146aeaac5e3",
+    "src/urtc_updater/translations_data.py": "30cfa4926778291561399e138627499292f8b3650823215f94901b72cbecf78c",
     "tests/test_i18n_generated.py": "2dbb1740abb41abb5dca047084ac545d4cb403687e599550a73e4e1174c1ce87"
   }
 }

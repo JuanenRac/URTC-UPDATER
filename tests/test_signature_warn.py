@@ -16,9 +16,18 @@ from test_install import entry, git, write_manifest
 from test_signature import _remote_with_one_commit
 
 
-def test_the_default_policy_is_warn(monkeypatch, tmp_path: Path):
+def test_the_default_policy_is_require(monkeypatch, tmp_path: Path):
     monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
     monkeypatch.setattr(settings, "SETTINGS_PATH", tmp_path / "settings.json")
+    policy = current_policy()
+    assert policy.required is True and policy.mode == "require"
+
+
+def test_warn_is_an_explicit_choice(monkeypatch, tmp_path: Path):
+    monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
+    path = tmp_path / "settings.json"
+    monkeypatch.setattr(settings, "SETTINGS_PATH", path)
+    path.write_text(json.dumps({"signature_policy": "warn"}), encoding="utf-8")
     policy = current_policy()
     assert policy.required is False and policy.mode == "warn"
 
@@ -42,11 +51,12 @@ def test_an_unsigned_revision_has_a_reason_whatever_the_mode(tmp_path: Path):
     assert unsigned_reason(clone, "HEAD", SignaturePolicy(required=False)) is not None
 
 
-def test_an_unsigned_fresh_install_goes_ahead_and_the_steps_say_it_is_not_signed(tmp_path: Path, monkeypatch):
+def test_with_warn_an_unsigned_fresh_install_goes_ahead_and_the_steps_say_it_is_not_signed(tmp_path: Path, monkeypatch):
     remote = _remote_with_one_commit(tmp_path, signing_key=None)
     monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote))
-    monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
     monkeypatch.setattr(settings, "SETTINGS_PATH", tmp_path / "settings.json")
+    (tmp_path / "settings.json").write_text(json.dumps({"signature_policy": "warn"}), encoding="utf-8")
+    monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
     workspace = tmp_path / "ws"
     workspace.mkdir()
     steps: list[object] = []
@@ -75,7 +85,7 @@ def test_require_still_refuses_an_unsigned_revision(tmp_path: Path, monkeypatch)
     assert list(workspace.iterdir()) == []
 
 
-def test_an_unsigned_update_goes_ahead_with_the_warning(tmp_path: Path, monkeypatch):
+def test_with_warn_an_unsigned_update_goes_ahead_with_the_warning(tmp_path: Path, monkeypatch):
     remote = _remote_with_one_commit(tmp_path, signing_key=None)
     local = tmp_path / entry().name
     git("clone", str(remote), str(local), cwd=tmp_path)
@@ -85,8 +95,9 @@ def test_an_unsigned_update_goes_ahead_with_the_warning(tmp_path: Path, monkeypa
     git("commit", "-m", "v2 unsigned", cwd=seed)
     git("push", "origin", "HEAD", cwd=seed)
     monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote))
-    monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
     monkeypatch.setattr(settings, "SETTINGS_PATH", tmp_path / "settings.json")
+    (tmp_path / "settings.json").write_text(json.dumps({"signature_policy": "warn"}), encoding="utf-8")
+    monkeypatch.delenv("URTC_UPDATER_REQUIRE_SIGNED", raising=False)
     steps: list[object] = []
     result = clone_or_pull(entry(), tmp_path, verify_build=False, progress=lambda phase, text: steps.append(text))
     assert result.ok, result.message

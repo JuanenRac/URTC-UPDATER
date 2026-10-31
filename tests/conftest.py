@@ -3,8 +3,10 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""Every test runs with the commit-signature policy explicitly OFF unless it
-turns it on itself, so a developer whose own ~/.urtc_updater_settings.json
+"""Every test runs with the commit-signature policy and the question before the
+build check explicitly OFF unless it turns them on itself (both are ON by
+default in the program; test_security.py and test_signature_warn.py clear the
+variables to test that default), so a developer whose own ~/.urtc_updater_settings.json
 requires signed commits does not see unrelated tests fail on unsigned test
 repositories. git also runs without the machine's global/system config, so
 a developer's own commit-signing or hook settings cannot change what the
@@ -17,6 +19,7 @@ from urtc_updater import github_client, settings
 @pytest.fixture(autouse=True)
 def _signature_policy_off(monkeypatch, tmp_path_factory):
     monkeypatch.setenv("URTC_UPDATER_REQUIRE_SIGNED", "0")
+    monkeypatch.setenv("URTC_UPDATER_CONFIRM_BUILD", "0")
     monkeypatch.delenv("URTC_UPDATER_ALLOWED_SIGNERS", raising=False)
     empty = tmp_path_factory.mktemp("gitconfig") / "config"
     empty.write_text("", encoding="utf-8")

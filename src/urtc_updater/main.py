@@ -347,7 +347,7 @@ def cmd_evidence(args: argparse.Namespace) -> int:
 
 
 def _terminal_confirmer(request: security.BuildRequest) -> bool:
-    """Asks in the terminal before the build check of a candidate runs. Without a terminal there is nobody to ask: the answer is no."""
+    """Asks in the terminal before the build check of a candidate runs. Without a terminal there is nobody to ask: the answer is no and the run fails closed (see --yes and the setting assume_yes_without_asking)."""
     if not sys.stdin.isatty():
         return False
     print(f"About to run {request.script} of {request.project} with your permissions.", file=sys.stderr)
@@ -392,7 +392,8 @@ def cmd_security(args: argparse.Namespace) -> int:
         print(f"Ask before the build check:       {_on_off(saved_confirm)} (saved)  {_on_off(security.effective_confirm_build())} (in force now)")
         if state == "corrupt":
             print(f"The settings file {settings.SETTINGS_PATH} cannot be read: signatures are required until it is fixed or removed.", file=sys.stderr)
-        print("Both are off by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD (1 or 0).")
+        print(f"Answer yes without asking:        {_on_off(security.assume_yes())} (settings key assume_yes_without_asking, for machines with no window and no terminal)")
+        print("Both are on by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD, URTC_UPDATER_ASSUME_YES (1 or 0).")
         return 0
     lowering = security.lowering_of_change(require_signed=new_signed, confirm_build=new_confirm)
     if lowering:
@@ -499,15 +500,15 @@ def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> i
 def _add_security_arguments(subparser: argparse.ArgumentParser) -> None:
     group = subparser.add_mutually_exclusive_group()
     group.add_argument("--require-signed", dest="require_signed", action="store_true", default=None,
-                       help="Refuse a candidate commit that has no valid GPG or SSH signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the saved setting).")
+                       help="Refuse a candidate commit that has no valid GPG or SSH signature (the default; also URTC_UPDATER_REQUIRE_SIGNED=1 or the saved setting).")
     group.add_argument("--no-require-signed", dest="require_signed", action="store_false",
-                       help="Do not require signed commits in this run (a warning is shown when the saved setting requires them).")
+                       help="Install an unsigned commit with a warning in this run, the previous behaviour (a warning is shown when the saved setting requires signatures).")
     other = subparser.add_mutually_exclusive_group()
     other.add_argument("--confirm-build", dest="confirm_build", action="store_true", default=None,
-                       help="Ask before the build check of the candidate runs, showing its commit, author, signature and changed build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the saved setting).")
+                       help="Ask before the build check of the candidate runs, showing its commit, author, signature and changed build files (the default; also URTC_UPDATER_CONFIRM_BUILD=1 or the saved setting).")
     other.add_argument("--no-confirm-build", dest="confirm_build", action="store_false",
-                       help="Do not ask before the build check in this run (a warning is shown when the saved setting asks).")
-    subparser.add_argument("--yes", "-y", action="store_true", help="Answer yes to the question before the build check without asking, for scripts.")
+                       help="Do not ask before the build check in this run, the previous behaviour (a warning is shown when the saved setting asks).")
+    subparser.add_argument("--yes", "-y", action="store_true", help="Answer yes to the question before the build check without asking, for scripts (also URTC_UPDATER_ASSUME_YES=1 or the setting assume_yes_without_asking). Without it, a run with no terminal and no window builds nothing.")
 
 
 def build_parser() -> argparse.ArgumentParser:

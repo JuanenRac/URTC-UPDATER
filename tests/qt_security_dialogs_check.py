@@ -63,7 +63,10 @@ for name in ("securityDialog", "lowerDialog", "buildDialog"):
     assert root.findChild(QObject, name) is not None, name
 
 # the two options
-assert bridge.securityRequireSigned is False and bridge.securityConfirmBuild is False
+assert bridge.securityRequireSigned is True and bridge.securityConfirmBuild is True   # both on by default
+bridge.saveSecurity(False, False)   # the window asks (securityLowering) before this is called; the previous behaviour is one switch away
+assert not bridge.securityRequireSigned and not bridge.securityConfirmBuild
+assert not security.saved_require_signed() and not security.saved_confirm_build()
 bridge.saveSecurity(True, True)
 assert bridge.securityRequireSigned and bridge.securityConfirmBuild
 assert security.saved_require_signed() and security.saved_confirm_build()

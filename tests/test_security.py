@@ -34,11 +34,36 @@ def _clean_security(monkeypatch):
 
 # --- defaults and precedence --------------------------------------------------
 
-def test_both_protections_are_off_by_default():
-    assert not security.effective_require_signed()
-    assert not security.effective_confirm_build()
+def test_both_protections_are_on_by_default():
+    assert security.effective_require_signed()
+    assert security.effective_confirm_build()
+    assert security.saved_require_signed() and security.saved_confirm_build()
     assert security.lowering_warnings() == []
+    assert current_policy().mode == "require"
+    assert not security.assume_yes()
+
+
+def test_the_settings_file_can_go_back_to_the_previous_level():
+    settings.save_settings(signature_policy="warn", confirm_before_build=False)
+    assert not security.effective_require_signed() and not security.effective_confirm_build()
     assert current_policy().mode == "warn"
+    settings.SETTINGS_PATH.write_text(json.dumps({"require_signed_commits": False}), encoding="utf-8")
+    assert not security.effective_require_signed() and security.effective_confirm_build()
+
+
+def test_an_old_settings_file_with_other_keys_gets_the_new_defaults():
+    settings.save_settings(lang="de", backups_to_keep=2)
+    assert security.effective_require_signed() and security.effective_confirm_build()
+
+
+def test_the_explicit_setting_answers_yes_for_unattended_runs(monkeypatch):
+    settings.save_settings(assume_yes_without_asking=True)
+    assert security.assume_yes()
+    with security.confirmer(lambda request: False):
+        assert security.decide_build(_request()) == security.BuildDecision(True, "assumed")
+    monkeypatch.setenv(security.ENV_ASSUME_YES, "0")
+    assert not security.assume_yes()
+    assert security.decide_build(_request()) == security.BuildDecision(False, "nobody to ask")
 
 
 def test_the_settings_file_turns_each_one_on():
@@ -146,7 +171,8 @@ def _request() -> security.BuildRequest:
     return security.BuildRequest("P", "build-test.sh", "abc123", "Someone <s@example.invalid>", "not signed", ("build-test.sh",))
 
 
-def test_with_the_option_off_nobody_is_asked():
+def test_with_the_option_off_nobody_is_asked(monkeypatch):
+    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "0")
     asked = []
     security.set_confirmer(lambda request: asked.append(request) or False)
     decision = security.decide_build(_request())
@@ -162,7 +188,6 @@ def test_with_the_option_on_the_answer_decides(monkeypatch):
 
 
 def test_with_nobody_to_ask_nothing_is_run(monkeypatch):
-    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "1")
     assert security.decide_build(_request()) == security.BuildDecision(False, "nobody to ask")
 
 
@@ -178,6 +203,7 @@ def test_yes_answers_without_asking(monkeypatch):
 def _setup_update(tmp_path: Path, monkeypatch):
     remote = make_remote(tmp_path)
     monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote.bare))
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")   # the test commits are not signed; this file tests the question before the build check
     remote.push("1.1.0", "second", {"notes.txt": "x"})
     return remote
 
@@ -214,6 +240,7 @@ def test_a_confirmed_update_goes_ahead(tmp_path: Path, monkeypatch):
 
 def test_without_the_option_the_flow_is_as_before(tmp_path: Path, monkeypatch):
     remote = _setup_update(tmp_path, monkeypatch)
+    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "0")
     asked = []
     with security.confirmer(lambda request: asked.append(request) or False):
         results = install_or_update(entry(), remote.workspace)
@@ -224,7 +251,7 @@ def test_the_confirmation_lists_the_build_scripts_the_candidate_changed(tmp_path
     remote = make_remote(tmp_path)
     monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote.bare))
     remote.push("1.1.0", "second", {"tools/build_test.py": "print('changed')\n"})
-    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "1")
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")
     seen: list[security.BuildRequest] = []
     with security.confirmer(lambda request: seen.append(request) or False):
         install_or_update(entry(), remote.workspace)
@@ -234,7 +261,7 @@ def test_the_confirmation_lists_the_build_scripts_the_candidate_changed(tmp_path
 def test_a_new_install_asks_before_its_build_check(tmp_path: Path, monkeypatch):
     remote = make_remote(tmp_path, clone=False)
     monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote.bare))
-    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "1")
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")
     ran = []
     monkeypatch.setattr(install, "_run_build_script_at", lambda *a, **k: ran.append(a) or install.InstallResult(True, "built"))
     with security.confirmer(lambda request: False):
@@ -245,9 +272,9 @@ def test_a_new_install_asks_before_its_build_check(tmp_path: Path, monkeypatch):
 
 def test_with_nobody_to_ask_an_update_is_refused_with_a_message_that_says_so(tmp_path: Path, monkeypatch):
     remote = _setup_update(tmp_path, monkeypatch)
-    monkeypatch.setenv(security.ENV_CONFIRM_BUILD, "1")
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")   # the default would stop an unsigned test commit first; the question is what is under test
     results = install_or_update(entry(), remote.workspace)
-    assert not results[0].ok and "nobody to ask" in results[0].message
+    assert not results[0].ok and "nobody to ask" in results[0].message and "assume_yes_without_asking" in results[0].message
 
 
 def test_the_messages_exist_in_every_language():
@@ -302,7 +329,7 @@ def _cli(args: list[str], monkeypatch) -> int:
 def test_the_security_command_shows_the_state(monkeypatch, capsys):
     assert _cli(["security"], monkeypatch) == 0
     out = capsys.readouterr().out
-    assert "Require signed commits" in out and "off (saved)" in out
+    assert "Require signed commits" in out and "on (saved)" in out and "Both are on by default" in out
 
 
 def test_the_security_command_saves_a_higher_level_without_asking(monkeypatch, capsys):

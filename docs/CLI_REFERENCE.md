@@ -129,18 +129,23 @@ options:
                         validate here (a missing tool). Without this flag such
                         an install is refused.
   --require-signed      Refuse a candidate commit that has no valid GPG or SSH
-                        signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the
-                        saved setting).
-  --no-require-signed   Do not require signed commits in this run (a warning
-                        is shown when the saved setting requires them).
+                        signature (the default; also
+                        URTC_UPDATER_REQUIRE_SIGNED=1 or the saved setting).
+  --no-require-signed   Install an unsigned commit with a warning in this run,
+                        the previous behaviour (a warning is shown when the
+                        saved setting requires signatures).
   --confirm-build       Ask before the build check of the candidate runs,
                         showing its commit, author, signature and changed
-                        build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the
-                        saved setting).
-  --no-confirm-build    Do not ask before the build check in this run (a
-                        warning is shown when the saved setting asks).
+                        build files (the default; also
+                        URTC_UPDATER_CONFIRM_BUILD=1 or the saved setting).
+  --no-confirm-build    Do not ask before the build check in this run, the
+                        previous behaviour (a warning is shown when the saved
+                        setting asks).
   --yes, -y             Answer yes to the question before the build check
-                        without asking, for scripts.
+                        without asking, for scripts (also
+                        URTC_UPDATER_ASSUME_YES=1 or the setting
+                        assume_yes_without_asking). Without it, a run with no
+                        terminal and no window builds nothing.
 ```
 
 `git clone`s the named project into `--workspace`, then runs its own
@@ -187,18 +192,23 @@ options:
                         validate here (a missing tool). Without this flag such
                         an install is refused.
   --require-signed      Refuse a candidate commit that has no valid GPG or SSH
-                        signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the
-                        saved setting).
-  --no-require-signed   Do not require signed commits in this run (a warning
-                        is shown when the saved setting requires them).
+                        signature (the default; also
+                        URTC_UPDATER_REQUIRE_SIGNED=1 or the saved setting).
+  --no-require-signed   Install an unsigned commit with a warning in this run,
+                        the previous behaviour (a warning is shown when the
+                        saved setting requires signatures).
   --confirm-build       Ask before the build check of the candidate runs,
                         showing its commit, author, signature and changed
-                        build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the
-                        saved setting).
-  --no-confirm-build    Do not ask before the build check in this run (a
-                        warning is shown when the saved setting asks).
+                        build files (the default; also
+                        URTC_UPDATER_CONFIRM_BUILD=1 or the saved setting).
+  --no-confirm-build    Do not ask before the build check in this run, the
+                        previous behaviour (a warning is shown when the saved
+                        setting asks).
   --yes, -y             Answer yes to the question before the build check
-                        without asking, for scripts.
+                        without asking, for scripts (also
+                        URTC_UPDATER_ASSUME_YES=1 or the setting
+                        assume_yes_without_asking). Without it, a run with no
+                        terminal and no window builds nothing.
 ```
 
 Fetches the remote candidate, validates its repository-owned
@@ -317,17 +327,20 @@ the original back, and the program running right now is never replaced.
 
 ### `security [--require-signed on|off] [--confirm-build on|off] [--yes]`
 
-Shows the two security options, or saves them in the settings file. Both are **off by default**:
+Shows the two security options, or saves them in the settings file. Both are **on by default** (a fresh install is the safe one; lowering a protection is a choice):
 
 ```text
 $ urtc-updater --cli security
-Require signed commits:           off (saved)  off (in force now)
-Ask before the build check:       off (saved)  off (in force now)
-Both are off by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD (1 or 0).
+Require signed commits:           on (saved)  on (in force now)
+Ask before the build check:       on (saved)  on (in force now)
+Answer yes without asking:        off (settings key assume_yes_without_asking, for machines with no window and no terminal)
+Both are on by default. Environment: URTC_UPDATER_REQUIRE_SIGNED, URTC_UPDATER_CONFIRM_BUILD, URTC_UPDATER_ASSUME_YES (1 or 0).
 ```
 
 - *Require signed commits*: the candidate commit must carry a valid GPG or SSH signature before its manifest is read or anything in it is built.
-- *Ask before the build check*: after the candidate is fetched and validated, the project, commit, author, signature and the build or tool scripts that changed are shown, and nothing is run until the answer is yes. In a terminal the question is `Run the build check? [y/N]`; the window shows a dialog. With no terminal and no window the build check is not run (exit `1`, "there is nobody to ask"); `--yes`, or `URTC_UPDATER_ASSUME_YES=1`, answers yes for scripts.
+- *Ask before the build check*: after the candidate is fetched and validated, the project, commit, author, signature and the build or tool scripts that changed are shown, and nothing is run until the answer is yes. In a terminal the question is `Run the build check? [y/N]`; the window shows a dialog. With no terminal and no window the run **fails closed**: the build check is not run, nothing is installed or updated (exit `1`) and the message says how to answer. Unattended runs (a scheduled update, a script) have three explicit ways to answer yes: `--yes`, `URTC_UPDATER_ASSUME_YES=1`, or the setting `assume_yes_without_asking: true` in the settings file (off by default; `URTC_UPDATER_ASSUME_YES=0` cancels it for one run). With signed commits required, an unsigned candidate is refused before anything is read; to install from a repository whose commits are not signed, add `--no-require-signed` for one run or set `signature_policy` to `warn`.
+
+To go back to the previous behaviour, set `signature_policy` to `warn` and `confirm_before_build` to `false` in the settings file, or use `urtc-updater --cli security --require-signed off --confirm-build off` (it asks first), or the Security button of the window (it asks first as well).
 
 Saving a **lower** level than the saved one (turning an option off) prints a warning and asks `Turn it off anyway? [y/N]`; without a terminal it needs `--yes` and otherwise changes nothing (exit `1`). The same flags exist on `install` and `update` for one run (`--require-signed` / `--no-require-signed`, `--confirm-build` / `--no-confirm-build`, `--yes`); they win over the settings and the environment variables, and a run that turns off a protection that the saved settings have on says so on standard error.
 
@@ -425,7 +438,7 @@ an edited, removed or reordered line is detected. `evidence` verifies the chain
 
 `~/.urtc_updater_settings.json` (written atomically) holds the remembered
 choices: `lang`, `workspace_root`, `backups_to_keep` (default 2),
-`signature_policy` (`warn`, the default: an unsigned revision is installed and the steps say so; `require`: it is refused; the older `require_signed_commits: true` means `require`) / `allowed_signers_file`, `confirm_before_build` (`false`, the default; `true`: ask before the build check of a candidate runs) and the station profiles (below). A settings file that exists but cannot be read counts as `require` (signatures required) until it is fixed or removed; saving the language does not overwrite it, and saving the security options keeps it next to the new file as `.corrupt`. Environment variables win over the file: `URTC_UPDATER_REQUIRE_SIGNED`, `URTC_UPDATER_CONFIRM_BUILD` (`1`/`0`), `URTC_UPDATER_ASSUME_YES`, `URTC_UPDATER_ALLOWED_SIGNERS`. The build check of every project is run with `URTC_PYTHON` set to the interpreter that runs the updater (unless it is already set), and the build scripts of the URTC projects use it.
+`signature_policy` (`require`, the default: an unsigned revision is refused; `warn`: it is installed and the steps say so; the older `require_signed_commits` key means `require` when true and `warn` when false) / `allowed_signers_file`, `confirm_before_build` (`true`, the default: ask before the build check of a candidate runs; `false`: do not ask), `assume_yes_without_asking` (`false`, the default; `true`: answer yes to that question when there is no window and no terminal) and the station profiles (below). A settings file that exists but cannot be read counts as `require` (signatures required) until it is fixed or removed; saving the language does not overwrite it, and saving the security options keeps it next to the new file as `.corrupt`. Environment variables win over the file: `URTC_UPDATER_REQUIRE_SIGNED`, `URTC_UPDATER_CONFIRM_BUILD` (`1`/`0`), `URTC_UPDATER_ASSUME_YES`, `URTC_UPDATER_ALLOWED_SIGNERS`. The build check of every project is run with `URTC_PYTHON` set to the interpreter that runs the updater (unless it is already set), and the build scripts of the URTC projects use it.
 
 Station profiles:
 
