@@ -648,7 +648,7 @@ def clone_or_pull(
     # installed - see this module's own header comment.
     health_check_url = _health_check_url_for(entry)
     journal = PromotionJournal(workspace_root / _JOURNAL_FILENAME) if _HAS_DURABLE_JOURNAL else None
-    promotion_id = journal.begin(entry.name, path, staging_path, backup_path, health_check_url=health_check_url).promotion_id if journal else None
+    promotion_id = journal.begin(entry.name, path, staging_path, backup_path, health_check_url=health_check_url).promotion_id if journal else ""
     _checkpoint(progress, "validation", "cp_promoting")
     try:
         path.rename(backup_path)

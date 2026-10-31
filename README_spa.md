@@ -45,7 +45,7 @@
 |---|---|
 | Versión | `0.1.9` |
 | Madurez | Establecido |
-| Tests | 425 (`python -m pytest`) |
+| Tests | 482 (`python -m pytest`) |
 | Tecnología | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | El PC de quien lo usa |
 | En hardware real | No aplica: nada de esto se ejecuta en hardware |
@@ -328,7 +328,7 @@ Qué versiones de los programas de URTC funcionan juntas, y qué versión del pr
 
 ## 🧪 Pruebas
 
-La suite tiene 425 pruebas (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; algunas se omiten si falta una dependencia opcional): el descubrimiento y los manifiestos, el analizador de versiones único, el cliente de GitHub contra un servidor local (reintentos, errores, un catálogo mal formado), instalación y actualización sobre repositorios git locales reales (preparación, promoción, copia de seguridad, rechazos, un build-test que responde 75, seguridad del espacio de trabajo), restaurar y limpiar copias, la política de commits firmados, las opciones de seguridad, los paquetes firmados y su reversión, la cadena de evidencias, los ajustes y perfiles, los textos de la ventana en los ocho idiomas y el puente de Qt, y las imágenes de la guía de la ventana, dibujadas sin pantalla. `python -m mypy` y `ruff check .` se ejecutan en la CI.
+La suite tiene 482 pruebas (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; algunas se omiten si falta una dependencia opcional): el descubrimiento y los manifiestos, el analizador de versiones único, el cliente de GitHub contra un servidor local (reintentos, errores, un catálogo mal formado), instalación y actualización sobre repositorios git locales reales (preparación, promoción, copia de seguridad, rechazos, un build-test que responde 75, seguridad del espacio de trabajo), restaurar y limpiar copias, la política de commits firmados, las opciones de seguridad, los paquetes firmados y su reversión, la cadena de evidencias, los ajustes y perfiles, los textos de la ventana en los ocho idiomas y el puente de Qt, y las imágenes de la guía de la ventana, dibujadas sin pantalla. `python -m mypy` y `ruff check .` se ejecutan en la CI.
 
 ## 🏗️ Compilación y publicación
 

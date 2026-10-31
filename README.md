@@ -44,7 +44,7 @@
 |---|---|
 | Version | `0.1.9` |
 | Maturity | Established |
-| Tests | 425 (`python -m pytest`) |
+| Tests | 482 (`python -m pytest`) |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
 | On real hardware | Not applicable: nothing here runs on hardware |
@@ -301,7 +301,7 @@ Which versions of the URTC programs work together, and which protocol version ea
 
 ## 🧪 Testing
 
-The suite has 425 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
+The suite has 482 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
 
 ## 🏗️ Build & Release
 

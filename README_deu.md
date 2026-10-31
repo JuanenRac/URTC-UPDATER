@@ -44,7 +44,7 @@
 |---|---|
 | Version | `0.1.9` |
 | Reifegrad | Etabliert |
-| Tests | 425 (`python -m pytest`) |
+| Tests | 482 (`python -m pytest`) |
 | Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Ziel | Der PC der Person, die es benutzt |
 | Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
@@ -329,7 +329,7 @@ Welche Versionen der URTC-Programme zusammenarbeiten und welche Protokollversion
 
 ## 🧪 Tests
 
-Die Suite hat 425 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositorys (Staging, Übernahme, Sicherung, Ablehnungen, ein build-test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Beweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
+Die Suite hat 482 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositorys (Staging, Übernahme, Sicherung, Ablehnungen, ein build-test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Beweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
 
 ## 🏗️ Build und Veröffentlichung
 

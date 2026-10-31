@@ -107,6 +107,10 @@ DEMO-PROJECT-A  functional   service   python      1.2.3     -         installed
 $ urtc-updater --cli install -h
 usage: urtc-updater --cli install [-h] [--workspace WORKSPACE] [--no-build]
                                   [--profile PROFILE]
+                                  [--accept-unavailable-validation]
+                                  [--require-signed | --no-require-signed]
+                                  [--confirm-build | --no-confirm-build]
+                                  [--yes]
                                   project
 
 positional arguments:
@@ -120,6 +124,23 @@ options:
   --no-build            Clone only - skip running the project's own build
                         script.
   --profile PROFILE     Refuse a project outside this station profile.
+  --accept-unavailable-validation
+                        Go on when the project's build check says it cannot
+                        validate here (a missing tool). Without this flag such
+                        an install is refused.
+  --require-signed      Refuse a candidate commit that has no valid GPG or SSH
+                        signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the
+                        saved setting).
+  --no-require-signed   Do not require signed commits in this run (a warning
+                        is shown when the saved setting requires them).
+  --confirm-build       Ask before the build check of the candidate runs,
+                        showing its commit, author, signature and changed
+                        build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the
+                        saved setting).
+  --no-confirm-build    Do not ask before the build check in this run (a
+                        warning is shown when the saved setting asks).
+  --yes, -y             Answer yes to the question before the build check
+                        without asking, for scripts.
 ```
 
 `git clone`s the named project into `--workspace`, then runs its own
@@ -141,6 +162,10 @@ $ echo $?
 $ urtc-updater --cli update -h
 usage: urtc-updater --cli update [-h] [--workspace WORKSPACE] [--no-build]
                                  [--profile PROFILE] [--preview]
+                                 [--accept-unavailable-validation]
+                                 [--require-signed | --no-require-signed]
+                                 [--confirm-build | --no-confirm-build]
+                                 [--yes]
                                  project
 
 positional arguments:
@@ -157,6 +182,23 @@ options:
   --preview             Show the candidate commit, its author, signature state
                         and the build/tool files it changes, then stop without
                         updating.
+  --accept-unavailable-validation
+                        Go on when the project's build check says it cannot
+                        validate here (a missing tool). Without this flag such
+                        an install is refused.
+  --require-signed      Refuse a candidate commit that has no valid GPG or SSH
+                        signature (also URTC_UPDATER_REQUIRE_SIGNED=1 or the
+                        saved setting).
+  --no-require-signed   Do not require signed commits in this run (a warning
+                        is shown when the saved setting requires them).
+  --confirm-build       Ask before the build check of the candidate runs,
+                        showing its commit, author, signature and changed
+                        build files (also URTC_UPDATER_CONFIRM_BUILD=1 or the
+                        saved setting).
+  --no-confirm-build    Do not ask before the build check in this run (a
+                        warning is shown when the saved setting asks).
+  --yes, -y             Answer yes to the question before the build check
+                        without asking, for scripts.
 ```
 
 Fetches the remote candidate, validates its repository-owned

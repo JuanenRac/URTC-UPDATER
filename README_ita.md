@@ -44,7 +44,7 @@
 |---|---|
 | Versione | `0.1.9` |
 | Maturità | Consolidato |
-| Test | 425 (`python -m pytest`) |
+| Test | 482 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destinazione | Il PC di chi lo usa |
 | Su hardware reale | Non applicabile: nulla qui gira su hardware |
@@ -328,7 +328,7 @@ Quali versioni dei programmi URTC funzionano insieme, e quale versione del proto
 
 ## 🧪 Test
 
-La suite ha 425 test (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alcuni vengono saltati se manca una dipendenza opzionale): il rilevamento e i manifesti, l'unico parser di versioni, il client GitHub contro un server locale (tentativi, errori, un catalogo malformato), installazione e aggiornamento su veri repository git locali (preparazione, promozione, backup, rifiuti, un build-test che risponde 75, sicurezza dell'area di lavoro), ripristino e pulizia dei backup, la politica dei commit firmati, le opzioni di sicurezza, i pacchetti firmati e il loro rollback, la catena delle prove, impostazioni e profili, i testi della finestra nelle otto lingue e il ponte Qt, e le immagini della guida della finestra, disegnate senza schermo. `python -m mypy` e `ruff check .` girano in CI.
+La suite ha 482 test (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alcuni vengono saltati se manca una dipendenza opzionale): il rilevamento e i manifesti, l'unico parser di versioni, il client GitHub contro un server locale (tentativi, errori, un catalogo malformato), installazione e aggiornamento su veri repository git locali (preparazione, promozione, backup, rifiuti, un build-test che risponde 75, sicurezza dell'area di lavoro), ripristino e pulizia dei backup, la politica dei commit firmati, le opzioni di sicurezza, i pacchetti firmati e il loro rollback, la catena delle prove, impostazioni e profili, i testi della finestra nelle otto lingue e il ponte Qt, e le immagini della guida della finestra, disegnate senza schermo. `python -m mypy` e `ruff check .` girano in CI.
 
 ## 🏗️ Compilazione e rilascio
 

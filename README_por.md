@@ -48,7 +48,7 @@
 |---|---|
 | Versão | `0.1.9` |
 | Maturidade | Estabelecido |
-| Testes | 425 (`python -m pytest`) |
+| Testes | 482 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | O PC de quem o usa |
 | Em hardware real | Não aplicável: nada aqui corre em hardware |
@@ -309,7 +309,7 @@ As versões dos programas URTC que funcionam em conjunto, e a versão do protoco
 
 ## 🧪 Testes
 
-O conjunto tem 425 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de provas, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
+O conjunto tem 482 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de provas, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
 
 ## 🏗️ Compilação e publicação
 
