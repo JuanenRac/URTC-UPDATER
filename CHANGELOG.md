@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The shared evidence modules accept the optional Ed25519 signature of an evidence record:** a signed record keeps its digest and is no longer refused for the extra field; the history lists the state of each signature (matches, does not match, not signed) and the HTML and PDF report show it in the eight languages (Portuguese of Portugal). The history and the report of the updater now check and show the signature of an evidence record (the copy carries the signing module). The copies and their lock files are synchronized with the shared repository, and the font data of the PDF report was regenerated.
+
 ## [0.2.1] - The PDF of the evidence report prints Chinese and Japanese, the history no longer lists other files as not valid, the Help window has History and Firmware steps and signed commits and the question before the build check are on by default
 
 - **The PDF of the evidence report prints Chinese and Japanese:** the file embeds a subset of Noto Sans CJK (SIL Open Font License 1.1, see `NOTICE`) as a Type0 / CIDFontType2 font, so the text can be selected and searched; Western reports still use Courier. A character the subset lacks is printed as a hollow square and the report says how many were replaced (no more silent `?`). Copies of the shared report module and its font data are synchronized.
