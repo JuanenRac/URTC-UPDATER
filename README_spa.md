@@ -300,6 +300,10 @@ El programa abre la ventana Qt Quick cuando se ejecuta sin argumentos y tiene un
 - **Evidencias.** Cada instalación, actualización y restauración se registra con hora, equipo y usuario en `.urtc-updater/evidence.jsonl`, con cada línea encadenada a la anterior por hash. `urtc-updater --cli evidence [--export ARCHIVO]` verifica la cadena y puede exportarla como un único documento JSON.
 - **Perfiles de estación.** `"profiles"` en el archivo de ajustes nombra los proyectos con los que trabaja una máquina y si se permiten lotes; `--profile NOMBRE` (o `"profile"` en los ajustes) limita `status`, `check`, `install` y `update` a él, y la ventana sigue el mismo perfil.
 
+- **Historial de intentos.** El botón **Historial** de la barra superior muestra los intentos de instalación y de actualización del espacio de trabajo como registros de evidencia (`urtc-evidence/1`); el archivo de evidencia con su cadena de hashes no cambia y la ventana trabaja sobre una segunda vista en `.urtc-updater/common`. Cada fila muestra el tipo, el resultado, la herramienta, la placa y las versiones, de la más reciente a la más antigua; un registro editado después de escribirse, un archivo que no es JSON o un registro de otro formato se muestra como no válido, con lo que falla. La lista se puede filtrar por resultado y por texto o reducir a los registros que fallan; lee la carpeta cada vez que se abre, muestra como máximo 500 filas (e indica cuántas hay) y no cambia nada en el disco. Es la misma ventana en URTC-FLASHER, URTC-TESTER y URTC-UPDATER, compartida desde URTC-COMMON, en los ocho idiomas. Por línea de comandos, `urtc-updater --cli evidence --history FOLDER [--json]` lista los registros de una carpeta, comprueba cada uno y sale con estado 1 si alguno no es válido; solo lee.
+
+- **Una ventana Firmware y `firmware sync`.** El botón **Firmware** pide una imagen de firmware (un cuadro y un selector de archivos), comprueba su firma de versión cuando se pide y abre el Flasher instalado con la imagen seleccionada, con las mismas reglas que `firmware check` y `firmware open`: una firma ausente o incorrecta se rechaza, el motivo se dice en el idioma de la ventana y desde aquí no se escribe nada en ninguna placa. Opcionalmente, `urtc-updater --cli firmware sync [--dry-run] [--yes]` copia la imagen más reciente de cada tipo de `URTC/firmware` a `URTC-FLASHER/firmware` tras comprobar cada una con la firma de versión, muestra lo que hará y pregunta antes (sin terminal no copia nada); las imágenes que reemplaza se mueven al espacio de trabajo, nunca se borran. `--option on` hace que `update URTC` termine con la misma pregunta; la opción está desactivada por defecto.
+
 ## 🚀 Inicio rápido
 
 ```bash
@@ -323,7 +327,7 @@ antigua ventana Tkinter es solo un fallback de compatibilidad.
 <!-- urtc-section:compatibility -->
 ### Requisitos y compatibilidad
 
-Qué versiones de los programas de URTC funcionan juntas, y qué versión del protocolo habla cada una, figura en la tabla de compatibilidad que genera URTC-COMMON: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md).
+Qué versiones de los programas de URTC funcionan juntas, y qué versión del protocolo habla cada una, figura en la tabla de compatibilidad que genera URTC-COMMON: [docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md). Las notas de una versión de los repositorios que llevan `tools/changelog_section.py` (el firmware, el flasher, el tester y el updater) son la sección del CHANGELOG de esa versión seguida de esta tabla: `python tools/changelog_section.py VERSION --compat`.
 <!-- /urtc-section:compatibility -->
 
 ## 🧪 Pruebas

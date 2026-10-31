@@ -229,6 +229,10 @@ URTC-UPDATER は、URTC のリポジトリを持つ PC を最新に保つプロ�
 - **証跡。** すべてのインストール、更新、復元は、時刻・ホスト・ユーザーとともに `.urtc-updater/evidence.jsonl` に記録され、各行はハッシュで前の行に連鎖します。`urtc-updater --cli evidence [--export ファイル]` はその連鎖を検証し、1 つの JSON ドキュメントとして書き出せます。
 - **ステーションプロファイル。** 設定ファイルの `"profiles"` で、そのマシンが扱うプロジェクトと一括操作の可否を指定します。`--profile 名前`（または設定の `"profile"`）で `status`、`check`、`install`、`update` をそれに限定でき、ウィンドウも同じプロファイルに従います。
 
+- **試行の履歴。** 上部バーの**履歴**ボタンは、ワークスペースのインストールと更新の試行を証跡レコード（`urtc-evidence/1`）として表示します。ハッシュチェーン付きの証跡ファイルは変更されず、ウィンドウは `.urtc-updater/common` にある第二のビューを使います。各行に、種類、結果、ツール、ボード、バージョンが新しい順に表示されます。書き込み後に編集された記録、JSON ではないファイル、別の形式の記録は、問題点とともに「無効」と表示されます。結果やテキストで絞り込んだり、失敗した記録だけに絞ったりでき、開くたびにフォルダーを読み直し、最大 500 行（と総数）を表示し、ディスクには何も書き込みません。URTC-FLASHER、URTC-TESTER、URTC-UPDATER で同じウィンドウを使い、URTC-COMMON から共有され、8 言語に対応しています。コマンドラインでは、`urtc-updater --cli evidence --history FOLDER [--json]` がフォルダー内のレコードを一覧にして一つずつ検査し、無効なものがあれば終了ステータス 1 で終わります。読み取りのみです。
+
+- **Firmware ウィンドウと `firmware sync`。** **Firmware** ボタンはファームウェアイメージ（入力欄とファイル選択）を尋ね、求めに応じてリリース署名を検査し、そのイメージを選択した状態でインストール済みの Flasher を開きます。規則は `firmware check` と `firmware open` と同じで、署名がない、または誤っている場合は拒否され、理由はウィンドウの言語で示され、ここからボードには何も書き込まれません。任意で、`urtc-updater --cli firmware sync [--dry-run] [--yes]` は、各種類の最新イメージをリリース署名で検査したうえで `URTC/firmware` から `URTC-FLASHER/firmware` へコピーし、行う内容を示して先に確認します（端末がなければ何もコピーしません）。置き換えられたイメージはワークスペースへ移され、削除されません。`--option on` は `update URTC` を同じ確認で終わらせます。このオプションは既定でオフです。
+
 ## 🚀 クイックスタート
 
 ```bash
@@ -253,7 +257,7 @@ update <name>`。
 <!-- urtc-section:compatibility -->
 ### 要件と互換性
 
-どのバージョンの URTC プログラムが連携して動作し、それぞれがどのプロトコルバージョンを話すかは、URTC-COMMON が生成する互換性表に載っています：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
+どのバージョンの URTC プログラムが連携して動作し、それぞれがどのプロトコルバージョンを話すかは、URTC-COMMON が生成する互換性表に載っています：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。`tools/changelog_section.py` を持つリポジトリ（ファームウェア、フラッシャー、テスター、アップデーター）のリリースノートは、そのバージョンの CHANGELOG の節にこの表を続けたものです：`python tools/changelog_section.py VERSION --compat`。
 <!-- /urtc-section:compatibility -->
 
 ## 🧪 テスト

@@ -24,7 +24,7 @@ These pictures are the real window, loaded without a screen and drawn to a file 
 
 ![The Help window of the updater](screenshots/updater-help.png)
 
-The **Help** button opens five short steps in the language of the window: the overview, installing and updating, going back, the packages and the security of updates.
+The **Help** button opens seven short steps in the language of the window: the overview, installing and updating, going back, the packages, the security of updates, the history and the firmware.
 
 ## 3. Check for updates
 
@@ -37,6 +37,15 @@ The **Help** button opens five short steps in the language of the window: the ov
 ![The Packages window of the updater](screenshots/updater-packages.png)
 
 **Packages** lists the programs of the family that a release publishes as a signed package (the flasher, the tester and the updater). Each row shows the installed version and the versions kept, and checks its own release only when you press its button. A package is installed only if its size, its SHA-256 and its signature are right, and the installation asks first; a package that fails a check is deleted, and going back to the previous version asks a second time. Nothing is installed while a project is being installed or updated.
+
+## 5. History
+
+The **History** button in the top bar opens the history of operations: the evidence records (`urtc-evidence/1`) that the updater wrote, newest first, with the kind, the result, the tool, the board and the versions. Each record is checked when the window opens; one that was edited after it was written, a file that is not JSON or a record of another format is shown as **NOT VALID** with what is wrong. You can filter by result and by text, or reduce the list to the records that fail. The window reads the folder again each time it opens (or when you press **Read again**), shows at most 500 rows and says how many there are, and never changes anything on disk. It is the same window, in the eight languages, in the flasher, the tester and the updater.
+In the updater it lists the install and update attempts of the workspace as records; the evidence file with its hash chain stays as it is and the window works on a second view of it under `.urtc-updater/common`. From the command line, `urtc-updater --cli evidence --history FOLDER [--json]` gives the same list for any folder (see [CLI_REFERENCE.md](CLI_REFERENCE.md)).
+
+## 6. Firmware
+
+The **Firmware** button opens a window that asks for a firmware image (a box and a file chooser) and opens the installed Flasher with that image selected. **Check signature** checks the release signature of the image first; **Open in the Flasher** applies the same rules as `firmware check` and `firmware open` of the command line: a missing or wrong signature is refused, the reason is said in the language of the window, and the Flasher is only told which file to select. Nothing is written to a board from here: you connect, choose the options and confirm in the Flasher. The command line also has `firmware sync`, which copies the newest images from `URTC/firmware` into `URTC-FLASHER/firmware` after checking each one (see [CLI_REFERENCE.md](CLI_REFERENCE.md)).
 
 ## The same pictures in the other languages
 

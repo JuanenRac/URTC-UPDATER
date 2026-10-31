@@ -213,6 +213,10 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 - **证据。** 每次安装、更新和恢复都会连同时间、主机和用户记录在 `.urtc-updater/evidence.jsonl` 中，每一行都通过哈希与上一行链接。`urtc-updater --cli evidence [--export 文件]` 会验证该链，并可将其导出为一个 JSON 文档。
 - **工作站配置档。** 设置文件中的 `"profiles"` 指明一台机器处理哪些项目以及是否允许批量操作；`--profile 名称`（或设置中的 `"profile"`）会把 `status`、`check`、`install` 和 `update` 限制在其中，窗口也遵循同一配置档。
 
+- **尝试历史。** 顶部栏的**历史**按钮把工作区的安装和更新尝试显示为证据记录（`urtc-evidence/1`）；带哈希链的证据文件保持不变，窗口使用 `.urtc-updater/common` 下的第二份视图。每一行显示类型、结果、工具、开发板和版本，最新的在前；写入后被编辑的记录、不是 JSON 的文件或其他格式的记录会显示为无效，并说明问题所在。列表可按结果和文本筛选，也可只显示失败的记录；每次打开都会重新读取文件夹，最多显示 500 行（并告知总数），不会更改磁盘上的任何内容。URTC-FLASHER、URTC-TESTER 和 URTC-UPDATER 使用同一个窗口，由 URTC-COMMON 共享，支持八种语言。命令行中，`urtc-updater --cli evidence --history FOLDER [--json]` 列出文件夹中的记录并逐条检查，只要有无效记录就以状态 1 退出；它只读取。
+
+- **固件窗口与 `firmware sync`。** **固件**按钮会询问固件镜像（一个输入框和文件选择器），按要求检查其发布签名，并在选中该镜像的情况下打开已安装的 Flasher，规则与 `firmware check` 和 `firmware open` 相同：签名缺失或错误会被拒绝，原因以窗口的语言说明，并且从这里不会向开发板写入任何内容。可选地，`urtc-updater --cli firmware sync [--dry-run] [--yes]` 会在用发布签名检查每个镜像之后，把 `URTC/firmware` 中每种类型的最新镜像复制到 `URTC-FLASHER/firmware`，先显示将要做的事并征求确认（没有终端时不复制任何内容）；被替换的镜像会移到工作区，绝不删除。`--option on` 让 `update URTC` 以同样的询问结束；该选项默认关闭。
+
 ## 🚀 快速开始
 
 ```bash
@@ -236,7 +240,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 <!-- urtc-section:compatibility -->
 ### 要求与兼容性
 
-哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。
+哪些版本的 URTC 程序可以配合使用、各自使用哪个协议版本，列在 URTC-COMMON 生成的兼容性表中：[docs/COMPATIBILITY.md](https://github.com/JuanenRac/URTC/blob/main/docs/COMPATIBILITY.md)。带有 `tools/changelog_section.py` 的仓库（固件、刷写器、测试器和更新器）的发布说明，就是该版本的 CHANGELOG 小节后面接上这张表：`python tools/changelog_section.py VERSION --compat`。
 <!-- /urtc-section:compatibility -->
 
 ## 🧪 测试

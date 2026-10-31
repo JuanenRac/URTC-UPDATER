@@ -64,7 +64,7 @@ for code, _label in i18n.LANGUAGES:
     bridge.setLanguage(code)
     pump(0.1)
     assert model.t("pkg_title") == i18n.t(code, "pkg_title")
-    assert [section["title"] for section in bridge.help.sections] and len(bridge.help.sections) == 5, code
+    assert [section["title"] for section in bridge.help.sections] and len(bridge.help.sections) == 7, code
     for dialog in (packages_dialog, help_dialog, firmware_dialog):
         call(dialog, "open")
         pump(0.15)
