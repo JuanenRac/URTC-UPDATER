@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **Words left in English are translated:** the workspace, build, build test and wearable labels now read in Spanish, German, French, Italian and Portuguese (Portugal).
+
 ## [0.2.0] - A History window with the attempts of the updater, a Firmware window to open the Flasher with a checked image, the evidence listed from the command line and the real options of install and update in the CLI reference
 
 - **The CLI reference shows the real options of `install` and `update`:** the captured help of both commands now lists the signed-commit, build-confirmation, `--yes` and `--accept-unavailable-validation` options, and the README states the real number of tests. The promotion code is also type-checked the same with or without the optional journal installed.
