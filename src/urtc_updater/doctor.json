@@ -1,0 +1,18 @@
+{
+ "about": "What the doctor looks for. usb_ids are vendor:product pairs of adapters that speak the SLCAN text protocol; keywords are matched against the description of a serial port; probe is how a candidate is asked for its version (a query only: no channel is opened and no frame is sent).",
+ "usb_ids": [
+  {"vid": "1d50", "pid": "606f", "name": "candleLight / CANable"},
+  {"vid": "16d0", "pid": "117e", "name": "CANable 2"},
+  {"vid": "0483", "pid": "5740", "name": "STM32 virtual COM port (CANable with SLCAN firmware)"},
+  {"vid": "0403", "pid": "6001", "name": "FTDI (Lawicel CANUSB)"}
+ ],
+ "keywords": ["slcan", "canable", "candle", "lawicel", "canusb", "can adapter", "usb2can", "usb-can"],
+ "probe": {"baudrate": 115200, "timeout_seconds": 0.4, "query": "V\r", "answer_prefix": "V"},
+ "tools": {
+  "toolchain": ["arm-none-eabi-gcc"],
+  "host_compiler": ["gcc", "cc"],
+  "git": ["git"],
+  "node": ["node"],
+  "version_timeout_seconds": 5
+ }
+}

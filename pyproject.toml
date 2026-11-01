@@ -45,7 +45,7 @@ ignore_missing_imports = true
 # the Tk shell and the vendored copy of the shared package are exercised by the
 # offscreen window tests instead; everything else is type-checked.
 [[tool.mypy.overrides]]
-module = ["urtc_updater.qt_gui", "urtc_updater.packages_qt", "urtc_updater.gui", "urtc_updater.urtc_pkg.*"]
+module = ["urtc_updater.qt_gui", "urtc_updater.packages_qt", "urtc_updater.doctor_qt", "urtc_updater.gui", "urtc_updater.urtc_pkg.*"]
 ignore_errors = true
 
 [tool.pytest.ini_options]
@@ -55,4 +55,4 @@ pythonpath = ["src"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-urtc_updater = ["qml/*.qml", "assets/*", "urtc_pkg/compat.json"]
+urtc_updater = ["qml/*.qml", "assets/*", "urtc_pkg/compat.json", "doctor.json"]

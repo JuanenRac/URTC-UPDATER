@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from . import settings
+from . import evidence, settings
 from .flasher_handoff import check_image
 from .urtc_pkg import firmware_names
 from .urtc_pkg import self_update as su
@@ -148,6 +148,24 @@ def apply(workspace: Path, work: Plan, now: Callable[[], float] = time.time) -> 
     return done
 
 
+def record(workspace: Path, work: Plan, message: str, *, ok: bool) -> None:
+    """Leave a line in the evidence file of the workspace (hash chained, like an update): what was decided about the firmware of the Flasher, and what was copied."""
+    state = evidence.installed_state(workspace / TARGET_REPO)
+    evidence.record_attempt(workspace, project=f"{TARGET_REPO} firmware", before=state, after=evidence.installed_state(workspace / TARGET_REPO), ok=ok, message=message)
+
+
+def apply_recorded(workspace: Path, work: Plan, now: Callable[[], float] = time.time) -> list[str]:
+    """``apply`` and the record of it: the images copied and moved, or the reason it failed (the failure is raised again after it is recorded)."""
+    try:
+        done = apply(workspace, work, now)
+    except (OSError, ValueError) as exc:
+        record(workspace, work, f"failed: {exc}", ok=False)
+        raise
+    names = ", ".join(work.images) or "files"
+    record(workspace, work, f"copied {names} from {SOURCE_REPO} ({len(work.copies)} file(s), {len(work.replaced)} replaced file(s) kept in {REPLACED_FOLDER})", ok=not work.refused)
+    return done
+
+
 def describe(work: Plan) -> list[str]:
     lines: list[str] = []
     for problem in work.problems:
@@ -189,9 +207,10 @@ def run(workspace: Path, *, assume_yes: bool = False, dry_run: bool = False, ask
         return 0
     prompt = f"Copy the firmware of {SOURCE_REPO} into {TARGET_REPO}? Nothing is written to a board. [y/N] "
     if not _confirm(prompt, assume_yes, ask):
+        record(workspace, work, "declined: the person did not confirm, nothing was copied", ok=False)
         print("Not copied. Nothing was changed.")
         return 1
-    for line in apply(workspace, work):
+    for line in apply_recorded(workspace, work):
         print(line)
     return 1 if work.refused else 0
 

@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **A doctor for this computer:** `urtc-updater --cli doctor` (and the Doctor button of the window, in the eight languages) reports the tools with their versions (git, the ARM toolchain, a C compiler, Node.js, PySide6, pyserial), the serial ports that could be an SLCAN adapter, the installed projects against the release with the firmware that the Flasher and the web studio carry, and whether the Flasher is behind the URTC repository. It reads only; `--probe` (or the probe button) opens each candidate adapter and each virtual board of `URTC_VIRTUAL_PORT` and asks it for its version, nothing else. What it looks for is in `doctor.json`.
+- **Bringing the firmware to the Flasher is recorded and has a switch in the window:** every answer (a copy, a no, a failure) adds a line to the hash-chained evidence file of the workspace; the window has the switch of the offer after an update of URTC (off by default), the button that asks the question and the list of what would be copied and what would be kept.
+
 ## [0.2.5] - The shared evidence code accepts the outcome unknown and the evidence the updater exports can be signed and checked offline
 
 - **The shared evidence code accepts the outcome `unknown`:** a record whose result could not be decided (written by the tester when a check has no evidence either way) is read and listed as valid, and the history and the report say it in the eight languages (Portuguese of Portugal).

@@ -51,6 +51,10 @@ The **Signature** column says whether a record is signed: **Signed by <alias>** 
 
 The **Firmware** button opens a window that asks for a firmware image (a box and a file chooser) and opens the installed Flasher with that image selected. **Check signature** checks the release signature of the image first; **Open in the Flasher** applies the same rules as `firmware check` and `firmware open` of the command line: a missing or wrong signature is refused, the reason is said in the language of the window, and the Flasher is only told which file to select. Nothing is written to a board from here: you connect, choose the options and confirm in the Flasher. The command line also has `firmware sync`, which copies the newest images from `URTC/firmware` into `URTC-FLASHER/firmware` after checking each one (see [CLI_REFERENCE.md](CLI_REFERENCE.md)).
 
+## 7. Doctor
+
+The **Doctor** button opens the report of the machine: the tools (git, the ARM toolchain, a C compiler, Node.js, PySide6, pyserial) with their versions, the serial ports that could be an SLCAN adapter, the installed projects against the release and whether the firmware of the Flasher is behind the URTC repository, in the eight languages. It reads only. **Probe the adapters** opens each candidate port (and each virtual board of `URTC_VIRTUAL_PORT`) and asks it for its version; no frame goes to the bus. The switch **Offer to bring the firmware to the Flasher after updating URTC** is off by default; with it on, a successful update of URTC opens the question, and **Bring the firmware to the Flasher...** asks it at any time. The question lists what would be copied and what would be kept, nothing is written to a board, and the answer (yes or no) is recorded in the evidence file.
+
 ## The same pictures in the other languages
 
 The program has eight interface languages. These are the same five pictures taken with each of them (`python tools/capture_screens.py --all-languages` writes them again; `--language german` writes one language). The texts are those of the program, not of this page, so a picture shows exactly what a person who chose that language sees.

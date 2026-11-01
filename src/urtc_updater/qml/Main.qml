@@ -337,6 +337,21 @@ ApplicationWindow {
         accentColor: window.cyan
     }
 
+    DoctorDialog {
+        id: doctorDialog
+        model: backend.doctor
+        panelColor: window.panel
+        borderColor: window.border
+        textColor: window.textPrimary
+        mutedColor: window.textMuted
+        accentColor: window.cyan
+    }
+
+    Connections {
+        target: backend.doctor
+        function onOfferRequested() { doctorDialog.open(); doctorDialog.askSync() }
+    }
+
     HelpDialog {
         id: helpDialog
         objectName: "helpDialog"
@@ -600,6 +615,7 @@ ApplicationWindow {
             GameButton { text: ui("compat_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: compatDialog.open() }
             GameButton { text: backend.history.text("EH_BTN_OPEN"); objectName: "historyButton"; Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: historyDialog.open() }
             GameButton { text: ui("fw_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: firmwareDialog.open() }
+            GameButton { text: backend.doctor.text("menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: doctorDialog.open() }
             GameButton { text: ui("menu_help"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: helpDialog.open() }
             GameButton { text: ui("menu_about"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
         }

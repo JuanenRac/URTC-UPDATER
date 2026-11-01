@@ -12,13 +12,13 @@ illustrative of the shape, with made-up project names and versions.
 ```
 $ urtc-updater --cli -h
 usage: urtc-updater --cli [-h] [--version]
-                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat} ...
+                          {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat,doctor} ...
 
 Detects, installs, and manually updates the URTC ecosystem's own repositories
 on this machine.
 
 positional arguments:
-  {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat}
+  {status,install,update,check,clean-backups,restore-backup,security,evidence,package,firmware,compat,doctor}
     status              Show what's installed, its version, and the latest
                         GitHub version of every project.
     install             Clone and build ONE project that isn't installed yet.
@@ -389,11 +389,26 @@ $ urtc-updater --cli firmware sync --option on
 
 - It takes the newest image of each kind (main and slave, application and bootloader) with the files that travel with it (`.sig`, `.sha256`, `.manifest.json` and their signatures) and the set manifest. An image whose release signature does not match the key of the releases pinned in this tool is left out and said so (`left out (its release signature is not valid)`), and the image of its kind that the Flasher already carries stays where it is.
 - It shows what it would do and asks `Copy the firmware of URTC into URTC-FLASHER? [y/N]` (`--yes` answers it, for scripts; without a terminal and without `--yes` nothing is copied; `--dry-run` only shows). The images that are replaced are not deleted: they are moved to `.urtc-updater/firmware-replaced/<time>` of the workspace. Files are written next to their final name and renamed, so a stop in the middle leaves no half-written image. Exit code `1` when nothing could be copied (the Flasher or the firmware folder is missing, an image is refused, or the answer was no).
+- Every decision is recorded: a copy, a refusal (answering no) and a failure add a line to the evidence file of the workspace (`.urtc-updater/evidence.jsonl`, hash chained like the lines of an update, project `URTC-FLASHER firmware`) with what was copied and what was kept; a dry run records nothing.
 - The option is OFF by default. `--option on` saves it (`--option off` switches it off again; `URTC_UPDATER_SYNC_FIRMWARE=1` does it for one run): with it on, an `update URTC` ends with this same offer, which is always a question. Nothing is written to a board: the Flasher checks every image again before it flashes.
 
 ### `compat [--workspace PATH] [--json] [--language NAME]`
 
 Compares the projects found in the workspace with the compatibility matrix of the release this program carries: each one is shown as released, newer, older, not installed or of unknown version, with the copy of the shared code it carries, and the firmware that URTC-FLASHER and URTC-WEB-STUDIO bundle is compared with the firmware of the tool head repository. It only reads manifests and file names: it changes nothing and does not use the network. `--json` prints the same result as data; `--language` picks one of the eight languages of the table.
+
+### `doctor [--workspace PATH] [--probe] [--json] [--language NAME]`
+
+One report on this computer for the family. It lists the tools (git, the ARM toolchain, a C compiler for the firmware tests, Node.js, PySide6 and pyserial, each with its version), the serial ports that could be an SLCAN adapter (by USB identifier or by the words of the description), the installed projects against the compatibility matrix with the firmware that the Flasher and the web studio carry, and whether the firmware of the Flasher is behind the URTC repository.
+
+```text
+$ urtc-updater --cli doctor
+$ urtc-updater --cli doctor --probe --language portuguese
+$ urtc-updater --cli doctor --json
+```
+
+- It reads. A serial port is opened only with `--probe`, and then the only thing written is the SLCAN version query (`V`): the channel is not opened and no frame goes to the bus. The same query goes to every `socket://` board named in `URTC_VIRTUAL_PORT`. A port that answers is reported as an adapter, one that does not as "may not be an SLCAN adapter or in use", one that cannot be opened as busy.
+- What it looks for (the USB identifiers of adapters, the words of the descriptions, the speed and time of the query, the names of the programs) is in `src/urtc_updater/doctor.json`.
+- Exit code `1` when git is missing, `2` when the workspace cannot be read; anything else it finds (a missing toolchain, no adapter, a project at another version) is a warning or information, not an error. The window has the same report in the Doctor button, with the probe, the switch of the offer to bring the firmware to the Flasher after an update of URTC (off by default) and the button that asks the question.
 
 ### `evidence [--workspace PATH] [--export FILE] [--export-common FILE] [--history FOLDER [--json]]`
 

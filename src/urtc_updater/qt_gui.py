@@ -32,6 +32,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 from . import __version__, evidence, i18n, profiles, security, settings
 from .commits import NEW_COMMITS, commit_states
 from .compat_view import compat_matrix_path
+from .doctor_qt import DoctorModel
 from .detect import LocalStatus, discover_workspace
 from . import flasher_handoff
 from .github_client import RemoteStatus, discover_remote_projects, fetch_all
@@ -163,6 +164,7 @@ class UpdaterBridge(QObject):
         self._packages_model: PackagesModel | None = None
         self._help_model: HelpModel | None = None
         self._compat_model: CompatModel | None = None
+        self._doctor_model: DoctorModel | None = None
         self._history_model: EvidenceHistoryModel | None = None
         self._profile = self._load_profile()
         self._remoteResult.connect(self._on_remote_result)
@@ -235,6 +237,14 @@ class UpdaterBridge(QObject):
         if self._compat_model is None:
             self._compat_model = CompatModel(compat.load_matrix(compat_matrix_path()), lambda: self._workspace_root, lambda: _LANGUAGE_NAMES.get(self._lang, "english"), parent=self)
         return self._compat_model
+
+    @Property(QObject, constant=True)
+    def doctor(self) -> QObject:
+        """The Doctor window: the tools of this computer, the SLCAN adapters it can see, the projects, and the offer to bring the firmware of URTC to the Flasher.
+        It only reads; the ports are opened by the probe button alone, and the firmware is copied only after the person answers the question."""
+        if self._doctor_model is None:
+            self._doctor_model = DoctorModel(lambda: self._workspace_root, lambda: self._lang, busy=lambda: self._busy, parent=self)
+        return self._doctor_model
 
     def _history_folder(self) -> Path | None:
         """The folder the history window reads: the attempts of this workspace written as ``urtc-evidence/1`` records (a second view of the evidence file,
@@ -552,7 +562,7 @@ class UpdaterBridge(QObject):
             return
         self._lang = language
         i18n.save_lang_preference(language)
-        for model in (self._update_model, self._packages_model, self._help_model, self._compat_model, self._history_model):
+        for model in (self._update_model, self._packages_model, self._help_model, self._compat_model, self._history_model, self._doctor_model):
             if model is not None:
                 model.languageChanged()
         self.languageChanged.emit()
@@ -848,6 +858,10 @@ class UpdaterBridge(QObject):
         result_key = "log_result_ok" if ok else "log_result_failed"
         self._append_activity(self.text("log_action_finished").format(name=name, result=self.text(result_key)))
         self.refresh(False)
+        if ok:
+            doctor_model = self.doctor
+            if isinstance(doctor_model, DoctorModel) and doctor_model.offer_after_update(name):
+                self._append_activity(doctor_model.t("sync_confirm"))
 
     @Slot(str, object, str)
     def _on_operation_checkpoint(self, phase: str, message: object, prefix: str) -> None:
