@@ -175,21 +175,41 @@ def export_evidence(workspace_root: Path, destination: Path) -> Path:
     destination.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return destination
 
-def export_common(workspace_root: Path, destination: Path) -> tuple[int, int]:
+def export_common(workspace_root: Path, destination: Path, sign: bool = False, key_file: str = "") -> tuple[int, int]:
     """Writes the attempts as ``urtc-evidence/1`` records, one JSON document per line, the shape the flasher and the tester use for theirs.
 
     Returns how many records were written and how many lines were left out because they do not fit the shape (a line written by a very old
     version without a time, for example). The hash chain of the evidence file itself stays where it is: this is a second view, not a replacement.
+
+    With ``sign`` every record carries the Ed25519 signature of the key of the user (``key_file``, else the default of the family): the digest shows the record
+    was not edited, the signature shows whose key wrote it, and anybody with the public key can check the file offline (``evidence --verify FILE``). If the key
+    cannot be read or made nothing is written (``ValueError``, naming the file of the key and never its content), so an unsigned file never passes for a signed one.
     """
     from .urtc_pkg import evidence as common
 
+    seed = None
+    if sign:
+        from .urtc_pkg import record_signing
+
+        try:
+            seed = record_signing.load_seed(key_file or None)
+        except (record_signing.SigningError, OSError) as exc:
+            raise ValueError(f"the evidence could not be signed: {exc}") from exc
     lines: list[str] = []
     skipped = 0
     for entry in read_attempts(workspace_root):
         try:
-            lines.append(json.dumps(common.from_updater_line(entry), sort_keys=True, ensure_ascii=False))
+            record = common.from_updater_line(entry)
+            if seed is not None:
+                try:
+                    record = record_signing.sign_evidence(record, seed)
+                except record_signing.SigningError as exc:
+                    raise RuntimeError(str(exc)) from exc
+            lines.append(json.dumps(record, sort_keys=True, ensure_ascii=False))
         except (ValueError, TypeError, AttributeError):
             skipped += 1
+        except RuntimeError as exc:
+            raise ValueError(f"the evidence could not be signed: {exc}") from exc
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text("".join(line + "\n" for line in lines), encoding="utf-8")
     return len(lines), skipped

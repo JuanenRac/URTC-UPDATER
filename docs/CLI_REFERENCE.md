@@ -401,8 +401,8 @@ Compares the projects found in the workspace with the compatibility matrix of th
 $ urtc-updater --cli evidence -h
 usage: urtc-updater --cli evidence [-h] [--workspace WORKSPACE]
                                    [--export FILE] [--export-common FILE]
-                                   [--history FOLDER] [--json]
-                                   [--public-key HEX]
+                                   [--history FOLDER] [--json] [--sign]
+                                   [--verify FILE] [--public-key HEX]
 
 options:
   -h, --help            show this help message and exit
@@ -417,12 +417,25 @@ options:
                         tester and updater alike), newest first, checking each
                         one: a record edited after it was written is listed as
                         NOT VALID and the exit status is 1. Reads only.
-  --json                With --history: print the list with its summary as one
-                        JSON document.
-  --public-key HEX      With --history: the public key (64 hexadecimal digits)
-                        you trust; a signature by another key fails the
-                        status. It wins over the trusted_keys of the settings.
+  --json                With --history or --verify: print the list with its
+                        summary as one JSON document.
+  --sign                With --export-common: sign every record with the
+                        Ed25519 key of the user (also on with "sign_evidence":
+                        true in the settings; off by default). The key is made
+                        on first use, never printed; if it cannot be used
+                        nothing is written.
+  --verify FILE         Check ONE .json or .jsonl file of urtc-evidence/1
+                        records offline (a file somebody handed over, or one
+                        written with --export-common --sign), with the same
+                        report and exit status as --history; --public-key
+                        tells a signature by another key apart.
+  --public-key HEX      With --history or --verify: the public key (64
+                        hexadecimal digits) you trust; a signature by another
+                        key fails the status. It wins over the trusted_keys of
+                        the settings.
 ```
+
+`--export-common FILE --sign` writes the attempts as evidence records each signed with the Ed25519 key of the user (the file named by `record_key_file` in the settings, else `~/.urtc-keys/records_ed25519.key` or the file of `URTC_RECORD_KEY_FILE`); `"sign_evidence": true` in the settings does the same without the flag, and anything other than the plain value `true` keeps it off. The digest of a record shows it was not edited; the signature shows whose key wrote it. If the key cannot be read or made the command exits `2` and **writes no file**, so an unsigned file never passes for a signed one. `--verify FILE` checks such a file anywhere, with no workspace and no network: the digest of every record, the signature of every signed one, and with `--public-key HEX` (or the `trusted_keys` of the settings) whose key it is; exit `1` when a record or a signature fails.
 
 `--history FOLDER` does not read the evidence log of the workspace: it is the one
 view of the `.json` and `.jsonl` records that any of the programs wrote into a

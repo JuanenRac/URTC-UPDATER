@@ -315,14 +315,17 @@ def cmd_restore_backup(args: argparse.Namespace) -> int:
     return 0 if result.ok else 1
 
 
-def _evidence_history(folder: str, as_json: bool, public_key: str | None = None) -> int:
-    """The ``urtc-evidence/1`` records of a folder (the ones the flasher, the tester and this tool write), newest first, each one checked. Reads only."""
+def _evidence_history(folder: str, as_json: bool, public_key: str | None = None, single_file: bool = False) -> int:
+    """The ``urtc-evidence/1`` records of a folder (the ones the flasher, the tester and this tool write), newest first, each one checked. Reads only.
+
+    With ``single_file`` the argument is ONE ``.json`` or ``.jsonl`` file (``--verify``): the records somebody handed over are checked offline, with the public key
+    of the signer if you have it."""
     from . import settings
     from .urtc_pkg import evidence_history, record_signing
 
     try:
         public = record_signing.parse_public_key(public_key) if public_key else None
-        loaded = evidence_history.load_folder(folder)
+        loaded = evidence_history.load_file(folder) if single_file else evidence_history.load_folder(folder)
     except (FileNotFoundError, record_signing.SigningError) as error:
         print(f"ERROR {error}", file=sys.stderr)
         return 2
@@ -344,16 +347,30 @@ def _evidence_history(folder: str, as_json: bool, public_key: str | None = None)
 
 
 def cmd_evidence(args: argparse.Namespace) -> int:
+    if getattr(args, "history", None) and getattr(args, "verify", None):
+        print("ERROR --history and --verify are two ways to look at records: use one.", file=sys.stderr)
+        return 2
     if getattr(args, "history", None):
         return _evidence_history(args.history, bool(getattr(args, "json", False)), getattr(args, "public_key", None))
+    if getattr(args, "verify", None):
+        return _evidence_history(args.verify, bool(getattr(args, "json", False)), getattr(args, "public_key", None), single_file=True)
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     problems = verify_chain(workspace_root)
     if args.export:
         destination = export_evidence(workspace_root, Path(args.export))
         print(f"Evidence exported to {destination}")
     if args.export_common:
-        written, skipped = export_common(workspace_root, Path(args.export_common))
-        print(f"{written} record(s) in the urtc-evidence/1 shape written to {args.export_common}" + (f" ({skipped} line(s) left out: they do not fit the shape)" if skipped else ""))
+        from . import settings
+        from .urtc_pkg import record_signing
+
+        enabled, key_file = record_signing.signing_settings(settings.load_settings())
+        try:
+            written, skipped = export_common(workspace_root, Path(args.export_common), sign=bool(getattr(args, "sign", False)) or enabled, key_file=key_file)
+        except ValueError as exc:
+            print(f"ERROR {exc}", file=sys.stderr)    # nothing was written: an unsigned file never passes for a signed one
+            return 2
+        how = " and signed with your Ed25519 key" if (getattr(args, "sign", False) or enabled) else ""
+        print(f"{written} record(s) in the urtc-evidence/1 shape written to {args.export_common}{how}" + (f" ({skipped} line(s) left out: they do not fit the shape)" if skipped else ""))
     for problem in problems:
         print(f"PROBLEM {problem}", file=sys.stderr)
     if not problems:
@@ -611,8 +628,12 @@ def build_parser() -> argparse.ArgumentParser:
     evidence_p.add_argument("--export-common", metavar="FILE", help="Write the attempts as urtc-evidence/1 records (one JSON document per line), the shape the flasher and the tester use.")
     evidence_p.add_argument("--history", metavar="FOLDER", help="List the urtc-evidence/1 records of FOLDER (flasher, tester and updater alike), newest first, checking each one: "
                                                                "a record edited after it was written is listed as NOT VALID and the exit status is 1. Reads only.")
-    evidence_p.add_argument("--json", action="store_true", help="With --history: print the list with its summary as one JSON document.")
-    evidence_p.add_argument("--public-key", metavar="HEX", help="With --history: the public key (64 hexadecimal digits) you trust; a signature by another key fails the status. "
+    evidence_p.add_argument("--json", action="store_true", help="With --history or --verify: print the list with its summary as one JSON document.")
+    evidence_p.add_argument("--sign", action="store_true", help="With --export-common: sign every record with the Ed25519 key of the user (also on with \"sign_evidence\": true in the settings; "
+                                                                "off by default). The key is made on first use, never printed; if it cannot be used nothing is written.")
+    evidence_p.add_argument("--verify", metavar="FILE", help="Check ONE .json or .jsonl file of urtc-evidence/1 records offline (a file somebody handed over, or one written with "
+                                                             "--export-common --sign), with the same report and exit status as --history; --public-key tells a signature by another key apart.")
+    evidence_p.add_argument("--public-key", metavar="HEX", help="With --history or --verify: the public key (64 hexadecimal digits) you trust; a signature by another key fails the status. "
                                                                "It wins over the trusted_keys of the settings.")
     evidence_p.set_defaults(func=cmd_evidence)
 

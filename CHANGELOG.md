@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The evidence the updater exports can be signed and checked offline:** `evidence --export-common FILE --sign` (or `"sign_evidence": true` in the settings, off by default) writes each attempt as an `urtc-evidence/1` record carrying an Ed25519 signature made with the key of the user (`record_key_file`, else the default of the family; never printed), and writes nothing if the key cannot be used. The new `evidence --verify FILE` checks one `.json` or `.jsonl` file with no workspace and no network, with the same report as `--history`, and tells a signature by another key apart with `--public-key` or the `trusted_keys` of the settings. The window still shows its own unsigned view of the attempts.
+
 ## [0.2.3] - A Signature column in the history, the store of trusted keys, a screenshot of the history in the eight languages and the PDF report with the characters of both levels
 
 - **The history says who signed:** a `trusted_keys` object in the saved settings lists public keys by alias (public keys only, never a seed); `evidence --history` and the History window then say "Signed by <alias>" for a good signature by one of them, "Valid signature, unknown key" for any other good one (shown, it does not fail the status) and "SIGNATURE NOT VALID" for one that fails, which makes the command exit `1`. `--public-key HEX` wins over the store. The History window has a Signature column. The shared copy and its lock files are synchronized.
