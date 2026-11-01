@@ -8,6 +8,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The shared evidence code accepts the outcome `unknown`:** a record whose result could not be decided (written by the tester when a check has no evidence either way) is read and listed as valid, and the history and the report say it in the eight languages (Portuguese of Portugal).
 - **The evidence the updater exports can be signed and checked offline:** `evidence --export-common FILE --sign` (or `"sign_evidence": true` in the settings, off by default) writes each attempt as an `urtc-evidence/1` record carrying an Ed25519 signature made with the key of the user (`record_key_file`, else the default of the family; never printed), and writes nothing if the key cannot be used. The new `evidence --verify FILE` checks one `.json` or `.jsonl` file with no workspace and no network, with the same report as `--history`, and tells a signature by another key apart with `--public-key` or the `trusted_keys` of the settings. The window still shows its own unsigned view of the attempts.
 
 ## [0.2.3] - A Signature column in the history, the store of trusted keys, a screenshot of the history in the eight languages and the PDF report with the characters of both levels
