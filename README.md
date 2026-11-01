@@ -230,8 +230,12 @@ Captured at 1920×1080 on a test bench, with sample data and no real installatio
 <td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="The Packages window: the programs of the family that a release publishes as a signed package, each checking its own release." width="100%"><br><sub>The Packages window: the programs of the family that a release publishes as a signed package, each checking its own release.</sub></td>
 </tr>
 <tr>
+<td width="50%" valign="top"><img src="images/screenshots/history.png" alt="The history window: every record the programs wrote about each board, newest first, each checked on its own, with a Signature column that says whether it is signed, by which of your keys, or not valid." width="100%"><br><sub>The history window: every record the programs wrote about each board, newest first, each checked on its own, with a Signature column that says whether it is signed, by which of your keys, or not valid.</sub></td>
 <td width="50%" valign="top"><img src="images/screenshots/help.png" alt="The Help window: the steps for using the program, written in the language of the window." width="100%"><br><sub>The Help window: the steps for using the program, written in the language of the window.</sub></td>
+</tr>
+<tr>
 <td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="The update window: a newer signed package is installed only after you confirm it." width="100%"><br><sub>The update window: a newer signed package is installed only after you confirm it.</sub></td>
+<td width="50%"></td>
 </tr>
 </table>
 <!-- /urtc-shots -->

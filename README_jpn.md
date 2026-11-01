@@ -186,8 +186,12 @@ URTC-UPDATER は、URTC のリポジトリを持つ PC を最新に保つプロ�
 <td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。" width="100%"><br><sub>パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。</sub></td>
 </tr>
 <tr>
+<td width="50%" valign="top"><img src="images/screenshots/history.png" alt="履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。" width="100%"><br><sub>履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。</sub></td>
 <td width="50%" valign="top"><img src="images/screenshots/help.png" alt="ヘルプウィンドウ：プログラムの使い方の手順を、ウィンドウの言語で表示します。" width="100%"><br><sub>ヘルプウィンドウ：プログラムの使い方の手順を、ウィンドウの言語で表示します。</sub></td>
+</tr>
+<tr>
 <td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。" width="100%"><br><sub>更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。</sub></td>
+<td width="50%"></td>
 </tr>
 </table>
 <!-- /urtc-shots -->

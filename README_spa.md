@@ -257,8 +257,12 @@ Capturadas a 1920×1080 en un banco de pruebas, con datos de ejemplo y sin ningu
 <td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="La ventana de Paquetes: los programas de la familia que una versión publica como paquete firmado, cada uno comprobando su propia versión." width="100%"><br><sub>La ventana de Paquetes: los programas de la familia que una versión publica como paquete firmado, cada uno comprobando su propia versión.</sub></td>
 </tr>
 <tr>
+<td width="50%" valign="top"><img src="images/screenshots/history.png" alt="La ventana del historial: todos los registros que los programas escribieron de cada placa, el más reciente primero, cada uno comprobado por separado, con una columna Firma que dice si está firmado, con cuál de tus claves, o si no es válido." width="100%"><br><sub>La ventana del historial: todos los registros que los programas escribieron de cada placa, el más reciente primero, cada uno comprobado por separado, con una columna Firma que dice si está firmado, con cuál de tus claves, o si no es válido.</sub></td>
 <td width="50%" valign="top"><img src="images/screenshots/help.png" alt="La ventana de Ayuda: los pasos para usar el programa, escritos en el idioma de la ventana." width="100%"><br><sub>La ventana de Ayuda: los pasos para usar el programa, escritos en el idioma de la ventana.</sub></td>
+</tr>
+<tr>
 <td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="La ventana de actualizaciones: un paquete firmado más reciente solo se instala después de que lo confirmes." width="100%"><br><sub>La ventana de actualizaciones: un paquete firmado más reciente solo se instala después de que lo confirmes.</sub></td>
+<td width="50%"></td>
 </tr>
 </table>
 <!-- /urtc-shots -->
