@@ -64,6 +64,7 @@
 | Pruebas | 🟢 | La batería de pruebas pasa en la CI en cada subida. |
 | Actualizaciones | 🟡 | Instala desde paquetes firmados con vuelta atrás; probado solo en un PC. |
 | Seguridad | 🟡 | Las versiones se firman con Ed25519 y se comprueban antes de usarlas; el manejo de las claves no lo ha revisado nadie más. |
+| Idiomas y accesibilidad | 🟡 | La interfaz y su ayuda están en ocho idiomas; el uso con teclado y lector de pantalla no se ha probado |
 | Documentación | 🟡 | README en ocho idiomas y documentos de referencia; las traducciones no las ha revisado ningún hablante nativo. |
 
 <!-- /urtc-section:status_updater -->

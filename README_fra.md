@@ -63,6 +63,7 @@
 | Tests | 🟢 | La suite de tests passe dans la CI à chaque push. |
 | Mises à jour | 🟡 | Installe depuis des paquets signés avec retour en arrière ; essayé seulement sur PC. |
 | Sécurité | 🟡 | Les versions sont signées en Ed25519 et vérifiées avant usage ; la gestion des clés n'a été relue par personne d'autre. |
+| Langues et accessibilité | 🟡 | L'interface et son aide sont en huit langues ; l'usage au clavier et avec un lecteur d'écran n'a pas été testé |
 | Documentation | 🟡 | README en huit langues et documents de référence ; les traductions n'ont pas été relues par des locuteurs natifs. |
 
 <!-- /urtc-section:status_updater -->
