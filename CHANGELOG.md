@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.2.3] - A Signature column in the history, the store of trusted keys, a screenshot of the history in the eight languages and the PDF report with the characters of both levels
 
 - **The history says who signed:** a `trusted_keys` object in the saved settings lists public keys by alias (public keys only, never a seed); `evidence --history` and the History window then say "Signed by <alias>" for a good signature by one of them, "Valid signature, unknown key" for any other good one (shown, it does not fail the status) and "SIGNATURE NOT VALID" for one that fails, which makes the command exit `1`. `--public-key HEX` wins over the store. The History window has a Signature column. The shared copy and its lock files are synchronized.
 - **Picture of the History window:** `tools/capture_screens.py` now also takes the History window (over four sample records and one trusted key, so the Signature column shows each state, with no path of the computer in it) in the eight languages, and `docs/WINDOW_GUIDE.md` shows it.
