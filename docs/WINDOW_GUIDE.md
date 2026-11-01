@@ -43,24 +43,28 @@ The **Help** button opens seven short steps in the language of the window: the o
 The **History** button in the top bar opens the history of operations: the evidence records (`urtc-evidence/1`) that the updater wrote, newest first, with the kind, the result, the tool, the board and the versions. Each record is checked when the window opens; one that was edited after it was written, a file that is not JSON or a record of another format is shown as **NOT VALID** with what is wrong. You can filter by result and by text, or reduce the list to the records that fail. The window reads the folder again each time it opens (or when you press **Read again**), shows at most 500 rows and says how many there are, and never changes anything on disk. It is the same window, in the eight languages, in the flasher, the tester and the updater.
 In the updater it lists the install and update attempts of the workspace as records; the evidence file with its hash chain stays as it is and the window works on a second view of it under `.urtc-updater/common`. From the command line, `urtc-updater --cli evidence --history FOLDER [--json]` gives the same list for any folder (see [CLI_REFERENCE.md](CLI_REFERENCE.md)).
 
+![The History window of the updater, with the Signature column](screenshots/updater-history.png)
+
+The **Signature** column says whether a record is signed: **Signed by <alias>** when its key is one of the `trusted_keys` of the saved settings, **Valid signature, unknown key** when the signature is good but the key is not listed, **SIGNATURE NOT VALID** when it fails, and **Not signed**. The picture is taken over four sample records and one trusted key.
+
 ## 6. Firmware
 
 The **Firmware** button opens a window that asks for a firmware image (a box and a file chooser) and opens the installed Flasher with that image selected. **Check signature** checks the release signature of the image first; **Open in the Flasher** applies the same rules as `firmware check` and `firmware open` of the command line: a missing or wrong signature is refused, the reason is said in the language of the window, and the Flasher is only told which file to select. Nothing is written to a board from here: you connect, choose the options and confirm in the Flasher. The command line also has `firmware sync`, which copies the newest images from `URTC/firmware` into `URTC-FLASHER/firmware` after checking each one (see [CLI_REFERENCE.md](CLI_REFERENCE.md)).
 
 ## The same pictures in the other languages
 
-The program has eight interface languages. These are the same four pictures taken with each of them (`python tools/capture_screens.py --all-languages` writes them again; `--language german` writes one language). The texts are those of the program, not of this page, so a picture shows exactly what a person who chose that language sees.
+The program has eight interface languages. These are the same five pictures taken with each of them (`python tools/capture_screens.py --all-languages` writes them again; `--language german` writes one language). The texts are those of the program, not of this page, so a picture shows exactly what a person who chose that language sees.
 
-| Language | Window | Help | Updates | Packages |
-|---|---|---|---|---|
-| English | [window](screenshots/updater-deck.png) | [help](screenshots/updater-help.png) | [updates](screenshots/updater-updates.png) | [packages](screenshots/updater-packages.png) |
-| Español | [window](screenshots/updater-deck-es.png) | [help](screenshots/updater-help-es.png) | [updates](screenshots/updater-updates-es.png) | [packages](screenshots/updater-packages-es.png) |
-| Deutsch | [window](screenshots/updater-deck-de.png) | [help](screenshots/updater-help-de.png) | [updates](screenshots/updater-updates-de.png) | [packages](screenshots/updater-packages-de.png) |
-| Français | [window](screenshots/updater-deck-fr.png) | [help](screenshots/updater-help-fr.png) | [updates](screenshots/updater-updates-fr.png) | [packages](screenshots/updater-packages-fr.png) |
-| Italiano | [window](screenshots/updater-deck-it.png) | [help](screenshots/updater-help-it.png) | [updates](screenshots/updater-updates-it.png) | [packages](screenshots/updater-packages-it.png) |
-| 日本語 | [window](screenshots/updater-deck-ja.png) | [help](screenshots/updater-help-ja.png) | [updates](screenshots/updater-updates-ja.png) | [packages](screenshots/updater-packages-ja.png) |
-| 简体中文 | [window](screenshots/updater-deck-zh.png) | [help](screenshots/updater-help-zh.png) | [updates](screenshots/updater-updates-zh.png) | [packages](screenshots/updater-packages-zh.png) |
-| Português | [window](screenshots/updater-deck-pt.png) | [help](screenshots/updater-help-pt.png) | [updates](screenshots/updater-updates-pt.png) | [packages](screenshots/updater-packages-pt.png) |
+| Language | Window | Help | Updates | Packages | History |
+|---|---|---|---|---|---|
+| English | [window](screenshots/updater-deck.png) | [help](screenshots/updater-help.png) | [updates](screenshots/updater-updates.png) | [packages](screenshots/updater-packages.png) | [history](screenshots/updater-history.png) |
+| Español | [window](screenshots/updater-deck-es.png) | [help](screenshots/updater-help-es.png) | [updates](screenshots/updater-updates-es.png) | [packages](screenshots/updater-packages-es.png) | [history](screenshots/updater-history-es.png) |
+| Deutsch | [window](screenshots/updater-deck-de.png) | [help](screenshots/updater-help-de.png) | [updates](screenshots/updater-updates-de.png) | [packages](screenshots/updater-packages-de.png) | [history](screenshots/updater-history-de.png) |
+| Français | [window](screenshots/updater-deck-fr.png) | [help](screenshots/updater-help-fr.png) | [updates](screenshots/updater-updates-fr.png) | [packages](screenshots/updater-packages-fr.png) | [history](screenshots/updater-history-fr.png) |
+| Italiano | [window](screenshots/updater-deck-it.png) | [help](screenshots/updater-help-it.png) | [updates](screenshots/updater-updates-it.png) | [packages](screenshots/updater-packages-it.png) | [history](screenshots/updater-history-it.png) |
+| 日本語 | [window](screenshots/updater-deck-ja.png) | [help](screenshots/updater-help-ja.png) | [updates](screenshots/updater-updates-ja.png) | [packages](screenshots/updater-packages-ja.png) | [history](screenshots/updater-history-ja.png) |
+| 简体中文 | [window](screenshots/updater-deck-zh.png) | [help](screenshots/updater-help-zh.png) | [updates](screenshots/updater-updates-zh.png) | [packages](screenshots/updater-packages-zh.png) | [history](screenshots/updater-history-zh.png) |
+| Português | [window](screenshots/updater-deck-pt.png) | [help](screenshots/updater-help-pt.png) | [updates](screenshots/updater-updates-pt.png) | [packages](screenshots/updater-packages-pt.png) | [history](screenshots/updater-history-pt.png) |
 
 ## What the pictures do not show
 

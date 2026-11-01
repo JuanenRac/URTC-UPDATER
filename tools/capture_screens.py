@@ -35,7 +35,46 @@ SIZE = (1500, 900)  # the default size of the window
 # the code the program stores -> the suffix of the picture (English has none)
 LANGUAGE_SUFFIX = {"en": "", "es": "-es", "de": "-de", "fr": "-fr", "it": "-it", "ja": "-ja", "zh": "-zh", "pt": "-pt"}
 LANGUAGE_NAME = {"en": "english", "es": "spanish", "de": "german", "fr": "french", "it": "italian", "ja": "japanese", "zh": "chinese", "pt": "portuguese"}
-DIALOGS = (("helpDialog", "help"), ("updateDialog", "updates"), ("packagesDialog", "packages"))
+DIALOGS = (("helpDialog", "help"), ("updateDialog", "updates"), ("packagesDialog", "packages"), ("historyDialog", "history"))
+
+
+def sample_history(scratch: Path) -> Path:
+    """A folder of four sample evidence records, so the History window has something to show: one signed by a key the trust store lists, one signed by another
+    key, one not signed and one edited after it was signed. The keys are fixed test keys (RFC 8032), the records say they are samples and nothing is written
+    outside the temporary folder of the run."""
+    import json
+
+    from urtc_updater.urtc_pkg import evidence, record_signing
+
+    ana = bytes.fromhex("9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60")
+    other = bytes.fromhex("4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb")
+    folder = scratch / "samples"
+    folder.mkdir()
+
+    def record(day: int, name: str) -> dict:
+        return evidence.build(kind="install", outcome="pass", timestamp_utc=f"2026-01-{day:02d}T10:00:00Z", tool="Sample", tool_version="1.0.0",
+                              subject={"name": name, "version_after": "1.0.0"}, detail="a sample record for the picture")
+
+    edited = record_signing.sign_evidence(record(4, "URTC-TESTER"), ana)
+    edited["outcome"] = "fail"
+    items = {"a": record_signing.sign_evidence(record(1, "URTC-FLASHER"), ana), "b": record_signing.sign_evidence(record(2, "URTC-UPDATER"), other),
+             "c": record(3, "URTC-COMMON"), "d": edited}
+    for key, item in items.items():
+        (folder / f"urtc_evidence_{key}.json").write_text(json.dumps(item), encoding="utf-8")
+    settings_module = __import__("urtc_updater.settings", fromlist=["save_settings"])
+    settings_module.save_settings(trusted_keys={"Ana bench 1": record_signing.public_key(ana).hex()})
+    # the window prints the folder it reads: the picture says "records", not the temporary folder of this computer
+    from urtc_updater.urtc_pkg import evidence_history_qt
+
+    original = evidence_history_qt.EvidenceHistoryModel.t
+
+    def text(self, key, **values):
+        if key == "EH_FOLDER":
+            values["folder"] = "records"
+        return original(self, key, **values)
+
+    evidence_history_qt.EvidenceHistoryModel.t = text
+    return folder
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -79,11 +118,16 @@ def main(argv: list[str] | None = None) -> int:
     github_client.REPO_LIST_CACHE_PATH = scratch / ".urtc_updater_repo_cache.json"
     qt_gui.LOGS_DIR = scratch / "logs"
 
+    samples = sample_history(scratch)
+
     class OfflineBridge(qt_gui.UpdaterBridge):
         """The window as it opens with the box "Offline" ticked: it scans the workspace and asks GitHub nothing."""
 
         def refresh(self, offline: bool) -> None:
             super().refresh(True)
+
+        def _history_folder(self):
+            return samples
 
     QQuickStyle.setStyle("Basic")
     app = QGuiApplication([])

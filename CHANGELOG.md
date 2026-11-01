@@ -5,6 +5,8 @@ All notable changes to this project are documented here.
 ## [Unreleased]
 
 - **The history says who signed:** a `trusted_keys` object in the saved settings lists public keys by alias (public keys only, never a seed); `evidence --history` and the History window then say "Signed by <alias>" for a good signature by one of them, "Valid signature, unknown key" for any other good one (shown, it does not fail the status) and "SIGNATURE NOT VALID" for one that fails, which makes the command exit `1`. `--public-key HEX` wins over the store. The History window has a Signature column. The shared copy and its lock files are synchronized.
+- **Picture of the History window:** `tools/capture_screens.py` now also takes the History window (over four sample records and one trusted key, so the Signature column shows each state, with no path of the computer in it) in the eight languages, and `docs/WINDOW_GUIDE.md` shows it.
+- **The PDF report prints more Chinese and Japanese names:** the shared font data now holds both levels of GB 2312 and of JIS X 0208 (6763 hanzi and 6355 kanji) besides the text of the catalogs; Traditional Chinese forms and rare kanji still print as the visible square with the note that counts them. A PDF with Chinese or Japanese text grows from about 0.6-0.74 MB to about 1.2-1.3 MB (a report without such text embeds no font) and the module of the font data from 1.97 MB to 3.71 MB; the shared copy and its lock file are synchronized.
 
 ## [0.2.2] - The shared evidence modules accept the optional Ed25519 signature of an evidence record and the history shows its state
 

@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SUFFIXES = ["", "-es", "-de", "-fr", "-it", "-ja", "-zh", "-pt"]   # English and the seven other languages of the program
-SCREENS = ("deck", "help", "updates", "packages")
+SCREENS = ("deck", "help", "updates", "packages", "history")
 PICTURES = [f"updater-{screen}{suffix}.png" for suffix in SUFFIXES for screen in SCREENS]
 READMES = ["README.md", "README_spa.md", "README_fra.md", "README_ita.md", "README_deu.md", "README_jpn.md", "README_zho.md", "README_por.md"]
 
