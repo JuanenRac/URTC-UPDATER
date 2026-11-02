@@ -32,6 +32,8 @@ if sys.platform == "win32":
     os.environ.setdefault("QT_QPA_FONTDIR", os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "Fonts"))
 
 SIZE = (1500, 900)  # the default size of the window
+README_SIZE = (1920, 1080)  # the pictures of the README
+README_RENDER = (2400, 1350)  # the window they are drawn on (same proportions), scaled down to README_SIZE
 # the code the program stores -> the suffix of the picture (English has none)
 LANGUAGE_SUFFIX = {"en": "", "es": "-es", "de": "-de", "fr": "-fr", "it": "-it", "ja": "-ja", "zh": "-zh", "pt": "-pt"}
 LANGUAGE_NAME = {"en": "english", "es": "spanish", "de": "german", "fr": "french", "it": "italian", "ja": "japanese", "zh": "chinese", "pt": "portuguese"}
@@ -149,7 +151,8 @@ def main(argv: list[str] | None = None) -> int:
             time.sleep(0.01)
 
     root.setVisibility(QWindow.Visibility.Windowed)
-    size = (1920, 1080) if args.readme else SIZE
+    # the picture of the README is drawn on a wider window (the toolbar has more buttons than 1920 pixels hold) and scaled down to 1920x1080
+    size = README_RENDER if args.readme else SIZE
     root.setWidth(size[0])
     root.setHeight(size[1])
     pump(1.0)
@@ -159,6 +162,8 @@ def main(argv: list[str] | None = None) -> int:
 
     def shot(label: str) -> None:
         image = QQuickWindow.grabWindow(root)
+        if args.readme:
+            image = image.scaled(README_SIZE[0], README_SIZE[1], Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
         path = out / (f"{label}.png" if args.readme else f"updater-{label}{LANGUAGE_SUFFIX[code]}.png")
         if not image.save(str(path)):
             raise SystemExit(f"CAPTURE=FAIL could not write {path}")

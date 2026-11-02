@@ -1,0 +1,96 @@
+{
+  "screens": [
+    {
+      "file": "deck.png",
+      "alt": {
+        "en": "Main window",
+        "es": "Ventana principal",
+        "fr": "Fenêtre principale",
+        "it": "Finestra principale",
+        "de": "Hauptfenster",
+        "zh": "主窗口",
+        "ja": "メインウィンドウ",
+        "pt": "Janela principal"
+      },
+      "caption": {
+        "en": "The window over a workspace with the family in it: every project with its maturity, stack and local version, and the safe update actions.",
+        "es": "La ventana sobre un espacio de trabajo con la familia: cada proyecto con su madurez, pila y versión local, y las acciones de actualización segura.",
+        "fr": "La fenêtre sur un espace de travail contenant la famille : chaque projet avec sa maturité, sa pile et sa version locale, et les actions de mise à jour sûres.",
+        "it": "La finestra su uno spazio di lavoro con la famiglia: ogni progetto con maturità, stack e versione locale, e le azioni di aggiornamento sicuro.",
+        "de": "Das Fenster über einem Arbeitsbereich mit der Familie darin: jedes Projekt mit Reifegrad, Stack und lokaler Version sowie die sicheren Aktualisierungsaktionen.",
+        "zh": "显示包含整个系列的工作区的窗口：每个项目的成熟度、技术栈和本地版本，以及安全更新操作。",
+        "ja": "ファミリー全体を含む作業領域を表示したウィンドウ：各プロジェクトの成熟度、スタック、ローカルバージョンと、安全な更新操作。",
+        "pt": "A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura."
+      }
+    },
+    {
+      "file": "packages.png",
+      "alt": {
+        "en": "Packages",
+        "es": "Paquetes",
+        "fr": "Paquets",
+        "it": "Pacchetti",
+        "de": "Pakete",
+        "zh": "软件包",
+        "ja": "パッケージ",
+        "pt": "Pacotes"
+      },
+      "caption": {
+        "en": "The Packages window: the programs of the family that a release publishes as a signed package, each checking its own release.",
+        "es": "La ventana de Paquetes: los programas de la familia que una versión publica como paquete firmado, cada uno comprobando su propia versión.",
+        "fr": "La fenêtre des paquets : les programmes de la famille qu'une version publie comme paquet signé, chacun vérifiant sa propre version.",
+        "it": "La finestra dei pacchetti: i programmi della famiglia che una versione pubblica come pacchetto firmato, ciascuno con il controllo della propria versione.",
+        "de": "Das Paket-Fenster: die Programme der Familie, die ein Release als signiertes Paket veröffentlicht, jedes prüft sein eigenes Release.",
+        "zh": "软件包窗口：系列中以已签名软件包形式发布的程序，每个程序检查各自的发布版本。",
+        "ja": "パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。",
+        "pt": "A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão."
+      }
+    },
+    {
+      "file": "history.png",
+      "alt": {
+        "en": "History",
+        "es": "Historial",
+        "fr": "Historique",
+        "it": "Cronologia",
+        "de": "Verlauf",
+        "zh": "历史记录",
+        "ja": "履歴",
+        "pt": "Histórico"
+      },
+      "caption": {
+        "en": "The history window: every record the programs wrote about each board, newest first, each checked on its own, with a Signature column that says whether it is signed, by which of your keys, or not valid.",
+        "es": "La ventana del historial: todos los registros que los programas escribieron de cada placa, el más reciente primero, cada uno comprobado por separado, con una columna Firma que dice si está firmado, con cuál de tus claves, o si no es válido.",
+        "fr": "La fenêtre de l'historique : tous les enregistrements que les programmes ont écrits pour chaque carte, le plus récent d'abord, chacun vérifié séparément, avec une colonne Signature qui dit s'il est signé, par laquelle de vos clés, ou s'il n'est pas valide.",
+        "it": "La finestra della cronologia: tutti i record che i programmi hanno scritto per ogni scheda, il più recente per primo, ciascuno verificato a sé, con una colonna Firma che dice se è firmato, con quale delle tue chiavi, o se non è valido.",
+        "de": "Das Verlaufsfenster: alle Protokolle, die die Programme zu jeder Platine geschrieben haben, das neueste zuerst, jedes für sich geprüft, mit einer Spalte Signatur, die sagt, ob es signiert ist, mit welchem deiner Schlüssel, oder ob es ungültig ist.",
+        "zh": "历史窗口：程序为每块板子写下的所有记录，最新的在前，每条单独校验；“签名”列显示它是否已签名、由您的哪把密钥签名，或是否无效。",
+        "ja": "履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。",
+        "pt": "A janela do histórico: todos os registos que os programas escreveram sobre cada placa, o mais recente primeiro, cada um verificado por si, com uma coluna Assinatura que diz se está assinado, com qual das suas chaves, ou se não é válido."
+      }
+    },
+    {
+      "file": "updates.png",
+      "alt": {
+        "en": "Check for updates",
+        "es": "Buscar actualizaciones",
+        "fr": "Rechercher des mises à jour",
+        "it": "Cerca aggiornamenti",
+        "de": "Nach Updates suchen",
+        "zh": "检查更新",
+        "ja": "更新の確認",
+        "pt": "Procurar atualizações"
+      },
+      "caption": {
+        "en": "The update window: a newer signed package is installed only after you confirm it.",
+        "es": "La ventana de actualizaciones: un paquete firmado más reciente solo se instala después de que lo confirmes.",
+        "fr": "La fenêtre de mise à jour : un paquet signé plus récent n'est installé qu'après votre confirmation.",
+        "it": "La finestra degli aggiornamenti: un pacchetto firmato più recente viene installato solo dopo la tua conferma.",
+        "de": "Das Update-Fenster: ein neueres signiertes Paket wird erst nach deiner Bestätigung installiert.",
+        "zh": "更新窗口：只有在你确认之后，才会安装较新的已签名软件包。",
+        "ja": "更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。",
+        "pt": "A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar."
+      }
+    }
+  ]
+}

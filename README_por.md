@@ -227,30 +227,35 @@ Como as partes deste repositório se encaixam: quem o usa, o que contém e de qu
 Este programa pode procurar uma versão mais recente de si próprio: o botão «Procurar atualizações» pergunta uma vez ao GitHub e só propõe um pacote assinado se for para o seu sistema e mais recente. Nada é verificado nem instalado por si só, a não ser que ative a verificação, e uma atualização precisa da sua confirmação. O pacote tem de coincidir com o seu SHA-256 e com a assinatura da chave das versões fixada no programa; a versão anterior é guardada e reposta sozinha se a nova não arrancar. `urtc-updater --cli package list|check|install|rollback` faz o mesmo na linha de comandos para o flasher e o tester, e `install --file` funciona sem rede.
 <!-- /urtc-section:updates -->
 
+<!-- urtc-section:screenshots -->
 ## 🖼️ Capturas de ecrã
 
-<!-- urtc-shots -->
-Capturadas a 1920×1080 numa bancada de testes, com dados de exemplo e sem qualquer instalação real por trás.
+Capturadas numa bancada de testes com dados de exemplo inventados e sem qualquer instalação real por trás.
 
-<table>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura." width="100%"><br><sub>A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura.</sub></td>
-<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão." width="100%"><br><sub>A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão.</sub></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/history.png" alt="A janela do histórico: todos os registos que os programas escreveram sobre cada placa, o mais recente primeiro, cada um verificado por si, com uma coluna Assinatura que diz se está assinado, com qual das suas chaves, ou se não é válido." width="100%"><br><sub>A janela do histórico: todos os registos que os programas escreveram sobre cada placa, o mais recente primeiro, cada um verificado por si, com uma coluna Assinatura que diz se está assinado, com qual das suas chaves, ou se não é válido.</sub></td>
-<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="A janela de Ajuda: os passos para utilizar o programa, escritos no idioma da janela." width="100%"><br><sub>A janela de Ajuda: os passos para utilizar o programa, escritos no idioma da janela.</sub></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar." width="100%"><br><sub>A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar.</sub></td>
-<td width="50%"></td>
-</tr>
-</table>
-<!-- /urtc-shots -->
+<p align="center">
+  <img src="images/screenshots/deck.png" alt="Janela principal" width="100%">
+</p>
 
-Estas imagens são a janela real, desenhada sem ecrã tal como abre (nada verificado, nada instalado). O guia percorre a janela, a ajuda, a janela de atualização e a dos pacotes, e mostra-as nas oito línguas do programa.
+<p align="center"><em>A janela sobre uma área de trabalho com a família: cada projeto com a sua maturidade, pilha e versão local, e as ações de atualização segura.</em></p>
 
-[Guia com imagens](docs/WINDOW_GUIDE.md)
+<p align="center">
+  <img src="images/screenshots/packages.png" alt="Pacotes" width="100%">
+</p>
+
+<p align="center"><em>A janela de Pacotes: os programas da família que uma versão publica como pacote assinado, cada um a verificar a sua própria versão.</em></p>
+
+<p align="center">
+  <img src="images/screenshots/history.png" alt="Histórico" width="100%">
+</p>
+
+<p align="center"><em>A janela do histórico: todos os registos que os programas escreveram sobre cada placa, o mais recente primeiro, cada um verificado por si, com uma coluna Assinatura que diz se está assinado, com qual das suas chaves, ou se não é válido.</em></p>
+
+<p align="center">
+  <img src="images/screenshots/updates.png" alt="Procurar atualizações" width="100%">
+</p>
+
+<p align="center"><em>A janela de atualizações: um pacote assinado mais recente só é instalado depois de o confirmar.</em></p>
+<!-- /urtc-section:screenshots -->
 
 ## 🔒 Segurança e proteção
 

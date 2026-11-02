@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The screenshots of the README are listed in `docs/screenshots.json`:** each picture has a short name and a caption in the eight languages, the README section is written from that file, and `tools/capture_screenshots.py` takes the pictures again without opening a window on the desktop.
+
 ## [0.2.6] - A doctor for this computer reports the tools, the ports that may be a CAN adapter and the firmware of the flasher, and bringing the firmware to the flasher is recorded and has a switch in the window
 
 - **A doctor for this computer:** `urtc-updater --cli doctor` (and the Doctor button of the window, in the eight languages) reports the tools with their versions (git, the ARM toolchain, a C compiler, Node.js, PySide6, pyserial), the serial ports that could be an SLCAN adapter, the installed projects against the release with the firmware that the Flasher and the web studio carry, and whether the Flasher is behind the URTC repository. It reads only; `--probe` (or the probe button) opens each candidate adapter and each virtual board of `URTC_VIRTUAL_PORT` and asks it for its version, nothing else. What it looks for is in `doctor.json`.

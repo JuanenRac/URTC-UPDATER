@@ -176,30 +176,35 @@ URTC-UPDATER は、URTC のリポジトリを持つ PC を最新に保つプロ�
 このプログラムは自分自身の新しいバージョンを探せます。「更新を確認」ボタンは GitHub に一度だけ問い合わせ、お使いのシステム向けで新しい場合にだけ署名付きパッケージを提案します。確認を有効にしない限り、何も自動では確認もインストールもされず、更新にはあなたの確認が必要です。パッケージは SHA-256 と、プログラムに固定されたリリース鍵の署名に一致しなければなりません。前のバージョンは保持され、新しいバージョンが起動しない場合は自動的に復元されます。`urtc-updater --cli package list|check|install|rollback` はコマンドラインからフラッシャーとテスターに対して同じことを行い、`install --file` はネットワークなしで動作します。
 <!-- /urtc-section:updates -->
 
+<!-- urtc-section:screenshots -->
 ## 🖼️ スクリーンショット
 
-<!-- urtc-shots -->
-テストベンチで 1920×1080 で撮影。サンプルデータを使用しており、実際の設備は接続されていません。
+テストベンチで架空のサンプルデータを使って撮影したもので、実際の設備は接続されていません。
 
-<table>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/deck.png" alt="ファミリー全体を含む作業領域を表示したウィンドウ：各プロジェクトの成熟度、スタック、ローカルバージョンと、安全な更新操作。" width="100%"><br><sub>ファミリー全体を含む作業領域を表示したウィンドウ：各プロジェクトの成熟度、スタック、ローカルバージョンと、安全な更新操作。</sub></td>
-<td width="50%" valign="top"><img src="images/screenshots/packages.png" alt="パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。" width="100%"><br><sub>パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。</sub></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/history.png" alt="履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。" width="100%"><br><sub>履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。</sub></td>
-<td width="50%" valign="top"><img src="images/screenshots/help.png" alt="ヘルプウィンドウ：プログラムの使い方の手順を、ウィンドウの言語で表示します。" width="100%"><br><sub>ヘルプウィンドウ：プログラムの使い方の手順を、ウィンドウの言語で表示します。</sub></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><img src="images/screenshots/updates.png" alt="更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。" width="100%"><br><sub>更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。</sub></td>
-<td width="50%"></td>
-</tr>
-</table>
-<!-- /urtc-shots -->
+<p align="center">
+  <img src="images/screenshots/deck.png" alt="メインウィンドウ" width="100%">
+</p>
 
-これらの画像は、画面なしで描画した、開いた直後の実際のウィンドウです（何も確認せず、何もインストールしていません）。ガイドでは、ウィンドウ、ヘルプ、更新ウィンドウ、パッケージウィンドウを順に説明し、プログラムの 8 言語すべてで示します。
+<p align="center"><em>ファミリー全体を含む作業領域を表示したウィンドウ：各プロジェクトの成熟度、スタック、ローカルバージョンと、安全な更新操作。</em></p>
 
-[画像付きガイド](docs/WINDOW_GUIDE.md)
+<p align="center">
+  <img src="images/screenshots/packages.png" alt="パッケージ" width="100%">
+</p>
+
+<p align="center"><em>パッケージウィンドウ：リリースが署名付きパッケージとして公開するファミリーのプログラムを、それぞれ自身のリリースを確認しながら表示します。</em></p>
+
+<p align="center">
+  <img src="images/screenshots/history.png" alt="履歴" width="100%">
+</p>
+
+<p align="center"><em>履歴ウィンドウ：各ボードについてプログラムが書いた記録を新しい順に表示し、それぞれを個別に検証します。署名列には、署名の有無、どの鍵で署名されたか、または無効かが表示されます。</em></p>
+
+<p align="center">
+  <img src="images/screenshots/updates.png" alt="更新の確認" width="100%">
+</p>
+
+<p align="center"><em>更新ウィンドウ：新しい署名付きパッケージは、確認した後にのみインストールされます。</em></p>
+<!-- /urtc-section:screenshots -->
 
 ## 🔒 セキュリティと安全
 
