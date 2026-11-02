@@ -342,6 +342,7 @@ URTC 由相互独立的仓库组成，每个仓库都有自己的版本、测试
 
 ## 📚 文档
 
+- **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — 带图片的窗口指南：主窗口、帮助窗口和更新窗口。
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — 每一个 `--cli` 子命令、从真实安装环境中获取的真实输出,以及退出码契约。
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML 桌面客户端的真实结构,以及它为何始终是同一个后端之上的真实控制界面(与 `--cli` 共用后端),而不是第二套实现。
 * **[本仓库的更新日志](CHANGELOG.md)**

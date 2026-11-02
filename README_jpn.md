@@ -359,6 +359,7 @@ URTC は独立したリポジトリで構成され、それぞれに固有のバ
 
 ## 📚 ドキュメント
 
+- **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — 画像付きのウィンドウガイド：メインウィンドウ、ヘルプ、更新ウィンドウ。
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — すべての `--cli` サブコマンド、実際にインストールされた実行から取得した実際の出力、および終了コードの契約。
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML デスクトップクライアントがどのように構成されているか、そして `--cli` と同じバックエンドの上に立つ実際のコントロールサーフェスであり続ける理由(2つ目の実装ではない)。
 * **[本リポジトリの変更履歴](CHANGELOG.md)**

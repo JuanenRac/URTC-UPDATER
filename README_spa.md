@@ -442,6 +442,7 @@ URTC se compone de repositorios independientes, cada uno con su versión, sus pr
 
 ## 📚 Documentación
 
+- **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — una guía de la ventana con imágenes: la pantalla principal, la ayuda y la ventana de actualización.
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — cada subcomando de `--cli`, salida real capturada de una instalacion real, y el contrato de codigos de salida.
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — como esta estructurado el cliente de escritorio Qt Quick/QML, y como sigue siendo una superficie de control real sobre el mismo backend que usa `--cli`, no una segunda implementacion.
 * **[Historial de cambios de este repositorio](CHANGELOG.md)**

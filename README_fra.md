@@ -440,6 +440,7 @@ URTC est fait de dépôts indépendants, chacun avec sa version, ses tests et so
 
 ## 📚 Documentation
 
+- **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — un guide de la fenêtre avec des images : la fenêtre principale, l'aide et la fenêtre de mise à jour.
 * **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — chaque sous-commande `--cli`, sortie reelle capturee depuis une installation reelle, et le contrat des codes de sortie.
 * **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — comment le client de bureau Qt Quick/QML est structure, et comment il reste une vraie surface de controle sur le meme backend que `--cli` utilise, pas une seconde implementation.
 * **[Historique des modifications de ce depot](CHANGELOG.md)**
