@@ -45,7 +45,7 @@
 |---|---|
 | Versión | `0.2.6` |
 | Madurez | Establecido |
-| Tests | 521 (`python -m pytest`) |
+| Tests | 543 (`python -m pytest`) |
 | Tecnología | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | El PC de quien lo usa |
 | En hardware real | No aplica: nada de esto se ejecuta en hardware |
