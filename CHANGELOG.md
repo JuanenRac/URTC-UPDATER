@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The build check of the repository is one text for the whole family, with a light mode that CI runs:** `tools/build_test.py` is the same file in every repository of the family (taken from the shared set); what used to differ between its seven variants is data in an optional `tools/build_test.json`. `python tools/build_test.py --check` looks at the manifest, the stack and the files the full check needs and compiles the Python sources, builds and runs nothing, and the baseline step of the workflow now runs it.
 - **The copy of the shared code is refreshed:** the lock files follow URTC-COMMON again, which now describes the signed rollback counter of the expansion slave bootloader. The updater does not talk to the bus and sends none of the new frames.
 - **The test count in the "At a glance" table of the README is the real one:** the number was counted by collecting the tests of the suite and written into the eight READMEs.
 - **The screenshots of the README are listed in `docs/screenshots.json`:** each picture has a short name and a caption in the eight languages, the README section is written from that file, and `tools/capture_screenshots.py` takes the pictures again without opening a window on the desktop.

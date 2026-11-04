@@ -1,0 +1,8 @@
+{
+  "pytest": {
+    "dir": "tests",
+    "pythonpath": [
+      "src"
+    ]
+  }
+}
