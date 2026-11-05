@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The full build check compiles only on CI or when allowed:** `tools/build_test.py` prints `BUILD_TEST=SKIPPED` (exit status 2) for the stacks that compile unless it runs on a CI runner or `ALLOW_LOCAL_BUILD=1` says so; the light check is not locked.
+
 - **The names of the family come from a profile:** the GitHub client, the settings, the evidence file, the installer, the signature policy and the window take the user agent, the environment variables, the hidden file names, the state folder and the manifest file from the profile of `updater_core.py`, with the values this updater has always used (`docs/UPDATER_CORE.md`). The worker threads of the GitHub client are named after this family.
 - **The profile class is one file shared by the updaters of the families:** `EcosystemProfile` lives in `updater_profile.py`, which is the same file in the HYDRA-UMC, URTC and A.R.M.O.R. updaters; `tests/test_updater_profile_copy.py` pins its digest and compares the copies next to this repository, so a copy edited in one place only fails the tests.
 - **The build check of the repository is one text for the whole family, with a light mode that CI runs:** `tools/build_test.py` is the same file in every repository of the family (taken from the shared set); what used to differ between its seven variants is data in an optional `tools/build_test.json`. `python tools/build_test.py --check` looks at the manifest, the stack and the files the full check needs and compiles the Python sources, builds and runs nothing, and the baseline step of the workflow now runs it.
