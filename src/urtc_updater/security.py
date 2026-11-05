@@ -48,10 +48,11 @@ from dataclasses import dataclass
 
 from . import settings
 from .messages import CodedText, coded
+from .updater_core import PROFILE as _PROFILE
 
-ENV_REQUIRE_SIGNED = "URTC_UPDATER_REQUIRE_SIGNED"
-ENV_CONFIRM_BUILD = "URTC_UPDATER_CONFIRM_BUILD"
-ENV_ASSUME_YES = "URTC_UPDATER_ASSUME_YES"
+ENV_REQUIRE_SIGNED = _PROFILE.env_name("REQUIRE_SIGNED")
+ENV_CONFIRM_BUILD = _PROFILE.env_name("CONFIRM_BUILD")
+ENV_ASSUME_YES = _PROFILE.env_name("ASSUME_YES")
 
 SETTING_CONFIRM_BUILD = "confirm_before_build"
 #: Explicit opt-in for runs without a window or a terminal (a scheduled update): answer yes to the question before the build check. Off by default.

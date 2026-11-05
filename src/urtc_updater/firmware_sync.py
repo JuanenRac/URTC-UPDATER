@@ -33,14 +33,15 @@ from . import evidence, settings
 from .flasher_handoff import check_image
 from .urtc_pkg import firmware_names
 from .urtc_pkg import self_update as su
+from .updater_core import PROFILE as _PROFILE
 
 SOURCE_REPO = "URTC"
 TARGET_REPO = "URTC-FLASHER"
 FOLDER = "firmware"
 SETTING = "sync_firmware_to_flasher"
-ENV = "URTC_UPDATER_SYNC_FIRMWARE"
+ENV = _PROFILE.env_name("SYNC_FIRMWARE")
 SET_FILES = ("firmware_manifest.json", "firmware_manifest.json.sig")
-REPLACED_FOLDER = Path(".urtc-updater") / "firmware-replaced"
+REPLACED_FOLDER = Path(_PROFILE.state_directory) / "firmware-replaced"
 
 
 def enabled() -> bool:

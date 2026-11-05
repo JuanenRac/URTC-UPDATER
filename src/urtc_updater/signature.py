@@ -41,6 +41,7 @@ from pathlib import Path
 
 from . import security
 from .settings import load_settings, settings_state
+from .updater_core import PROFILE as _PROFILE
 
 
 @dataclass(frozen=True)
@@ -63,7 +64,7 @@ def current_policy() -> SignaturePolicy:
     saved = load_settings()
     unreadable = settings_state() == "corrupt"
     required = security.effective_require_signed()
-    signers = os.environ.get("URTC_UPDATER_ALLOWED_SIGNERS") or saved.get("allowed_signers_file")
+    signers = os.environ.get(_PROFILE.env_name("ALLOWED_SIGNERS")) or saved.get("allowed_signers_file")
     return SignaturePolicy(required, signers if isinstance(signers, str) and signers else None, unreadable and required)
 
 

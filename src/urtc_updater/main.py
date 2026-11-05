@@ -47,6 +47,7 @@ from .install import (
     restore_backup,
 )
 from .notify import send_notification
+from .updater_core import PROFILE as _PROFILE
 
 
 def default_workspace_root() -> Path:
@@ -61,7 +62,7 @@ def default_workspace_root() -> Path:
     # project's own manifest) has the sibling layout; installed as a normal
     # package the parents point into the Python installation, which must
     # never be used as a workspace.
-    if (Path(__file__).resolve().parents[2] / "urtc.project.json").is_file():
+    if (Path(__file__).resolve().parents[2] / _PROFILE.manifest_file).is_file():
         return candidate
     return Path.cwd()
 
@@ -455,7 +456,7 @@ def cmd_update(args: argparse.Namespace) -> int:
 def _install_or_update(args: argparse.Namespace, *, expect_installed: bool) -> int:
     if getattr(args, "accept_unavailable_validation", False):
         # An explicit, per-run opt-in: the install still refuses by default.
-        os.environ["URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION"] = "1"
+        os.environ[_PROFILE.env_name("ACCEPT_UNAVAILABLE_VALIDATION")] = "1"
     _apply_security_arguments(args)
     workspace_root = Path(args.workspace).resolve() if args.workspace else default_workspace_root()
     local_discovery = discover_workspace(workspace_root)

@@ -40,6 +40,7 @@ from .project_manifest import ManifestValidationError, ProjectManifest, parse_ma
 from .registry import ProjectEntry, github_repo_url
 from .security import BuildRequest, decide_build, effective_confirm_build
 from .signature import current_policy, unsigned_reason, verify_revision
+from .updater_core import PROFILE as _PROFILE
 
 # P01/the durable version of this module's own in-process
 # self-heal for the narrow gap between the 2 promotion renames below (see
@@ -73,7 +74,7 @@ except ImportError:
 # file covers however many projects this workspace ever promotes,
 # consistent with PromotionJournal's own "proportionate for a handful of
 # records" design.
-_JOURNAL_FILENAME = ".urtc_updater_promotion_journal.json"
+_JOURNAL_FILENAME = f"{_PROFILE.file_prefix}_promotion_journal.json"
 
 
 def _health_check_url_for(entry: ProjectEntry) -> str | None:
@@ -806,7 +807,7 @@ def accepts_unavailable_validation() -> bool:
     the setting validation_unavailable set to accept, or URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1."""
     from .settings import load_settings
 
-    return load_settings().get("validation_unavailable") == "accept" or os.environ.get("URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION") == "1"
+    return load_settings().get("validation_unavailable") == "accept" or _PROFILE.env_text("ACCEPT_UNAVAILABLE_VALIDATION") == "1"
 
 
 def restore_tracked_changes(path: Path, *, progress: ProgressCallback | None = None) -> list[str]:
@@ -830,7 +831,7 @@ class InstallError(Exception):
     """A failure that has a message for the person (a command that cannot be started, say), not a bug."""
 
 
-_LOCK_DIRECTORY = ".urtc-updater"
+_LOCK_DIRECTORY = _PROFILE.state_directory
 _LOCK_FILENAME = "lock"
 
 
@@ -1127,7 +1128,7 @@ def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) 
     if not available:
         return InstallResult(False, coded("restore_none_named", name=name, backup=backup) if backup else coded("restore_none", name=name))
     chosen = available[0]
-    manifest_file = chosen / "urtc.project.json"
+    manifest_file = chosen / _PROFILE.manifest_file
     try:
         restored = parse_manifest(manifest_file.read_text(encoding="utf-8"), expected_name=name)
     except (OSError, ManifestValidationError) as exc:

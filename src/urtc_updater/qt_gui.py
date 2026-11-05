@@ -48,6 +48,7 @@ from .urtc_pkg.compat_qt import CompatModel
 from .urtc_pkg.evidence_history_qt import EvidenceHistoryModel
 from .urtc_pkg.help_qt import HelpModel
 from .urtc_pkg.update_qt import UpdateModel
+from .updater_core import PROFILE as _PROFILE
 
 
 DEPLOY_ORDER = ("all", "cm5", "user-pc", "mobile", "wearable", "dev-server")
@@ -65,7 +66,7 @@ _UPDATABLE_STATES = ("state_outdated", "state_new_commits")
 #: when launched by double-click) - same real file-logger convention
 #: this ecosystem's other desktop tools already use (e.g. URTC-TESTER's
 #: own `_file_logger`, HYDRA-UMC-OS-REBUILDER's own qt_gui.py).
-LOGS_DIR = Path.home() / ".urtc_updater" / "logs"
+LOGS_DIR = Path.home() / _PROFILE.file_prefix / "logs"
 
 
 def _setup_file_logging() -> Path:

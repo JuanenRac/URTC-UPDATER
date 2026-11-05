@@ -65,6 +65,7 @@ from .registry import (
     github_raw_url,
 )
 from .version_parse import Version, parse_version
+from .updater_core import PROFILE as _PROFILE
 
 
 # ---------------------------------------------------------------------------
@@ -75,7 +76,7 @@ REQUEST_TIMEOUT_S = 10
 
 #: The repository listing and its ETags, kept between runs: GitHub answers an
 #: unchanged listing with 304, which does not count against the hourly quota.
-REPO_LIST_CACHE_PATH = Path.home() / ".urtc_updater_repo_cache.json"
+REPO_LIST_CACHE_PATH = Path.home() / f"{_PROFILE.file_prefix}_repo_cache.json"
 
 # GitHub is being queried for small text files only.
 #
@@ -83,7 +84,7 @@ REPO_LIST_CACHE_PATH = Path.home() / ".urtc_updater_repo_cache.json"
 # high-concurrency crawler.
 MAX_CONCURRENT_REQUESTS = 8
 
-USER_AGENT = "URTC-UPDATER"
+USER_AGENT = _PROFILE.user_agent
 
 # Real hosts by default; module-level so tests can point them at a local
 # HTTP server instead of mocking urllib itself - real request/response
@@ -383,7 +384,7 @@ def discover_remote_projects(
     _save_repo_cache(cache)
     discovered: list[RemoteStatus] = []
     errors: list[str] = []
-    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS, thread_name_prefix="hydra-discovery") as pool:
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_REQUESTS, thread_name_prefix=_PROFILE.thread_prefix("discovery")) as pool:
         futures = {pool.submit(_fetch_discovered_manifest, owner, name, branch): name for name, branch in candidates}
         for future in as_completed(futures):
             try:
@@ -590,7 +591,7 @@ def fetch_all(
 
     with ThreadPoolExecutor(
         max_workers=MAX_CONCURRENT_REQUESTS,
-        thread_name_prefix="hydra-github",
+        thread_name_prefix=_PROFILE.thread_prefix("github"),
     ) as pool:
 
         futures = {

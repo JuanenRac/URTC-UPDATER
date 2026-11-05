@@ -26,8 +26,9 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
+from .updater_core import PROFILE as _PROFILE
 
-EVIDENCE_DIRECTORY = ".urtc-updater"
+EVIDENCE_DIRECTORY = _PROFILE.state_directory
 EVIDENCE_FILE = "evidence.jsonl"
 
 
@@ -55,7 +56,7 @@ def _last_hash(path: Path) -> str:
 def installed_state(project_path: Path) -> dict[str, str | None]:
     """The version and commit of what is installed at `project_path`, or None for each when unknown."""
     version = commit = None
-    manifest = project_path / "urtc.project.json"
+    manifest = project_path / _PROFILE.manifest_file
     try:
         version = json.loads(manifest.read_text(encoding="utf-8")).get("version")
     except (OSError, ValueError):
