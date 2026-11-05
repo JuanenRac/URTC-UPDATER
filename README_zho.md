@@ -38,7 +38,7 @@
 
 | | |
 |---|---|
-| 版本 | `0.2.6` |
+| 版本 | `0.2.7` |
 | 成熟度 | 成熟 |
 | 测试 | 543 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
