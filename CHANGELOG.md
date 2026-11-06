@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.2.8] - status warns when a project asks for newer shared contracts than the installed ones: the mincommon of a project is compared with the installed version of URTC-COMMON and a warning is printed on the error stream (and listed... (and 4 more changes)
 
 - **`status` warns when a project asks for newer shared contracts than the installed ones:** the `min_common` of a project is compared with the installed version of `URTC-COMMON` and a warning is printed on the error stream (and listed under `common_notices` in the `--json` output). It only warns: no update is held back. The switch is `min_common_check` in `~/.urtc_updater_settings.json` or `URTC_UPDATER_MIN_COMMON` (`warn`, the default, or `off`). The reading lives in `common_gate.py`, the same file in every updater, pinned by a digest in the tests.
 - **The updaters are tested against one contract of manifest fields:** the same test in every updater pins the required and optional fields and the attributes of the reader's result, and compares them with the readers of the other updaters when they sit next to this repository. The contract is written down in `docs/UPDATER_CORE.md`.

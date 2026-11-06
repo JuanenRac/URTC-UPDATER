@@ -43,7 +43,7 @@
 
 | | |
 |---|---|
-| Versión | `0.2.7` |
+| Versión | `0.2.8` |
 | Madurez | Establecido |
 | Tests | 543 (`python -m pytest`) |
 | Tecnología | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
