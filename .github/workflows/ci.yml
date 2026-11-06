@@ -38,6 +38,11 @@ jobs:
           python -m pip install --require-hashes -r requirements-dev.lock
           python -m pip install --no-deps .
           PYTHONPATH=src python -m pytest tests -q --cov=src --cov-fail-under=61
+      - name: Simulated GitHub - install, update and rollback against a local fake remote
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          PYTHONPATH=src python -m pytest tests/test_install.py tests/test_install_refusals.py tests/test_backups.py tests/test_commits.py tests/test_github_client.py tests/test_github_fetch_errors.py tests/test_security.py -q
       - name: Type check
         run: python -m mypy
   windows:

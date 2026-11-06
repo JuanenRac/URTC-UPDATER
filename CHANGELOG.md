@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The repository check compares the manifest with what can be computed:** `tools/ci_validate.py` now also runs the shared `tools/sync_manifests.py` offline, which compares the shipped version, the newest released heading of this changelog, the presence of tests and the claimed level of evidence with the manifest. It is part of the shared set of tools, so the copy is pinned by the lock.
+
+- **The simulated GitHub scenarios run as a named step of the CI:** the install, update, refusal, backup and rollback tests that work against a local fake remote and a fake GitHub client now run as their own step, so the manifest's claim of simulator evidence is backed by a job that can be seen.
+
 ## [0.2.8] - status warns when a project asks for newer shared contracts than the installed ones: the mincommon of a project is compared with the installed version of URTC-COMMON and a warning is printed on the error stream (and listed... (and 4 more changes)
 
 - **`status` warns when a project asks for newer shared contracts than the installed ones:** the `min_common` of a project is compared with the installed version of `URTC-COMMON` and a warning is printed on the error stream (and listed under `common_notices` in the `--json` output). It only warns: no update is held back. The switch is `min_common_check` in `~/.urtc_updater_settings.json` or `URTC_UPDATER_MIN_COMMON` (`warn`, the default, or `off`). The reading lives in `common_gate.py`, the same file in every updater, pinned by a digest in the tests.
