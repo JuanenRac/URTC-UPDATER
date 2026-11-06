@@ -40,7 +40,7 @@
 |---|---|
 | 版本 | `0.2.8` |
 | 成熟度 | 成熟 |
-| 测试 | 543 (`python -m pytest`) |
+| 测试 | 582 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |

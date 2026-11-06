@@ -43,7 +43,7 @@
 |---|---|
 | バージョン | `0.2.8` |
 | 成熟度 | 確立 |
-| テスト | 543 (`python -m pytest`) |
+| テスト | 582 (`python -m pytest`) |
 | 技術 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 対象 | 利用者の PC |
 | 実機での確認 | 対象外：ここにあるものはハードウェア上では動きません |
