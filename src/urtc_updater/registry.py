@@ -46,6 +46,8 @@ class ProjectEntry:
     default_branch: str = GITHUB_BRANCH
     #: Independently versioned components declared by a schema 1.1 manifest (empty otherwise).
     components: tuple[ManifestComponent, ...] = ()
+    #: The oldest version of the shared contracts the project says it works with (``min_common`` of the manifest); None when it says nothing. Carried, not used: nothing is held back by it.
+    min_common: str | None = None
 
 
 def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
@@ -67,6 +69,7 @@ def entry_from_manifest(manifest: ProjectManifest) -> ProjectEntry:
         service_health_path=manifest.service_health_path,
         service_systemd_unit=manifest.service_systemd_unit,
         components=manifest.components,
+        min_common=manifest.min_common,
     )
 
 
