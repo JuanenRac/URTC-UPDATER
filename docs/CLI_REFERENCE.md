@@ -101,6 +101,8 @@ DEMO-PROJECT-A  functional   service   python      1.2.3     -         installed
 1/1 installed, 0 outdated (GitHub not checked)
 ```
 
+If a project's manifest asks (`min_common`) for a newer version of `URTC-COMMON` than the installed one, `status` prints a warning on the error stream and, with `--json`, lists it under `common_notices`; nothing is held back. Set `URTC_UPDATER_MIN_COMMON=off` (or `min_common_check` in the settings file) to silence it. See `docs/UPDATER_CORE.md`.
+
 ### `install <PROJECT-NAME> [--workspace PATH] [--no-build] [--profile NAME] [--require-signed|--no-require-signed] [--confirm-build|--no-confirm-build] [--yes]`
 
 ```
