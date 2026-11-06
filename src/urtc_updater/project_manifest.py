@@ -89,6 +89,15 @@ class ProjectManifest:
     components: tuple[ManifestComponent, ...] = ()
     #: Optional: what backs the maturity (host-test, simulator, bench or field); None when the manifest does not say.
     evidence: str | None = None
+    # Optional: the oldest version of the shared contracts repository this project works with. Phase 1: the field is accepted and read when it is a
+    # version; anything else is ignored (None), never an error, because a manifest that says it must not stop an updater that does not understand it.
+    # Nothing is decided by it yet.
+    min_common: str | None = None
+
+
+def _read_min_common(value: object) -> str | None:
+    """The version in ``min_common`` when it is one; None when the field is absent or is not a version (ignored, not refused)."""
+    return value if isinstance(value, str) and VERSION_RE.fullmatch(value) else None
 
 
 def _require_string(data: dict[str, Any], field: str) -> str:
@@ -121,7 +130,7 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
     # isn't self-evident from the enum alone (e.g. "dev-server" is not
     # the same physical role as "cm5") - optional because most
     # deployment_target values need no such note.
-    optional_fields = {"service", "deployment_target_note", "components", "evidence"}
+    optional_fields = {"service", "deployment_target_note", "components", "evidence", "min_common"}
     unknown = sorted(set(data) - expected_fields - optional_fields)
     missing = sorted(expected_fields - set(data))
     if missing:
@@ -234,6 +243,7 @@ def parse_manifest(text: str, *, expected_name: str | None = None) -> ProjectMan
         service_systemd_unit=service_systemd_unit,
         components=_parse_components(data.get("components")),
         evidence=evidence,
+        min_common=_read_min_common(data.get("min_common")),
     )
 
 

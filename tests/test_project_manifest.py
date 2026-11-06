@@ -273,3 +273,26 @@ def test_rejects_an_evidence_level_that_does_not_exist():
     manifest["evidence"] = ["bench"]
     with pytest.raises(ManifestValidationError):
         parse_manifest(json.dumps(manifest), expected_name="HYDRA-UMC-EXAMPLE")
+
+
+def test_min_common_is_optional_and_read_when_it_is_a_version():
+    data = valid_manifest()
+    assert parse_manifest(json.dumps(data)).min_common is None
+    data["min_common"] = "0.8.0.7"
+    assert parse_manifest(json.dumps(data)).min_common == "0.8.0.7"
+    data["min_common"] = "0.8.0"
+    assert parse_manifest(json.dumps(data)).min_common == "0.8.0"
+
+
+@pytest.mark.parametrize("odd", ["v0.8.0.7", "0.8", "", "latest", 8, None, ["0.8.0.7"], {"a": 1}])
+def test_min_common_that_is_not_a_version_is_ignored_not_refused(odd):
+    data = valid_manifest()
+    data["min_common"] = odd
+    assert parse_manifest(json.dumps(data)).min_common is None
+
+
+def test_a_typo_in_the_name_of_the_field_is_still_refused():
+    data = valid_manifest()
+    data["min_comon"] = "0.8.0.7"
+    with pytest.raises(ManifestValidationError, match="unknown field"):
+        parse_manifest(json.dumps(data))

@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The manifest may carry the optional `min_common`:** the oldest version of the shared contracts a project works with is accepted and read (`ProjectManifest.min_common`); a value that is not a version is ignored and never refuses the manifest, and nothing is decided by it yet. A misspelled name of the field is still refused. The publication of the field by the projects is described in `docs/UPDATER_CORE.md` as the second phase.
+
 ## [0.2.7] - The full build check compiles only on CI or when allowed: tools/buildtest.py prints BUILDTEST=SKIPPED (exit status 2) for the stacks that compile unless it runs on a CI runner or ALLOWLOCALBUILD=1 says so; the light check is... (and 6 more changes)
 
 - **The full build check compiles only on CI or when allowed:** `tools/build_test.py` prints `BUILD_TEST=SKIPPED` (exit status 2) for the stacks that compile unless it runs on a CI runner or `ALLOW_LOCAL_BUILD=1` says so; the light check is not locked.
