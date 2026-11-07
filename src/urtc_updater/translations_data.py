@@ -510,7 +510,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "security_require_signed": "Exigir commits firmados",
         "security_require_signed_hint": "Un candidato sin una firma GPG o SSH válida se rechaza antes de leer o compilar nada de él.",
         "security_confirm_build": "Preguntar antes de ejecutar la comprobación de compilación",
-        "security_confirm_build_hint": "Muestra el commit, su autor, su firma y los ficheros de compilación que cambiaron, y espera tu respuesta.",
+        "security_confirm_build_hint": "Muestra el commit, su autor, su firma y los archivos de compilación que cambiaron, y espera tu respuesta.",
         "security_save_button": "Guardar",
         "security_lowering_title": "¿Desactivar la protección?",
         "security_lowering_body": "Vas a desactivar: {items}. Las actualizaciones ejecutarán entonces código de los repositorios con menos comprobaciones. ¿Desactivarla de todos modos?",
