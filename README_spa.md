@@ -135,7 +135,7 @@ bajo `~/.urtc_updater/logs` (se conservan los 20 más recientes).
 
 ## 🧩 Papel en URTC
 
-URTC-UPDATER es el programa que mantiene al día un PC con los repositorios de URTC. Encuentra cada proyecto junto a él por el manifiesto que lleva cada repositorio, dice qué versión está instalada y cuál tiene GitHub, e instala o actualiza un proyecto a la vez tras una confirmación explícita, ejecutando el script `build-test` de ese proyecto y sin compilar nada por sí mismo. No cambia nada por iniciativa propia: una celda de control de robots nunca debe actualizarse de madrugada sin que una persona apruebe la acción exacta. También instala los programas de escritorio (el flasheador, el tester y él mismo) desde el paquete firmado de su release, y puede entregar a URTC-FLASHER, que es quien flashea, una imagen de firmware cuya firma de release ha comprobado.
+URTC-UPDATER es el programa que mantiene al día un PC con los repositorios de URTC. Encuentra cada proyecto junto a él por el manifiesto que lleva cada repositorio, dice qué versión está instalada y cuál tiene GitHub, e instala o actualiza un proyecto a la vez tras una confirmación explícita, ejecutando el script `build-test` de ese proyecto y sin compilar nada por sí mismo. No cambia nada por iniciativa propia: una celda de control de robots nunca debe actualizarse de madrugada sin que una persona apruebe la acción exacta. También instala los programas de escritorio (el flasheador, el tester y él mismo) desde el paquete firmado de su release, y puede entregar a URTC-FLASHER, que es quien graba, una imagen de firmware cuya firma de release ha comprobado.
 
 ## 🏛️ Arquitectura
 
@@ -197,7 +197,7 @@ Cómo encajan las partes de este repositorio: quién lo usa, qué contiene y de 
   esta adaptación copió tal cual el valor por defecto de la propia GUI de
   HYDRA-UMC-UPDATER - filtro de despliegue en `"cm5"` en Linux - sin comprobar que
   ningún repositorio URTC real declara ese destino de despliegue (todos son
-  `"user-pc"`: el firmware se compila y se flashea DESDE un puesto de trabajo,
+  `"user-pc"`: el firmware se compila y se graba DESDE un puesto de trabajo,
   nunca se ejecuta allí después). La GUI se habría abierto con una tabla vacía en
   Linux. Corregido: el filtro siempre empieza en "mostrar todo", ya que en este
   ecosistema no hay ningún rol de CM5/servidor que tratar aparte. El campo
@@ -236,7 +236,7 @@ Cómo encajan las partes de este repositorio: quién lo usa, qué contiene y de 
   build (`install.py`), nada más - que una herramienta responsable de
   mantener sanas las dependencias de TODOS los demás proyectos se quede
   sin dependencias propias es deliberado.
-- **Simplificación conocida:** un repositorio formado por varios binarios con versión independiente (URTC tiene cuatro: principal y esclavo, aplicación y bootloader) se sigue con UNA sola versión, la que su propio `urtc.project.json` declara en `native_version`. Eso responde a "¿está este repositorio más o menos al día?", no sustituye la comprobación de versión por componente de un flasheo.
+- **Simplificación conocida:** un repositorio formado por varios binarios con versión independiente (URTC tiene cuatro: principal y esclavo, aplicación y bootloader) se sigue con UNA sola versión, la que su propio `urtc.project.json` declara en `native_version`. Eso responde a "¿está este repositorio más o menos al día?", no sustituye la comprobación de versión por componente de una grabación.
 
 <!-- urtc-section:updates -->
 ### Cómo se actualiza
