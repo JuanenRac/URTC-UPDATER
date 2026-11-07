@@ -155,7 +155,7 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 <!-- urtc-section:updates -->
 ### 如何更新
 
-本程序可以查找自身的较新版本：“检查更新”按钮只向 GitHub 查询一次，只有当包适用于您的系统且更新时才会提供已签名的包。除非您打开检查，否则不会自行检查或安装，更新需要您的确认。包必须与其 SHA-256 以及程序中固定的发布密钥签名一致；上一版本会保留，新版本无法启动时会自动恢复。`urtc-updater --cli package list|check|install|rollback` 可在命令行中为刷写器和测试器完成同样的操作，`install --file` 无需网络即可使用。
+本程序可以查找自身的较新版本：“检查更新”按钮只向 GitHub 查询一次，只有当包适用于你的系统且更新时才会提供已签名的包。除非你打开检查，否则不会自行检查或安装，更新需要你的确认。包必须与其 SHA-256 以及程序中固定的发布密钥签名一致；上一版本会保留，新版本无法启动时会自动恢复。`urtc-updater --cli package list|check|install|rollback` 可在命令行中为刷写器和测试器完成同样的操作，`install --file` 无需网络即可使用。
 <!-- /urtc-section:updates -->
 
 <!-- urtc-section:screenshots -->
@@ -194,7 +194,7 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 |---|---|
 | 没有人批准的更新，例如夜间在机器人控制单元上 | 不会自行更改任何东西：对项目的操作需要明确确认，批量操作单独确认并逐个项目运行 |
 | 损坏或做了一半的更新让原本可用的安装无法使用 | 候选版本先被克隆、以快进方式合并（绝不强制重置，本地修改会明显报错），并先在暂存克隆中构建；只有该构建通过，才通过两次目录重命名替换正在使用的安装，之前的安装保留为 `<名称>.backup-xxxxxxxx` |
-| 在这里无法运行的检查 | build-test 返回 75 表示验证不可用：除非此人在设置中接受，否则拒绝更新 |
+| 在这里无法运行的检查 | build-test 返回 75 表示验证不可用：除非使用者在设置中接受，否则拒绝更新 |
 | 没有人签名的提交 | 没有有效签名的修订默认会被拒绝；设置 `"signature_policy": "warn"` 后会带警告安装 |
 | 被篡改的包 | 只有大小、SHA-256 和 Ed25519 签名都匹配且来自 GitHub 下载主机的包才会被接受；确认后才安装，绝不在另一个安装运行时安装，并可恢复之前的版本 |
 | 所做之事的痕迹丢失 | 每次安装、更新和恢复都会连同时间、主机和用户写入按哈希链接的日志 |
@@ -203,9 +203,9 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 
 **build-test 可以返回什么：** 退出码 0 表示已验证，其他任何退出码都表示失败，唯独 75 表示验证*不可用*（缺少它需要的工具）。这会如实报告并拒绝更新，除非你在设置中把 `validation_unavailable` 设为 `accept`（或设置 `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`）来接受。build-test 应让目录树保持原样：如果它修改了 git 跟踪的文件，该文件会在提升之前恢复为已提交的内容，步骤中会说明是哪些文件。
 
-**已签名提交（默认要求；改回仅警告需要明确选择）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）会被拒绝。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "warn"`（或 `URTC_UPDATER_REQUIRE_SIGNED=0`，单次运行可用 `--no-require-signed`；旧的 `"require_signed_commits": false` 含义相同）后，它仍会安装，窗口和命令行的步骤会说明它未签名。使用默认值（`"signature_policy": "require"` 或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）时，候选版本 - 新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD` - 必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
+**已签名提交（默认要求；改回仅警告需要明确选择）：** 没有有效签名的修订（`git verify-commit`：GPG 密钥环，或使用 `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS` 的 SSH）会被拒绝。在 `~/.urtc_updater_settings.json` 中设置 `"signature_policy": "warn"`（或 `URTC_UPDATER_REQUIRE_SIGNED=0`，单次运行可用 `--no-require-signed`；旧的 `"require_signed_commits": false` 含义相同）后，它仍会安装，窗口和命令行的步骤会说明它未签名。使用默认值（`"signature_policy": "require"` 或 `URTC_UPDATER_REQUIRE_SIGNED=1`；旧的 `"require_signed_commits": true` 含义相同）时，候选版本（新克隆的 `HEAD` 或更新所获取的 `FETCH_HEAD`）必须在读取其清单或构建任何内容之前通过 `git verify-commit`，被拒绝的候选版本不会改动已安装的检出。
 
-**安全选项（两者默认都开启；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`（默认）、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则以关闭方式失败：不运行也不安装任何内容，并说明如何回答。无人值守的运行通过 `--yes`、`URTC_UPDATER_ASSUME_YES=1` 或设置 "assume_yes_without_asking": true（默认关闭）明确回答“是”。设置 `"signature_policy": "warn"` 和 `"confirm_before_build": false` 即可恢复先前的行为。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
+**安全选项（两者默认都开启；可通过窗口的“安全”按钮、`security` 命令、设置文件、环境变量和命令行修改）：** 除了要求已签名的提交，更新器还可以在运行候选版本的构建检查*之前先询问*（`"confirm_before_build": true`（默认）、`URTC_UPDATER_CONFIRM_BUILD=1`、`--confirm-build`）。它获取并验证候选版本，显示项目、提交、作者、签名以及已更改的构建或工具脚本，在你回答之前不运行任何东西；如果没有窗口也没有终端可询问，则按“失败即关闭”处理：不运行也不安装任何内容，并说明如何回答。无人值守的运行通过 `--yes`、`URTC_UPDATER_ASSUME_YES=1` 或设置 "assume_yes_without_asking": true（默认关闭）明确回答“是”。设置 `"signature_policy": "warn"` 和 `"confirm_before_build": false` 即可恢复先前的行为。`--require-signed` / `--no-require-signed` 和 `--confirm-build` / `--no-confirm-build` 只对一次运行有效，关闭已保存设置中开启的保护的运行会明确提示；窗口以及 `urtc-updater --cli security --require-signed off` 在保存较低级别之前会要求确认。存在但无法读取的设置文件会被视为“要求签名”，直到它被修复或删除。构建检查还会收到 `URTC_PYTHON`（运行更新器的解释器），因此项目用该 Python 测试，而不是系统最先找到的那个。
 
 ## 🔌 接口
 
@@ -213,8 +213,8 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 
 - **保留的旧安装。** 每次更新都会把被替换的安装保留在 `<名称>.backup-xxxxxxxx` 中。每个项目保留最新的 2 份（在 `~/.urtc_updater_settings.json` 中设置 `"backups_to_keep"` 可更改数量），更新成功后会移除更旧的。`urtc-updater --cli clean-backups [--keep N] [--dry-run]` 可按需移除它们，同时移除因运行中断而遗留的隐藏暂存文件夹。
 - **可选：从发布版的已签名包安装。** `urtc-updater --cli package list|check|install|rollback` 用发布版附带的 `.zip` / `.tar.gz` 安装程序（刷写器、测试器或本更新器），而不是克隆加构建。只提供严格更高的版本，只来自 GitHub 的下载主机，并且包必须与公布的大小和 SHA-256 以及程序中固定的发布密钥的 Ed25519 签名一致；任何检查未通过的包都会被删除。安装前会询问（`--yes` 为脚本代答），保留最近两个发布版，`rollback` 可退回上一个。`install --file 包` 可使用磁盘上的文件（旁边放着 `.sha256` 和 `.sig`），无需网络。窗口里有给更新器自身用的“检查更新”按钮，规则相同；启动时的自动检查是一个选项，默认关闭。已用在计算机上生成的软件包测试，尚未用已发布的版本测试。
-- **软件包窗口和帮助窗口。** “软件包”按钮列出 flasher、tester 和本更新器的已签名软件包：按下“检查更新”后，每一行检查自己的版本，下载并验证软件包，安装前先询问，并可退回上一版本，规则和安全选项与 `package` 命令相同；有项目正在安装或更新时不会安装任何东西。“帮助”按钮以窗口所用语言打开五步指南。
-- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。 窗口中在“更新所选项”旁边提供同样的两个操作：预览更新（不更改任何内容，查看更新会带来什么）和恢复上一个版本。
+- **软件包窗口和帮助窗口。** “软件包”按钮列出刷写器、测试器和本更新器的已签名软件包：按下“检查更新”后，每一行检查自己的版本，下载并验证软件包，安装前先询问，并可退回上一版本，规则和安全选项与 `package` 命令相同；有项目正在安装或更新时不会安装任何东西。“帮助”按钮以窗口所用语言打开五步指南。
+- **恢复其中一份。** `urtc-updater --cli restore-backup <项目> [--backup 文件夹] [--list]` 会把保留的安装放回原位。被替换的安装也会被保留，因此这次互换可以撤销。窗口中在“更新所选项”旁边提供同样的两个操作：预览更新（不更改任何内容，查看更新会带来什么）和恢复上一个版本。
 - **版本相同，但有新提交。** 版本号只在发布构建时变化，所以 `status` 还会把每个已安装项目的提交与远程提交（`git ls-remote`）比较，当 GitHub 上有该副本没有的内容时显示 `NEW COMMITS`。窗口显示同样的状态并提供更新。
 - **批准前先看。** `urtc-updater --cli update <项目> --preview` 会获取候选版本并显示其提交、作者、版本、签名状态以及它更改的构建或工具文件，而不触碰该副本。
 - **仅通知。** `urtc-updater --cli check [--notify] [--quiet]` 列出可以更新的内容，但不做任何更改。有可更新内容时以代码 10 退出，便于计划任务通知相关人员；`--notify` 还会显示桌面通知。
@@ -241,7 +241,7 @@ chmod +x build.sh   # 仅需一次
 status` / `run.bat --cli install <name>` / `run.bat --cli update
 <name>`。
 
-首选 GUI 需要可选 Qt 运行时（`pip install -e ".[gui]"`；
+推荐的 GUI 需要可选 Qt 运行时（`pip install -e ".[gui]"`；
 `build.bat`/`build.sh` 已经安装它）。`--cli` 没有图形依赖，适合无桌面的
 机器。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 

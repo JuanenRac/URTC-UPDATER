@@ -21,7 +21,7 @@
 >
 > **Windows-Start und Nachweise:** öffnen Sie `run-gui.vbs` (oder `run.bat`
 > ohne Argumente) für den konsolenfreien Desktop-Client. Das Update-Panel zeigt
-> echte Checkpoints für Vorabprüfung, Quelle, Manifest, Build-test und Abschluss
+> echte Checkpoints für Vorabprüfung, Quelle, Manifest, Build-Test und Abschluss
 > mit erfassten Nachweisen; `run.bat --cli ...` behält das Diagnose-Terminal.
 > Installieren ist nur ohne Checkout aktiv, Aktualisieren nur bei neuerer
 > GitHub-Version. Während einer bestätigten Aktion ersetzen Checkpoints die
@@ -72,14 +72,14 @@
 
 URTC-UPDATER ist ein kleines Tool - Fenster-GUI standardmäßig, volle
 CLI mit `--cli` - das auf dem eigenen Windows/Linux/macOS-Rechner eines
-Entwicklers laufen soll (jeder Workspace mit demselben Checkout-Layout) und
+Entwicklers laufen soll (jeder Arbeitsbereich mit demselben Checkout-Layout) und
 drei Fragen für jedes andere echte Projekt beantwortet, das es über das
 eigene `urtc.project.json`-Manifest jedes Nachbar-Checkouts entdeckt - die
 Anzahl selbst ist hier nie fest codiert, da sie mit dem Ökosystem wächst:
 
 1. **Was ist hier tatsächlich installiert, und in welcher Version?**
 2. **Was ist die neueste auf GitHub veröffentlichte Version?**
-3. **Falls GitHub neuer ist, lass mich ein Projekt oder eine bestätigte sequenzielle Sammelaktion wählen.**
+3. **Falls GitHub neuer ist, ein Projekt oder eine bestätigte sequenzielle Sammelaktion wählen.**
 
 Dieser letzte Punkt ist bewusst und nicht verhandelbar: Dieses Tool ändert
 nie ein Projekt aus eigener Initiative. Eine Aktion für ein ausgewähltes
@@ -146,7 +146,7 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
 - **Versionsquelle**: Die Version eines Projekts steht in einer Quelldatei dieses Projekts (`pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`, `version.properties`, `pubspec.yaml` oder ein Firmware-`#define`, je nach Technik), die der eigene `bump.py`-Schritt schreibt, und dieser Schritt hat nie ein Git-Tag oder ein GitHub-Release erzeugt. Deshalb liest dieses Werkzeug genau diese Datei direkt vom Standard-Branch über den Raw-Content-Host von GitHub - nicht über die Releases-API, die jedes Projekt als ohne Releases melden würde.
 - **Lokale Erkennung**: Für jedes entdeckte Projekt wird
   geprüft, ob ein Verzeichnis mit genau diesem Namen unter der
-  Workspace-Wurzel existiert (das Standard-Layout des Ökosystems - jedes
+  Wurzel des Arbeitsbereichs existiert (das Standard-Layout des Ökosystems - jedes
   Projekt als Geschwisterverzeichnis, genau das, was die eigenen Build-Skripte
   von URTC-FLASHER/URTC-TESTER bereits voraussetzen), und falls ja,
   wird dessen eigene lokale Kopie derselben Versionsdatei gelesen.
@@ -278,7 +278,7 @@ Aufgenommen auf einem Prüfstand mit erfundenen Beispieldaten und ohne eine echt
 |---|---|
 | Eine Aktualisierung, die niemand freigegeben hat, etwa nachts auf einer Robotersteuerungszelle | Nichts ändert sich von selbst: Eine Aktion an einem Projekt braucht eine ausdrückliche Bestätigung, ein Stapel wird gesondert bestätigt und läuft Projekt für Projekt |
 | Eine kaputte oder halbfertige Aktualisierung macht eine funktionierende Installation unbrauchbar | Der Kandidat wird geklont, per Fast-Forward zusammengeführt (nie ein erzwungenes Zurücksetzen, sodass lokale Änderungen laut scheitern) und zuerst in einem Staging-Klon gebaut; die laufende Installation wird nur durch zwei Ordnerumbenennungen ersetzt, wenn dieser Build besteht, und die vorherige bleibt als `<Name>.backup-xxxxxxxx` erhalten |
-| Eine Prüfung, die hier nicht laufen kann | Ein build-test, der 75 meldet, bedeutet: Die Validierung ist nicht verfügbar; die Aktualisierung wird abgelehnt, außer die Person nimmt sie in den Einstellungen in Kauf |
+| Eine Prüfung, die hier nicht laufen kann | Ein Build-Test, der 75 meldet, bedeutet: Die Validierung ist nicht verfügbar; die Aktualisierung wird abgelehnt, außer die Person akzeptiert sie in den Einstellungen |
 | Ein Commit, den niemand signiert hat | Eine Revision ohne gültige Signatur wird standardmäßig abgelehnt; mit `"signature_policy": "warn"` wird sie mit einer Warnung installiert |
 | Ein manipuliertes Paket | Ein Paket wird nur akzeptiert, wenn Größe, SHA-256 und Ed25519-Signatur passen und es von den Download-Hosts von GitHub kommt; es wird nur nach einer Bestätigung installiert, nie während eine andere Installation läuft, und die vorherige Version lässt sich wiederherstellen |
 | Die Spur dessen, was getan wurde, geht verloren | Jede Installation, Aktualisierung und Wiederherstellung wird mit Zeit, Rechner und Benutzer in ein durch Hashes verkettetes Protokoll geschrieben |
@@ -296,7 +296,7 @@ Der Rest der Richtlinie folgt, in den Worten des Programms.
 Das Programm öffnet das Qt-Quick-Fenster, wenn es ohne Argumente gestartet wird, und hat mit `--cli` eine vollständige Befehlszeile (ohne Bildschirm und ohne PySide6): `status [--offline]`, `install PROJEKT`, `update PROJEKT [--preview]`, `restore-backup PROJEKT [--list]`, `clean-backups [--keep N] [--dry-run]`, `check [--notify] [--quiet]` (Exit-Code 10, wenn etwas aktualisiert werden kann), `package list|check|install|rollback`, `evidence [--export FILE]` und `security`. Jeder Befehl, jede Option und jeder Exit-Code mit echter Ausgabe steht in [docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md); das Fenster ist in [docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md) beschrieben. Was die Wartungs- und Arbeitsplatzbefehle tun:
 
 - **Aufbewahrte frühere Installationen.** Jede Aktualisierung behält die ersetzte Installation in `<Name>.backup-xxxxxxxx`. Pro Projekt bleiben die 2 neuesten erhalten (`"backups_to_keep"` in `~/.urtc_updater_settings.json` ändert die Zahl), ältere werden nach einer erfolgreichen Aktualisierung entfernt. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` entfernt sie auf Wunsch, zusammen mit jedem versteckten temporären Ordner, den ein abgestürzter Lauf hinterlassen hat.
-- **Optional: Installation aus dem signierten Paket eines Releases.** `urtc-updater --cli package list|check|install|rollback` installiert ein Programm (den Flasher, den Tester oder diesen Updater) aus dem `.zip` / `.tar.gz` seines Releases statt aus Klon und Build. Angeboten wird nur eine strikt höhere Version, nur von den Download-Hosts von GitHub, und das Paket muss zu Größe und SHA-256 laut Ankündigung und zur Ed25519-Signatur des im Programm angehefteten Release-Schlüssels passen; ein Paket, das eine Prüfung nicht besteht, wird gelöscht. Vor der Installation wird gefragt (`--yes` antwortet für Skripte), die zwei neuesten Releases bleiben erhalten und `rollback` zeigt wieder auf das vorherige. `install --file PAKET` arbeitet mit einer Datei auf der Platte samt `.sha256` und `.sig` daneben, ohne Netzwerk. Das Fenster hat eine Schaltfläche „Nach Updates suchen“ für den Updater selbst mit denselben Regeln; die automatische Prüfung beim Start ist eine Option, standardmäßig aus. Mit auf einem Computer erzeugten Paketen getestet, noch nicht mit einer veröffentlichten Release.
+- **Optional: Installation aus dem signierten Paket eines Releases.** `urtc-updater --cli package list|check|install|rollback` installiert ein Programm (den Flasher, den Tester oder diesen Updater) aus dem `.zip` / `.tar.gz` seines Releases statt aus Klon und Build. Angeboten wird nur eine strikt höhere Version, nur von den Download-Hosts von GitHub, und das Paket muss zu Größe und SHA-256 laut Ankündigung und zur Ed25519-Signatur des im Programm angehefteten Release-Schlüssels passen; ein Paket, das eine Prüfung nicht besteht, wird gelöscht. Vor der Installation wird gefragt (`--yes` antwortet für Skripte), die zwei neuesten Releases bleiben erhalten und `rollback` zeigt wieder auf das vorherige. `install --file PAKET` arbeitet mit einer Datei auf der Platte samt `.sha256` und `.sig` daneben, ohne Netzwerk. Das Fenster hat eine Schaltfläche „Nach Updates suchen“ für den Updater selbst mit denselben Regeln; die automatische Prüfung beim Start ist eine Option, standardmäßig aus. Mit auf einem Computer erzeugten Paketen getestet, noch nicht mit einem veröffentlichten Release.
 - **Ein Fenster Pakete und ein Fenster Hilfe.** Die Schaltfläche „Pakete“ listet die signierten Pakete von Flasher, Tester und diesem Updater: Jede Zeile prüft ihre Version, wenn Sie „Nach Updates suchen“ drücken, lädt das Paket herunter und prüft es, fragt vor der Installation und kehrt zur vorherigen Version zurück, mit denselben Regeln und Sicherheitsoptionen wie der Befehl `package`; solange ein Projekt installiert oder aktualisiert wird, wird nichts installiert. Die Schaltfläche „Hilfe“ öffnet eine Anleitung in fünf Schritten in der Sprache des Fensters.
 - **Eine wiederherstellen.** `urtc-updater --cli restore-backup <PROJEKT> [--backup ORDNER] [--list]` stellt eine aufbewahrte Installation wieder her. Die ersetzte Installation bleibt ebenfalls erhalten, der Tausch lässt sich also rückgängig machen. Das Fenster bietet neben Auswahl aktualisieren dieselben zwei Aktionen: Vorschau des Updates (was es bringen würde, ohne etwas zu ändern) und Vorherige Version wiederherstellen.
 - **Gleiche Version, neue Commits.** Die Version ändert sich nur bei einem Release-Build; `status` vergleicht deshalb auch den Commit jedes installierten Projekts mit dem des Remotes (`git ls-remote`) und zeigt `NEW COMMITS`, wenn GitHub Arbeit hat, die der Kopie fehlt. Das Fenster zeigt denselben Zustand und bietet die Aktualisierung an.
@@ -337,7 +337,7 @@ Welche Versionen der URTC-Programme zusammenarbeiten und welche Protokollversion
 
 ## 🧪 Tests
 
-Die Suite hat 609 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositorys (Staging, Übernahme, Sicherung, Ablehnungen, ein build-test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Beweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
+Die Suite hat 609 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositorys (Staging, Übernahme, Sicherung, Ablehnungen, ein Build-Test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Nachweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
 
 ## 🏗️ Build und Veröffentlichung
 
@@ -396,7 +396,7 @@ Die kommentierte Liste jeder Quelldatei, eine Zeile je Datei, steht in [docs/SOU
 
 ## 🗺️ Roadmap und bekannte Grenzen
 
-- Eine gepackte eigenständige GUI-ausführbare Datei (PyInstaller, nach der
+- Eine verpackte eigenständige ausführbare GUI-Datei (PyInstaller, nach der
   eigenen `build_exe.bat`/`.sh`-Konvention von URTC-FLASHER/URTC-TESTER) für eine
   Doppelklick-Installation ganz ohne `pip`/venv-Schritt - heute braucht
   die GUI noch vorher `./build.sh`, genau wie die CLI.
