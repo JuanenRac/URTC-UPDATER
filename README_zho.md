@@ -16,7 +16,7 @@
 </p>
 
 > **可视化桌面模式：** 默认桌面界面现通过可选的 `PySide6` GUI 运行时使用
-> **Qt Quick / QML**。更新器核心与 `--cli` 模式仍仅使用标准库，适合无桌面的 CM5。
+> **Qt Quick / QML**。更新器核心与 `--cli` 模式仍仅使用标准库，适合无桌面的机器。
 >
 > **Windows 启动和操作证据：** 双击 `run-gui.vbs`（或不带参数运行
 > `run.bat`）即可启动无控制台图形客户端。更新面板会显示真实的预检查、源更新、
@@ -32,7 +32,7 @@
 
 ---
 
-> **安全与安防现状:**本生态系统不是经认证的安全系统,目前也不存在已组装的 URTC 电路板。引导程序使用 CRC32 和共享密钥的 HMAC-SHA256 校验固件映像,而非非对称签名(计划中);已发布的应用映像使用公开的开发密钥签名(`signing_key_kind: dev`),因此任何人都可以生成引导程序接受的映像;尚未向任何真实电路板发送过任何内容。在依赖此处任何说法来保障人身安全之前,请先阅读[安全基线](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/SECURITY_BASELINE.md)和[威胁模型](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/THREAT_MODEL.md)。
+> **安全与安防现状:**本生态系统不是经认证的安全系统,目前也不存在已组装的 URTC 板卡。引导程序使用 CRC32 和共享密钥的 HMAC-SHA256 校验固件映像,而非非对称签名(计划中);已发布的应用映像使用公开的开发密钥签名(`signing_key_kind: dev`),因此任何人都可以生成引导程序接受的映像;尚未向任何真实板卡发送过任何内容。在依赖此处任何说法来保障人身安全之前,请先阅读[安全基线](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/SECURITY_BASELINE.md)和[威胁模型](https://github.com/JuanenRac/URTC-DOCS/blob/main/docs/THREAT_MODEL.md)。
 
 ## 📋 速览
 
@@ -54,8 +54,8 @@
 
 | 部分 | 状态 | 仓库能够证明的内容 |
 | --- | :---: | --- |
-| 软件 | 🟡 | 可在电脑上和模拟器上运行；从未在真实板子上运行过。 |
-| 界面 | 🟡 | 窗口可运行，并用模拟板子检查；未用真实适配器试过。 |
+| 软件 | 🟡 | 可在电脑上和模拟器上运行；从未在真实板卡上运行过。 |
+| 界面 | 🟡 | 窗口可运行，并用模拟板卡检查；未用真实适配器试过。 |
 | 测试 | 🟢 | 每次推送时测试套件都会在 CI 中通过。 |
 | 更新 | 🟡 | 从已签名的软件包安装，并可回滚；仅在电脑上试过。 |
 | 安全 | 🟡 | 发布版使用 Ed25519 签名，并在使用前检查；密钥的处理没有他人审阅过。 |
@@ -67,11 +67,10 @@
 ## 🎯 概述
 
 URTC-UPDATER 是一个小型工具——默认为窗口化 GUI，通过 `--cli` 可
-获得完整的 CLI——旨在运行在真实的 CM5 本机上，或运行在开发者自己的
-Windows/Linux/macOS 计算机上（任何以相同方式检出的工作区），它为生态
-系统中通过每个相邻检出自身的 `urtc.project.json` 清单发现的
-每一个其他真实项目都回答三个问题——这个数量本身在此从不写死，
-因为它会随着生态系统一起增长：
+获得完整的 CLI——旨在运行在开发者自己的 Windows/Linux/macOS 计算机上
+（任何以相同方式检出的工作区），它为生态系统中通过每个相邻检出自身的
+`urtc.project.json` 清单发现的每一个其他真实项目都回答三个问题——
+这个数量本身在此从不写死，因为它会随着生态系统一起增长：
 
 1. **这里实际安装了什么，版本是多少？**
 2. **GitHub 上发布的最新版本是什么？**
@@ -82,12 +81,11 @@ Windows/Linux/macOS 计算机上（任何以相同方式检出的工作区），
 全部过期项目**；二者都是分别确认的顺序批量操作，并经过相同的清单、版本
 和安全检查。不存在无人批准的夜间自动更新。
 
-发现的项目中也并非每一个都属于 CM5 本机——大多数以 URTC 为前缀的仓库和
-少数 HYDRA-UMC 仓库，是开发者从自己的 PC 上运行的工具（固件是从工作站
-编译/刷写的，而非在单元本机上构建的），或是安装在手机/手表上的应用。
-`registry.py` 自身的 `deploy` 字段记录了哪个属于哪种（见第 3 节），
-GUI 的项目表格会据此进行筛选——当检测到运行在 Linux（真实 CM5 自身的
-操作系统）上时默认为"仅 CM5"，在 Windows/macOS 上则默认为"显示全部"。
+每个真实的 URTC 仓库都声明 `deployment_target: "user-pc"`——与 HYDRA-UMC 不同，
+本生态系统中没有 CM5/服务器角色。固件仓库（URTC、URTC-SMART-RACK、URTC-VISION-TOOL）
+仍然是从工作站编译和刷写的，只是之后不会在那里运行；`registry.py` 自身的 `deploy`
+字段记录了这一点（见第 3 节），GUI 项目表格的筛选器始终从“显示全部”开始，因为没有
+值得设为默认的平台专属子集。
 
 示例说明（下面的项目数量和每个版本号都是为了展示输出格式而虚构的，
 并非真实捕获的执行结果——真实数量始终是 `registry.py` 当下实际发现的
@@ -111,8 +109,8 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 ```
 
 不带任何参数运行 `urtc-updater`（或直接双击它）会改为在深色桌面控制界面中
-打开同样的信息：一个带有实时发现/安装/更新指标的 **Local Ecosystem** 面板、
-一棵由清单驱动的 **Project Registry** 树，以及针对所选项目的 **Safe Update**
+打开同样的信息：一个带有实时发现/安装/更新指标的 **本地生态系统** 面板、
+一棵由清单驱动的 **项目注册表** 树，以及针对所选项目的 **安全更新**
 面板。该布局让真正的防护措施清晰可见：通过清单发现、一次只执行一个明确的
 项目操作、手动确认、可选的构建，以及屏幕上的活动轨迹；完整日志还会写入
 `~/.urtc_updater/logs` 下的文件（保留最新的 20 个）。
@@ -132,21 +130,21 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 ### 检查/更新实际是如何工作的
 
 - **版本来源**：项目的版本保存在该项目的一个源文件中（视技术栈而定，如 `pyproject.toml`、`Cargo.toml`、`version.go`、`package.json`、`version.properties`、`pubspec.yaml` 或固件的 `#define`），由它自己的 `bump.py` 步骤写入，而这一步从未创建过 git 标签或 GitHub Release。因此本工具通过 GitHub 的原始内容主机直接从仓库默认分支读取同一个文件，而不是使用 Releases API——后者会报告每个项目都没有发布版。
-- **本地检测**：对于每一个发现的项目，检查工作区根目录下是否存在一个与该项目名称完全一致的目录（标准的生态系统布局——每个项目作为同级目录，这正是 `build-frontend.sh`/HYDRA-UMC-SUITE 自身的发现逻辑已经假定的方式），如果存在，则读取该项目*自身*的本地版本文件副本。
+- **本地检测**：对于每一个发现的项目，检查工作区根目录下是否存在一个与该项目名称完全一致的目录（标准的生态系统布局——每个项目作为同级目录，这正是 URTC-FLASHER/URTC-TESTER 自身的构建脚本已经假定的方式），如果存在，则读取该项目*自身*的本地版本文件副本。
 - **单一解析实现**（`version_parse.py`）在本地读取和 GitHub 抓取之间共享，因此本地检出和 GitHub 抓取绝不会被两个独立漂移的正则表达式分别解读。
 - **安装/更新**：`git clone`（安装）之后作为单独的一步再编译。更新一个已存在的检出则改为「通过验证实现原子性」：候选版本先被克隆、进行快进合并（绝不使用强制重置，因此真实的本地修改会明确失败，而非被丢弃），然后首先在一个完全独立的暂存克隆中编译/验证——只有当那次暂存编译真正成功时，实际安装才会被触碰（通过两次连续的目录重命名，之前的安装会被保留在 `<name>.backup-xxxxxxxx` 中，而不是被删除）。在最终提升之前的任何时刻发生编译失败、检出分叉/存在未提交修改、崩溃或磁盘写满，都会让之前的安装完全不受影响、继续保持可运行——详见 `install.py` 自身 `clone_or_pull` 的 docstring。暂存克隆自身的 git 远程仓库会在创建后立即恢复为真实的 GitHub 上游（否则一个普通的本地克隆会指向旧的安装路径，一旦被提升就会在不知不觉中终止所有未来的更新），并且已安装检出自身真实的本地数据（任何 git 视为未跟踪或被忽略的内容——`data/settings.json` 及类似文件，不包括可重新生成的构建产物）会在编译前被带入暂存克隆，这样一个项目自身真实的运行状态就能在更新后保留下来，而不是被困在保留的 `.backup-xxxxxxxx` 检出中。无论哪种情况，只要该项目自身实际拥有 `build-test.sh`/`build-test.bat`（不递增版本号的检查——见第 3 节），就会运行它。本工具从不重新实现某个项目自身的构建步骤。
 
 ### 架构与设计决策
 
 - **默认 Qt Quick GUI，`--cli` 用于无桌面环境。** `main.py` 会在导入可选 PySide6
-  运行时之前检查 `--cli`。CLI 可在没有显示器或桌面依赖的 CM5 上工作；无参数时会在
-  可用条件下启动 QML，Tkinter 仅保留为临时兼容回退。
+  运行时之前检查 `--cli`，因此 CLI 模式可在真正无显示器、没有桌面依赖的机器上工作；
+  无参数时，在已安装运行时的环境中会启动 QML 客户端，旧的 Tkinter 界面仅保留为临时兼容回退。
 - **带窗口的 GUI 是真实的，支持 8 种语言（`i18n.py`）—— `--cli` 则有意不支持。** 每个控件，以及安装或更新中每个检查点和每次失败的文字，都会以选择器中选定的语言显示（en/es/fr/it/de/zh/ja/pt，其中 pt 为葡萄牙的葡萄牙语），语言取自已保存的偏好或系统区域设置。安装和更新的步骤以消息代码加参数的形式传递，只有窗口把它们转换为文字，因此切换语言会重新渲染它们。项目名、家族名以及每个项目自己的 `notes`/`tech` 文本不翻译：清单是它们唯一的事实来源。`--cli` 的输出有意保持英文，因为它是为脚本和管道准备的。
-- **`deploy` 是一种分类，而非一种限制。** 把每一个发现的项目都当作"属于 CM5 的东西"是错误的——固件仓库是从 PC 编译并刷写的（CM5 只需要通过 CAN-OTA 得到最终的二进制文件，从不需要本仓库自身的源代码），而若干工具（URTC-FLASHER、HYDRA-UMC-SUITE、HYDRA-UMC-TOOL-CLI……）本应运行在操作员自己的工作站上，而非单元本机内部。`registry.py` 的 `deploy` 字段（"cm5" / "user-pc" / "mobile" / "wearable" / "dev-server"）记录了这一点，GUI 的筛选器将其作为一个合理的起点使用——而非硬性限制，因为这个同一工具也可以运行在开发者自己的 PC 上，此时每一个发现的项目都可以被检查。
+- **`deploy` 是一种分类，而非一种限制。** 本适配的第一版原样复制了 HYDRA-UMC-UPDATER 自身的 GUI 默认值——在 Linux 上把 deploy 筛选器默认设为 `"cm5"`——却没有核实是否没有任何真实的 URTC 仓库声明过该部署目标（它们全都是 `"user-pc"`：固件是从工作站编译并刷写的，之后从不在那里运行）。这样 GUI 在 Linux 上会打开一个空表格。已修复：筛选器在这里始终从“显示全部”开始，因为本生态系统中没有需要特殊处理的 CM5/服务器角色。`registry.py` 的 `deploy` 字段（"cm5" / "user-pc" / "mobile" / "wearable" / "dev-server"）仍会按仓库清单记录这种分类——只是从不用作启动默认值。
 - **本工具中不包含针对特定技术栈的构建逻辑。** 本生态系统涉及多种工具链（Python、Rust、Go、Node/TS、Android/Kotlin、Flutter、ARM 固件）。在这里重新实现每个项目的构建，会多出第二个声称知道如何构建它的地方，必然与项目自己的脚本逐渐偏离。`install.py` 改为运行项目自己的、不改版本号的 `build-test.sh`（Windows 上为 `build-test.bat`），若某个副本没有它则安全地失败。会提升版本号的构建脚本（`build.sh` 等）本工具永远不会运行。
 - **使用 GitHub 原始内容，而非 Releases API。** 见上方第 2 节——本生态系统的版本控制惯例从不创建标签/发布，因此在这里使用 Releases API 不仅不够方便，而且是彻底错误的做法。
 - **临时性网络故障会获得真正的重试；确定性的回应则永远不会。** 每一次真实的 GitHub 请求（`github_client.py` 的 `_urlopen_with_retries`）最多重试 3 次并带有退避延迟，但仅限于连接从未获得任何响应的情况（DNS/超时/重置）。GitHub 实际返回的真实 HTTP 状态——404、403、500——永远不会被重试：GitHub 已经给出了答复，再次请求只会消耗更多的速率限制额度而得到相同的结果。
-- **格式错误的远程目录会响亮地失败；单个格式错误的项目不会。** 如果 GitHub 的仓库列表本身无法访问或无法解析，`discover_remote_projects()` 会抛出异常——`gui.py` 和 `main.py` 都已经捕获了这一点，并回退到本地发现的项目列表，而不是显示一次损坏或空白的扫描。相反，单个仓库格式错误的清单会被隔离到该次扫描自己的 `errors` 列表中，绝不会中止对其余项目的发现——一个真实的、基于夹具服务器的测试（`tests/test_github_client.py`）证明了这两条路径。
+- **格式错误的远程目录会响亮地失败；单个格式错误的项目不会。** 如果 GitHub 的仓库列表本身无法访问或无法解析，`discover_remote_projects()` 会抛出异常，桌面桥接层会回退到本地发现的项目列表，而不是显示一次损坏或空白的扫描。相反，单个仓库格式错误的清单会被隔离到该次扫描自己的 `errors` 列表中，绝不会中止对其余项目的发现——一个真实的、基于夹具服务器的测试（`tests/test_github_client.py`）证明了这两条路径。
 - **CLI 操作保持明确；GUI 批量操作保持确认。** CLI 的 `install`/`update`
   命令需要一个项目名称。桌面 GUI 可以执行**安装全部缺失项目**或**更新全部
   过期项目**，但只会在独立确认后，并按顺序通过相同安全检查执行。不存在
@@ -181,7 +179,7 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
   <img src="images/screenshots/history.png" alt="历史记录" width="100%">
 </p>
 
-<p align="center"><em>历史窗口：程序为每块板子写下的所有记录，最新的在前，每条单独校验；“签名”列显示它是否已签名、由您的哪把密钥签名，或是否无效。</em></p>
+<p align="center"><em>历史窗口：程序为每块板卡写下的所有记录，最新的在前，每条单独校验；“签名”列显示它是否已签名、由您的哪把密钥签名，或是否无效。</em></p>
 
 <p align="center">
   <img src="images/screenshots/updates.png" alt="检查更新" width="100%">
@@ -223,9 +221,9 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 - **证据。** 每次安装、更新和恢复都会连同时间、主机和用户记录在 `.urtc-updater/evidence.jsonl` 中，每一行都通过哈希与上一行链接。`urtc-updater --cli evidence [--export 文件]` 会验证该链，并可将其导出为一个 JSON 文档。
 - **工作站配置档。** 设置文件中的 `"profiles"` 指明一台机器处理哪些项目以及是否允许批量操作；`--profile 名称`（或设置中的 `"profile"`）会把 `status`、`check`、`install` 和 `update` 限制在其中，窗口也遵循同一配置档。
 
-- **尝试历史。** 顶部栏的**历史**按钮把工作区的安装和更新尝试显示为证据记录（`urtc-evidence/1`）；带哈希链的证据文件保持不变，窗口使用 `.urtc-updater/common` 下的第二份视图。每一行显示类型、结果、工具、开发板和版本，最新的在前；写入后被编辑的记录、不是 JSON 的文件或其他格式的记录会显示为无效，并说明问题所在。列表可按结果和文本筛选，也可只显示失败的记录；每次打开都会重新读取文件夹，最多显示 500 行（并告知总数），不会更改磁盘上的任何内容。URTC-FLASHER、URTC-TESTER 和 URTC-UPDATER 使用同一个窗口，由 URTC-COMMON 共享，支持八种语言。命令行中，`urtc-updater --cli evidence --history FOLDER [--json]` 列出文件夹中的记录并逐条检查，只要有无效记录就以状态 1 退出；它只读取。
+- **尝试历史。** 顶部栏的**历史**按钮把工作区的安装和更新尝试显示为证据记录（`urtc-evidence/1`）；带哈希链的证据文件保持不变，窗口使用 `.urtc-updater/common` 下的第二份视图。每一行显示类型、结果、工具、板卡和版本，最新的在前；写入后被编辑的记录、不是 JSON 的文件或其他格式的记录会显示为无效，并说明问题所在。列表可按结果和文本筛选，也可只显示失败的记录；每次打开都会重新读取文件夹，最多显示 500 行（并告知总数），不会更改磁盘上的任何内容。URTC-FLASHER、URTC-TESTER 和 URTC-UPDATER 使用同一个窗口，由 URTC-COMMON 共享，支持八种语言。命令行中，`urtc-updater --cli evidence --history FOLDER [--json]` 列出文件夹中的记录并逐条检查，只要有无效记录就以状态 1 退出；它只读取。
 
-- **固件窗口与 `firmware sync`。** **固件**按钮会询问固件镜像（一个输入框和文件选择器），按要求检查其发布签名，并在选中该镜像的情况下打开已安装的 Flasher，规则与 `firmware check` 和 `firmware open` 相同：签名缺失或错误会被拒绝，原因以窗口的语言说明，并且从这里不会向开发板写入任何内容。可选地，`urtc-updater --cli firmware sync [--dry-run] [--yes]` 会在用发布签名检查每个镜像之后，把 `URTC/firmware` 中每种类型的最新镜像复制到 `URTC-FLASHER/firmware`，先显示将要做的事并征求确认（没有终端时不复制任何内容）；被替换的镜像会移到工作区，绝不删除。`--option on` 让 `update URTC` 以同样的询问结束；该选项默认关闭。
+- **固件窗口与 `firmware sync`。** **固件**按钮会询问固件镜像（一个输入框和文件选择器），按要求检查其发布签名，并在选中该镜像的情况下打开已安装的 Flasher，规则与 `firmware check` 和 `firmware open` 相同：签名缺失或错误会被拒绝，原因以窗口的语言说明，并且从这里不会向板卡写入任何内容。可选地，`urtc-updater --cli firmware sync [--dry-run] [--yes]` 会在用发布签名检查每个镜像之后，把 `URTC/firmware` 中每种类型的最新镜像复制到 `URTC-FLASHER/firmware`，先显示将要做的事并征求确认（没有终端时不复制任何内容）；被替换的镜像会移到工作区，绝不删除。`--option on` 让 `update URTC` 以同样的询问结束；该选项默认关闭。
 
 ## 🚀 快速开始
 
@@ -245,7 +243,7 @@ status` / `run.bat --cli install <name>` / `run.bat --cli update
 
 首选 GUI 需要可选 Qt 运行时（`pip install -e ".[gui]"`；
 `build.bat`/`build.sh` 已经安装它）。`--cli` 没有图形依赖，适合无桌面的
-CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
+机器。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
 <!-- urtc-section:compatibility -->
 ### 要求与兼容性
@@ -255,7 +253,7 @@ CM5。没有 Qt 时，旧 Tkinter 窗口仅作为兼容回退。
 
 ## 🧪 测试
 
-测试套件共有 500 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
+测试套件共有 609 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
 
 ## 🏗️ 构建与发布
 
@@ -308,9 +306,9 @@ URTC-UPDATER/
 
 ## 🗺️ 路线图与已知限制
 
-- 一个打包的独立 GUI 可执行文件（PyInstaller，与 HYDRA-UMC-SUITE 自身的 `build_exe.bat`/`.sh` 惯例一致），实现完全无需 `pip`/venv 步骤的双击安装——目前的 GUI 仍然需要像 CLI 一样先执行 `./build.sh`。
-- 可选的逐项目依赖预检查（在 `install` 中途失败之前，报告缺失的工具链——未安装 Rust/Go/Android SDK/Flutter）。
-- 针对 HYDRA-UMC/URTC 自身多二进制固件的逐组件跟踪（见第 3 节中的"已知的简化处理"），一旦出现超出目前所跟踪的单一代表性组件的真实需求。
+- 一个打包的独立 GUI 可执行文件（PyInstaller，与 URTC-FLASHER/URTC-TESTER 自身的 `build_exe.bat`/`.sh` 惯例一致），实现完全无需 `pip`/venv 步骤的双击安装——目前的 GUI 仍然需要像 CLI 一样先执行 `./build.sh`。
+- 可选的逐项目依赖预检查（在 `install` 中途失败之前，报告缺失的 arm-none-eabi-gcc/Node 工具链）。
+- 针对 URTC 自身多二进制固件的逐组件跟踪（见第 3 节中的“已知的简化处理”），一旦出现超出目前所跟踪的单一代表性组件的真实需求。
 
 ## 🌍 语言
 
@@ -321,14 +319,14 @@ README 和文本提供英语、西班牙语、法语、意大利语、德语、�
 URTC 由相互独立的仓库组成，每个仓库都有自己的版本、测试和 README。以下是按组划分的家族：
 
 * **URTC Tool Platform:**
-  * [URTC](https://github.com/JuanenRac/URTC) - 工具头电路板的固件(25 个工具配置、CAN 引导程序)以及 CAN 协议参考。
+  * [URTC](https://github.com/JuanenRac/URTC) - 工具头板卡的固件(25 个工具配置、CAN 引导程序)以及 CAN 协议参考。
   * [URTC-COMMON](https://github.com/JuanenRac/URTC-COMMON) - 只写一次的 CAN 协议数据(规范、生成的表格、一致性向量)以及各程序共享的代码。
-  * [URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER) - 通过 CAN 或 SWD/JTAG 更新电路板固件的桌面工具。
+  * [URTC-FLASHER](https://github.com/JuanenRac/URTC-FLASHER) - 通过 CAN 或 SWD/JTAG 更新板卡固件的桌面工具。
   * [URTC-GATEWAY](https://github.com/JuanenRac/URTC-GATEWAY) - 位于 CAN 总线前的网关:只放行列表中的标识符,限制其速率,并要求会话密钥。
   * [URTC-SMART-RACK](https://github.com/JuanenRac/URTC-SMART-RACK) - 用于带预热和生命周期跟踪的工具架的、与硬件无关的 C 逻辑和命令协议。
-  * [URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER) - 桌面实时 CAN 总线测试器,显示电路板所报告工具配置的控件和遥测。
+  * [URTC-TESTER](https://github.com/JuanenRac/URTC-TESTER) - 桌面实时 CAN 总线测试器,显示板卡所报告工具配置的控件和遥测。
   * [URTC-VISION-TOOL](https://github.com/JuanenRac/URTC-VISION-TOOL) - C 语言的传感器帧协议,以及用于检测工具头的 Python 热成像/RGB 配套程序。
-  * [URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO) - 通过 Web Serial 和 SLCAN 烧录并测试电路板的浏览器应用,无需安装。
+  * [URTC-WEB-STUDIO](https://github.com/JuanenRac/URTC-WEB-STUDIO) - 通过 Web Serial 和 SLCAN 烧录并测试板卡的浏览器应用,无需安装。
 * **Ecosystem Operations:**
   * [URTC-DEVTOOLS](https://github.com/JuanenRac/URTC-DEVTOOLS) - 家族共用的仓库工具，作为带版本的整套工具，并用锁文件区分被改动的副本和已过时的副本。
   * [URTC-DOCS](https://github.com/JuanenRac/URTC-DOCS) - 生态系统的架构、接口、安全基线和生成的目录,以及比较所有仓库的工具。
@@ -343,17 +341,17 @@ URTC 由相互独立的仓库组成，每个仓库都有自己的版本、测试
 ## 📚 文档
 
 - **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — 带图片的窗口指南：主窗口、帮助窗口和更新窗口。
-* **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — 每一个 `--cli` 子命令、从真实安装环境中获取的真实输出,以及退出码契约。
-* **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML 桌面客户端的真实结构,以及它为何始终是同一个后端之上的真实控制界面(与 `--cli` 共用后端),而不是第二套实现。
-* **[本仓库的更新日志](CHANGELOG.md)**
-* 问题、想法与报告:electrohobby3d@gmail.com
+- **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — 每一个 `--cli` 子命令、从真实安装环境中获取的真实输出，以及退出码契约。
+- **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — Qt Quick/QML 桌面客户端的真实结构，以及它为何始终是同一个后端之上的真实控制界面（与 `--cli` 共用后端），而不是第二套实现。
+- **[本仓库的更新日志](CHANGELOG.md)**
+- 问题、想法与报告：electrohobby3d@gmail.com
 
 ## 🤝 参与贡献与社区
 
 * 提交 Pull Request 之前请运行 `URTC_CI=1 python tools/ci_validate.py`：必须通过。参见 [CONTRIBUTING.md](CONTRIBUTING.md) 和[行为准则](CODE_OF_CONDUCT.md)。
 * README 有八种语言：修改文字时要同步修改全部八个文件，与其他仓库共用的章节由 URTC-COMMON 的 `tools/readme_sections.py` 写入。
 * 对 CAN 协议的修改从 URTC-COMMON（`spec/can_protocol.json`）开始，并通过经过核对的副本进入本仓库。
-* 不要把仅仅构建过的东西描述为已在板子上运行。
+* 不要把仅仅构建过的东西描述为已在板卡上运行。
 * 请私下报告漏洞：[SECURITY.md](SECURITY.md)。问题、想法和报告：electrohobby3d@gmail.com（[SUPPORT.md](SUPPORT.md)）。
 
 ## 👤 作者

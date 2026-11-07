@@ -17,10 +17,10 @@
 
 > **Mode bureau visuel :** l'interface bureau par défaut utilise maintenant
 > **Qt Quick / QML** avec le runtime GUI optionnel `PySide6`. Le cœur et le
-> mode `--cli` restent uniquement basés sur la bibliothèque standard pour une CM5 headless.
+> mode `--cli` restent uniquement basés sur la bibliothèque standard pour une machine sans écran.
 >
 > **Démarrage Windows et preuves :** ouvrez `run-gui.vbs` (ou `run.bat` sans
-> argument) pour le client graphique sans console. Le panneau de mise a jour
+> argument) pour le client graphique sans console. Le panneau de mise à jour
 > affiche les étapes réelles de contrôle, source, manifeste, build-test et fin
 > avec les preuves capturées ; `run.bat --cli ...` conserve le terminal de diagnostic.
 > Installer n'est actif que sans checkout et Mettre à jour seulement si GitHub
@@ -71,12 +71,12 @@
 ## 🎯 Présentation
 
 URTC-UPDATER est un petit outil - GUI avec fenêtre par défaut, CLI
-complète avec `--cli` - destiné à tourner aussi bien sur le vrai CM5 que
-sur la propre machine Windows/Linux/macOS d'un développeur (n'importe
-quel workspace avec le même type de checkout) qui répond à trois
-questions pour chaque autre projet réel qu'il découvre via le propre
-manifeste `urtc.project.json` de chaque checkout voisin - le nombre
-lui-même n'est jamais codé en dur ici, car il croît avec l'écosystème :
+complète avec `--cli` - destiné à tourner sur la propre machine
+Windows/Linux/macOS d'un développeur (n'importe quel espace de travail avec le
+même type de checkout) et qui répond à trois questions pour chaque autre
+projet réel qu'il découvre via le propre manifeste `urtc.project.json` de
+chaque checkout voisin - le nombre lui-même n'est jamais codé en dur ici, car
+il croît avec l'écosystème :
 
 1. **Qu'est-ce qui est réellement installé ici, et dans quelle version ?**
 2. **Quelle est la dernière version publiée sur GitHub ?**
@@ -89,15 +89,13 @@ tous les manquants** ou **Mettre à jour tous les dépassés** ; ce sont des lot
 séquentiels confirmés séparément, soumis aux mêmes contrôles de manifeste, de
 version et de sécurité. Il n'existe aucune mise à jour nocturne automatique.
 
-Chaque projet découvert n'appartient pas non plus forcément au CM5 - la plupart des
-dépôts préfixés URTC et quelques-uns de HYDRA-UMC sont des outils qu'un
-développeur exécute depuis son propre PC (le firmware est compilé et
-flashé DEPUIS un poste de travail, pas construit SUR la cellule), ou des
-applications installées sur un téléphone/une montre. Le propre champ
-`deploy` de `registry.py` enregistre lequel est lequel (voir section 3),
-et le tableau de projets de la GUI filtre dessus - par défaut il
-n'affiche que "CM5" quand il détecte tourner sous Linux (le propre OS du
-vrai CM5), et "tout afficher" sous Windows/macOS.
+Chaque dépôt URTC réel déclare `deployment_target: "user-pc"` - il n'existe pas
+de rôle CM5/serveur dans cet écosystème, contrairement à HYDRA-UMC. Les dépôts de
+firmware (URTC, URTC-SMART-RACK, URTC-VISION-TOOL) sont toujours compilés et flashés
+DEPUIS un poste de travail, ils ne tournent simplement pas dessus ensuite ; le champ
+`deploy` de `registry.py` l'enregistre (voir section 3), et le filtre du tableau de
+projets de la GUI commence toujours sur « tout afficher », puisqu'aucun sous-ensemble
+propre à une plateforme ne mérite d'être la valeur par défaut.
 
 Exemple illustratif (le nombre exact de projets et chaque numéro de
 version ci-dessous sont inventés pour la forme de la sortie, pas une
@@ -124,9 +122,9 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 
 Lancer `urtc-updater` sans argument (ou double-cliquer dessus) ouvre à la
 place la même information dans une surface de contrôle de bureau sombre : un
-panneau **Local Ecosystem** avec des métriques de découverte/installation/mise
-à jour en direct, un arbre **Project Registry** piloté par les manifestes et
-un panneau **Safe Update** pour le projet sélectionné. La disposition rend
+panneau **Écosystème local** avec des métriques de découverte/installation/mise
+à jour en direct, un arbre **Registre des projets** piloté par les manifestes et
+un panneau **Mise à jour sûre** pour le projet sélectionné. La disposition rend
 visibles les vraies protections : découverte par manifeste, une seule action
 explicite sur un projet, confirmation manuelle, compilation optionnelle et une
 trace d'activité à l'écran ; le journal complet est aussi écrit dans un
@@ -148,10 +146,10 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
 
 - **Source de la version** : la version d'un projet vit dans un fichier source de ce projet (`pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`, `version.properties`, `pubspec.yaml` ou un `#define` de firmware, selon sa technologie) qu'écrit sa propre étape `bump.py`, et cette étape n'a jamais créé de tag git ni de Release GitHub. Cet outil lit donc ce même fichier directement sur la branche par défaut du dépôt via l'hôte de contenu brut de GitHub, et non via l'API des Releases, qui signalerait que chaque projet n'a aucune release.
 - **Détection locale** : pour chaque projet découvert, vérifie si
-  un répertoire portant ce nom exact existe sous la racine du workspace
+  un répertoire portant ce nom exact existe sous la racine de l'espace de travail
   (la disposition standard de l'écosystème - chaque projet en tant que
-  répertoire voisin, exactement ce que supposent déjà build-frontend.sh
-  et la propre découverte de HYDRA-UMC-SUITE), et si oui, lit sa propre
+  répertoire voisin, exactement ce que supposent déjà les propres scripts de build
+  d'URTC-FLASHER/URTC-TESTER), et si oui, lit sa propre
   copie locale de ce même fichier de version.
 - **Une seule implémentation d'analyse** (`version_parse.py`) est
   partagée entre la lecture locale et la récupération GitHub, donc un
@@ -188,22 +186,22 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
 ### ARCHITECTURE ET DÉCISIONS DE CONCEPTION
 
 - **GUI Qt Quick par défaut, `--cli` pour le headless.** `main.py` vérifie
-  `--cli` avant d'importer le runtime PySide6 optionnel. La CLI fonctionne
-  sur une CM5 sans écran ni dépendance desktop ; sans argument QML démarre
-  lorsqu'il est disponible et Tkinter reste seulement un fallback temporaire.
+  `--cli` avant d'importer le runtime PySide6 optionnel, donc le mode CLI fonctionne
+  sur une machine réellement sans écran, sans dépendance de bureau. Sans argument,
+  il démarre le client QML là où le runtime est installé ; l'ancienne fenêtre Tkinter
+  ne reste qu'un repli de compatibilité temporaire.
 - **L'interface fenêtrée est réelle et parle 8 langues (`i18n.py`) - `--cli` volontairement non.** Chaque widget, ainsi que le texte de chaque checkpoint et de chaque échec d'une installation ou mise à jour, s'affiche dans la langue choisie dans un sélecteur (en/es/fr/it/de/zh/ja/pt, portugais du Portugal pour pt), issue d'une préférence enregistrée ou de la langue du système. Les étapes d'installation et de mise à jour circulent sous forme de codes de message plus paramètres et seule la fenêtre les transforme en texte, si bien qu'un changement de langue les réaffiche. Les noms de projet et de famille et les textes `notes`/`tech` de chaque projet ne sont pas traduits : le manifeste est leur seule source de vérité. La sortie de `--cli` reste en anglais volontairement, car elle est faite pour être scriptée et redirigée.
-- **`deploy` est une classification, pas une restriction.** Traiter
-  chaque projet découvert comme "une chose qui appartient au CM5" était une
-  erreur - les dépôts de firmware sont compilés et flashés DEPUIS un PC
-  (le CM5 n'a besoin que du binaire résultant via CAN-OTA, jamais du code
-  source de ce dépôt), et plusieurs outils (URTC-FLASHER,
-  HYDRA-UMC-SUITE, HYDRA-UMC-TOOL-CLI, ...) sont destinés à tourner sur
-  le propre poste de travail d'un opérateur, pas dans la cellule
-  elle-même. Le champ `deploy` de `registry.py` ("cm5" / "user-pc" /
-  "mobile" / "wearable" / "dev-server") enregistre cela, et le filtre de la GUI l'utilise
-  comme point de départ raisonnable - jamais comme une restriction dure,
-  puisque cet outil est aussi destiné à tourner sur le propre PC d'un
-  développeur, où chaque projet découvert est tout aussi légitime à inspecter.
+- **`deploy` est une classification, pas une restriction.** Une première version de
+  cette adaptation a recopié telle quelle la valeur par défaut de la GUI de
+  HYDRA-UMC-UPDATER - filtre de déploiement sur `"cm5"` sous Linux - sans vérifier
+  qu'aucun dépôt URTC réel ne déclare cette cible de déploiement (tous sont
+  `"user-pc"` : le firmware est compilé et flashé DEPUIS un poste de travail, il n'y
+  tourne jamais ensuite). La GUI se serait ouverte sur un tableau vide sous Linux.
+  Corrigé : le filtre commence toujours sur « tout afficher », puisque cet écosystème
+  n'a pas de rôle CM5/serveur à traiter à part. Le champ `deploy` de `registry.py`
+  ("cm5" / "user-pc" / "mobile" / "wearable" / "dev-server") enregistre toujours la
+  classification par manifeste de dépôt - il n'est simplement jamais utilisé comme
+  valeur de démarrage.
 - **Aucune logique de build par stack dans cet outil.** L'écosystème couvre plusieurs chaînes d'outils (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Réimplémenter ici le build de chaque projet créerait un second endroit prétendant savoir le compiler, condamné à diverger du script du projet lui-même. `install.py` exécute à la place le `build-test.sh` sans versionnement du projet (`build-test.bat` sous Windows) et échoue de façon sûre si une copie n'en a pas. Les scripts de build qui incrémentent la version (`build.sh` et similaires) ne sont jamais lancés par cet outil.
 - **Contenu brut de GitHub, pas l'API des Releases.** Voir la section 2 -
   la convention de versionnage de cet écosystème ne crée jamais de
@@ -218,14 +216,13 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
   répondu, et insister ne ferait que consommer davantage de quota pour le
   même résultat.
 - **Un catalogue distant malformé échoue bruyamment ; un seul projet
-  malformé non.** Si le listing des dépôts GitHub lui-même est
+  malformé non.** Si la liste des dépôts GitHub elle-même est
   injoignable ou illisible, `discover_remote_projects()` lève une
-  exception - `gui.py` et `main.py` la capturent déjà tous les deux et
-  retombent sur la liste de projets découverts localement plutôt que
-  d'afficher un scan cassé ou vide. Le manifeste malformé d'un seul dépôt,
-  en revanche, est isolé dans la liste `errors` de ce scan et n'interrompt
-  jamais la découverte du reste - un vrai test avec serveur de fixtures
-  (`tests/test_github_client.py`) prouve les deux chemins.
+  exception et le pont de bureau retombe sur la liste de projets découverts
+  localement plutôt que d'afficher un scan cassé ou vide. Le manifeste
+  malformé d'un seul dépôt, en revanche, est isolé dans la liste `errors` de
+  ce scan et n'interrompt jamais la découverte du reste - un vrai test avec
+  serveur de fixtures (`tests/test_github_client.py`) prouve les deux chemins.
 - **La CLI reste explicite ; les lots GUI restent confirmés.** Les commandes
   CLI `install`/`update` prennent un nom de projet. La GUI peut exécuter
   **Installer tous les manquants** ou **Mettre à jour tous les dépassés**,
@@ -328,8 +325,8 @@ Sous Windows : `build.bat`, puis `run.bat` (GUI) / `run.bat --cli status`
 
 La GUI préférée requiert le runtime Qt optionnel (`pip install -e ".[gui]"`;
 `build.bat`/`build.sh` l'installent déjà). `--cli` n'a pas de dépendance GUI et
-convient à une CM5 headless. Sans Qt, l'ancienne fenêtre Tkinter reste un
-fallback de compatibilité uniquement.
+convient à une machine sans écran. Sans Qt, l'ancienne fenêtre Tkinter reste un
+repli de compatibilité uniquement.
 
 <!-- urtc-section:compatibility -->
 ### Prérequis et compatibilité
@@ -339,7 +336,7 @@ Les versions des programmes URTC qui fonctionnent ensemble, et la version du pro
 
 ## 🧪 Tests
 
-La suite compte 500 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q` ; quelques-uns sont ignorés quand une dépendance optionnelle manque) : la découverte et les manifestes, l'unique analyseur de versions, le client GitHub face à un serveur local (nouvelles tentatives, erreurs, un catalogue mal formé), l'installation et la mise à jour sur de vrais dépôts git locaux (préparation, promotion, sauvegarde, refus, un build-test qui répond 75, sécurité de l'espace de travail), la restauration et le nettoyage des sauvegardes, la politique de commits signés, les options de sécurité, les paquets signés et leur retour arrière, la chaîne de preuves, les réglages et profils, les textes de la fenêtre dans les huit langues et le pont Qt, et les images du guide de la fenêtre, dessinées sans écran. `python -m mypy` et `ruff check .` tournent en CI.
+La suite compte 609 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q` ; quelques-uns sont ignorés quand une dépendance optionnelle manque) : la découverte et les manifestes, l'unique analyseur de versions, le client GitHub face à un serveur local (nouvelles tentatives, erreurs, un catalogue mal formé), l'installation et la mise à jour sur de vrais dépôts git locaux (préparation, promotion, sauvegarde, refus, un build-test qui répond 75, sécurité de l'espace de travail), la restauration et le nettoyage des sauvegardes, la politique de commits signés, les options de sécurité, les paquets signés et leur retour arrière, la chaîne de preuves, les réglages et profils, les textes de la fenêtre dans les huit langues et le pont Qt, et les images du guide de la fenêtre, dessinées sans écran. `python -m mypy` et `ruff check .` tournent en CI.
 
 ## 🏗️ Compilation et publication
 
@@ -397,16 +394,15 @@ La liste annotée de chaque fichier source, une ligne par fichier, est dans [doc
 
 ## 🗺️ Feuille de route et limites connues
 
-- Un exécutable GUI autonome packagé (PyInstaller, suivant la propre
-  convention `build_exe.bat`/`.sh` de HYDRA-UMC-SUITE) pour une
+- Un exécutable GUI autonome empaqueté (PyInstaller, suivant la propre
+  convention `build_exe.bat`/`.sh` d'URTC-FLASHER/URTC-TESTER) pour une
   installation en double-clic sans aucune étape `pip`/venv - aujourd'hui
   la GUI a encore besoin de `./build.sh` d'abord, comme la CLI.
-- Vérification préalable optionnelle des dépendances par projet
-  (signaler les chaînes d'outils manquantes - pas de Rust/Go/SDK
-  Android/Flutter installé - avant qu'un `install` échoue en cours de
-  route).
-- Suivi par composant pour le firmware multi-binaire propre de
-  HYDRA-UMC/URTC (voir la "simplification connue" de la section 3), dès
+- Vérification préalable optionnelle des dépendances par projet (signaler
+  l'absence d'une chaîne d'outils arm-none-eabi-gcc/Node avant qu'un `install`
+  échoue en cours de route).
+- Suivi par composant pour le firmware multi-binaire propre d'URTC
+  (voir la « simplification connue » de la section 3), dès
   qu'un besoin réel se fera sentir au-delà du seul composant
   représentatif suivi aujourd'hui.
 
@@ -441,10 +437,10 @@ URTC est fait de dépôts indépendants, chacun avec sa version, ses tests et so
 ## 📚 Documentation
 
 - **[docs/WINDOW_GUIDE.md](docs/WINDOW_GUIDE.md)** — un guide de la fenêtre avec des images : la fenêtre principale, l'aide et la fenêtre de mise à jour.
-* **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — chaque sous-commande `--cli`, sortie reelle capturee depuis une installation reelle, et le contrat des codes de sortie.
-* **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — comment le client de bureau Qt Quick/QML est structure, et comment il reste une vraie surface de controle sur le meme backend que `--cli` utilise, pas une seconde implementation.
-* **[Historique des modifications de ce depot](CHANGELOG.md)**
-* Questions, idees et rapports : electrohobby3d@gmail.com
+- **[docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)** — chaque sous-commande `--cli`, sortie réelle capturée depuis une installation réelle, et le contrat des codes de sortie.
+- **[docs/QML_DESKTOP_GUI.md](docs/QML_DESKTOP_GUI.md)** — comment le client de bureau Qt Quick/QML est structuré, et comment il reste une vraie surface de contrôle sur le même backend que `--cli` utilise, pas une seconde implémentation.
+- **[Historique des modifications de ce dépôt](CHANGELOG.md)**
+- Questions, idées et rapports : electrohobby3d@gmail.com
 
 ## 🤝 Contribuer et communauté
 

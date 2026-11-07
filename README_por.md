@@ -22,15 +22,15 @@
 >
 > **Arranque no Windows e evidência de atualização:** faça duplo clique em
 > `run-gui.vbs` (ou use `run.bat` simples) para obter o cliente desktop sem
-> consola. O seu painel Safe Update mostra pontos de controlo reais de
-> Preflight, Source refresh, Manifest validation, Build-test e Complete, com a
+> consola. O seu painel Atualização segura mostra pontos de controlo reais de
+> Verificação prévia, Atualização da origem, Validação do manifesto, Teste de compilação e Concluído, com a
 > evidência dos comandos capturada; `run.bat --cli ...` mantém deliberadamente
 > um terminal para diagnóstico.
 > A instalação só está disponível para um checkout em falta; a atualização só
 > quando o GitHub tem uma versão mais recente. Durante uma ação aprovada, os
 > pontos de controlo substituem os controlos do projeto selecionado, e
 > selecionar outro projeto restaura-os.
-> **Install all missing** e **Update all outdated** são ações em lote
+> **Instalar todos os em falta** e **Atualizar todos os desatualizados** são ações em lote
 > sequenciais, confirmadas em separado, construídas a partir do mesmo estado em
 > direto e do mesmo caminho de segurança.
 
@@ -87,8 +87,7 @@ nunca está fixado aqui, pois cresce com o ecossistema:
 
 Este último ponto é deliberado e inegociável: esta ferramenta nunca altera um
 projeto por iniciativa própria. Uma ação sobre um projeto selecionado exige
-sempre confirmação explícita. A GUI também pode oferecer **Install all
-missing** ou **Update all outdated**; cada uma é um lote sequencial,
+sempre confirmação explícita. A GUI também pode oferecer **Instalar todos os em falta** ou **Atualizar todos os desatualizados**; cada uma é um lote sequencial,
 confirmado em separado, cujos projetos seguem os mesmos portões de manifesto,
 versão e segurança. Uma célula de controlo de robôs nunca deve atualizar-se
 automaticamente durante a noite sem que uma pessoa aprove a ação exata.
@@ -125,10 +124,8 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 ```
 
 Executar `urtc-updater` sem argumentos (ou fazer duplo clique) abre a mesma
-informação numa superfície de controlo desktop escura: um painel **Local
-Ecosystem** com métricas de deteção/instalação/atualização em direto, uma
-árvore **Project Registry** orientada por manifesto e um painel **Safe
-Update** para o projeto selecionado. O layout torna visíveis as proteções
+informação numa superfície de controlo desktop escura: um painel **Ecossistema local** com métricas de deteção/instalação/atualização em direto, uma
+árvore **Registo de projetos** orientada por manifesto e um painel **Atualização segura** para o projeto selecionado. O layout torna visíveis as proteções
 reais: deteção por manifesto, uma única ação explícita sobre um projeto,
 confirmação manual, build opcional e um rasto de atividade no ecrã; o registo completo também é escrito num ficheiro em `~/.urtc_updater/logs` (ficam os 20 mais recentes).
 
@@ -211,8 +208,7 @@ Como as partes deste repositório se encaixam: quem o usa, o que contém e de qu
 - **Um catálogo remoto malformado falha de forma visível; um projeto malformado não.** Se a própria listagem de repositórios do GitHub estiver inacessível ou não for interpretável, `discover_remote_projects()` lança uma exceção e a bridge desktop recorre a uma lista de projetos detetados localmente em vez de mostrar uma deteção quebrada/vazia. O manifesto malformado de um único repositório, pelo contrário, é isolado na lista `errors` dessa deteção e nunca aborta a deteção dos restantes - um teste real com servidor de fixture (`tests/test_github_client.py`) prova ambos os caminhos.
 - **As ações CLI continuam explícitas; os lotes da GUI continuam confirmados.** Os
   comandos CLI `install`/`update` recebem o nome de um único projeto. A GUI
-  desktop também pode executar **Install all missing** ou **Update all
-  outdated**, mas apenas após uma confirmação separada e de forma sequencial
+  desktop também pode executar **Instalar todos os em falta** ou **Atualizar todos os desatualizados**, mas apenas após uma confirmação separada e de forma sequencial
   pelos mesmos portões de segurança. Não existe qualquer atualização
   automática sem supervisão.
 - **Apenas stdlib.** `urllib` para as obtenções do GitHub (`github_client.py`),
@@ -323,7 +319,7 @@ As versões dos programas URTC que funcionam em conjunto, e a versão do protoco
 
 ## 🧪 Testes
 
-O conjunto tem 500 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de provas, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
+O conjunto tem 609 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de provas, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
 
 ## 🏗️ Compilação e publicação
 
