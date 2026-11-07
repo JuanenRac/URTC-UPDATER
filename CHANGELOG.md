@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The manifest says which version of the shared contracts it needs:** `min_common` in `urtc.project.json` is the oldest version of URTC-COMMON among the copies this repository carries, the value the updater compares with what is installed (a warning only). `tools/min_common.py` of URTC-COMMON checks it and a new copy brings it up to date.
+
 - **The Security window has a switch for the shared-contracts warning:** the notice shown when a project asks for newer shared contracts than the installed ones can now be turned off and on from the window (saved as `min_common_check`, on by default, still only a warning), with its text in the eight languages and a test of the bridge.
 - **The Italian texts say "area di lavoro" everywhere:** the screenshot caption and the help of the main window said "spazio di lavoro" while the window itself says "area di lavoro".
 

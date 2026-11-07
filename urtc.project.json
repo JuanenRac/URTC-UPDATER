@@ -3,6 +3,7 @@
   "ecosystem": "URTC",
   "name": "URTC-UPDATER",
   "version": "0.2.8",
+  "min_common": "0.1.9",
   "role": "tool",
   "stack": "python",
   "technologies": [

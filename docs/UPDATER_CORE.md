@@ -64,4 +64,4 @@ The comparison counts the fourth number (a missing one is 0). There is no value 
 
 ### Publication
 
-No manifest of the projects carries `min_common` yet. It is published in the manifests and in the shared manifest schema once every updater of the families reads it.
+Every manifest of a repository that carries copies of URTC-COMMON publishes `min_common`: the oldest version of URTC-COMMON among its copies (its `urtc_common.lock.json` files). `tools/min_common.py` of URTC-COMMON checks it, and a new copy made with `vendor_copy.py` brings it up to date. Repositories that carry no copy do not declare it.
