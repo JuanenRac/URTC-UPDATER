@@ -451,6 +451,16 @@ class UpdaterBridge(QObject):
     def securityConfirmBuild(self) -> bool:
         return security.saved_confirm_build()
 
+    @Property(bool, notify=securityChanged)
+    def securityCommonCheck(self) -> bool:
+        return settings.saved_min_common_check()
+
+    @Slot(bool)
+    def saveCommonCheck(self, on: bool) -> None:
+        """The notice for a project that asks for newer shared contracts: on warns in the status list, off says nothing. It never holds an update back."""
+        settings.save_min_common_check(bool(on))
+        self.securityChanged.emit()
+
     @Slot(bool, bool, result=str)
     def securityLowering(self, require_signed: bool, confirm_build: bool) -> str:
         """The protections that saving these values would turn off, in the language of the window; an empty text when none."""

@@ -372,7 +372,9 @@ ApplicationWindow {
         padding: 22
         property bool requireSigned: false
         property bool confirmBuild: false
+        property bool commonCheck: true
         onAboutToShow: {
+            commonCheck = backend.securityCommonCheck
             requireSigned = backend.securityRequireSigned
             confirmBuild = backend.securityConfirmBuild
         }
@@ -385,6 +387,8 @@ ApplicationWindow {
             LabelText { text: ui("security_require_signed_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true; Layout.leftMargin: 34 }
             GameCheck { id: confirmBuildCheck; text: ui("security_confirm_build"); checked: securityDialog.confirmBuild; onToggled: securityDialog.confirmBuild = checked; Layout.fillWidth: true }
             LabelText { text: ui("security_confirm_build_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true; Layout.leftMargin: 34 }
+            GameCheck { id: commonCheckBox; objectName: "commonCheckBox"; text: ui("security_common_check"); checked: securityDialog.commonCheck; onToggled: securityDialog.commonCheck = checked; Layout.fillWidth: true }
+            LabelText { text: ui("security_common_check_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true; Layout.leftMargin: 34 }
             RowLayout {
                 Layout.fillWidth: true
                 Item { Layout.fillWidth: true }
@@ -392,6 +396,7 @@ ApplicationWindow {
                 GameButton {
                     text: ui("security_save_button")
                     onClicked: {
+                        backend.saveCommonCheck(securityDialog.commonCheck)
                         var lowered = backend.securityLowering(securityDialog.requireSigned, securityDialog.confirmBuild)
                         if (lowered.length > 0) {
                             lowerDialog.items = lowered

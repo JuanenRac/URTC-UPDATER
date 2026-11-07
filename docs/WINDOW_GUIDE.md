@@ -18,7 +18,7 @@ These pictures are the real window, loaded without a screen and drawn to a file 
 * **Project Registry** (centre): one row per project whose manifest it found, with its stack, the version on disk and the version on GitHub. The notes of the selected project are below the table.
 * **Safe Update** (right): choose a project, then **Install selected**, **Update selected**, **Preview update** (what would change, without changing it) or **Restore previous version**. Nothing runs without a confirmation, and an update never touches more than the one project you selected. The batch buttons below act on every missing or outdated project, and ask first.
 * **Activity Log** (far right): every step the updater took, also written to a file.
-* **Security** shows and changes the protections: signed commits, the question before the build of a project. **Refresh** looks again; with **Offline** ticked it only reads the disk.
+* **Security** shows and changes the protections: signed commits, the question before the build of a project, and the warning for a project that needs newer shared contracts (a warning only: it never holds an update back). **Refresh** looks again; with **Offline** ticked it only reads the disk.
 
 ## 2. Help
 

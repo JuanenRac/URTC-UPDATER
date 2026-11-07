@@ -64,6 +64,11 @@ for name in ("securityDialog", "lowerDialog", "buildDialog"):
 
 # the two options
 assert bridge.securityRequireSigned is True and bridge.securityConfirmBuild is True   # both on by default
+assert bridge.securityCommonCheck is True   # the notice is on by default
+bridge.saveCommonCheck(False)
+assert bridge.securityCommonCheck is False and settings.load_settings().get("min_common_check") == "off"
+bridge.saveCommonCheck(True)
+assert bridge.securityCommonCheck is True and settings.load_settings().get("min_common_check") == "warn"
 bridge.saveSecurity(False, False)   # the window asks (securityLowering) before this is called; the previous behaviour is one switch away
 assert not bridge.securityRequireSigned and not bridge.securityConfirmBuild
 assert not security.saved_require_signed() and not security.saved_confirm_build()

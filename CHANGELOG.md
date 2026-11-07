@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The Security window has a switch for the shared-contracts warning:** the notice shown when a project asks for newer shared contracts than the installed ones can now be turned off and on from the window (saved as `min_common_check`, on by default, still only a warning), with its text in the eight languages and a test of the bridge.
 - **The Italian texts say "area di lavoro" everywhere:** the screenshot caption and the help of the main window said "spazio di lavoro" while the window itself says "area di lavoro".
 
 - **The copy of the firmware file names is refreshed:** the files that travel with an image now include the signature record (`.imgsig`). 27 new tests check the list, that nothing that travels with an image is taken for an image, every board, kind and version shape, the names that are refused and the case. The count is 609.

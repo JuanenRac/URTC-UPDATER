@@ -152,6 +152,15 @@ def save_lang(lang: str) -> None:
     save_settings(lang=lang)
 
 
+def saved_min_common_check() -> bool:
+    """What the settings file says about the notice for `min_common`: on (the default) unless the saved mode is `off`. The environment variable is not looked at here: this is what the window shows and saves."""
+    return _parse_mode(load_settings().get("min_common_check")) != "off"
+
+
+def save_min_common_check(on: bool) -> None:
+    save_settings(min_common_check="warn" if on else "off")
+
+
 def min_common_mode() -> str:
     """What to do when a project asks for a newer shared contracts repository than the installed one: `warn` (the default) or `off`.
     The environment variable wins over the saved setting `min_common_check`; anything else is the default. It never holds an update back."""

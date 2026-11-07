@@ -58,7 +58,7 @@ A manifest may carry the optional field `min_common`: the oldest version of the 
 
 | Setting | Environment variable | Values |
 |---|---|---|
-| `min_common_check` in `~/.urtc_updater_settings.json` | `URTC_UPDATER_MIN_COMMON` | `warn` (the default) or `off`. Anything else counts as the default, so a typo never silences the notice. The environment variable wins over the saved setting. |
+| `min_common_check` in `~/.urtc_updater_settings.json` | `URTC_UPDATER_MIN_COMMON` | `warn` (the default) or `off`. Anything else counts as the default, so a typo never silences the notice. The environment variable wins over the saved setting. The Security window has a switch for it (saved as `warn` or `off`), in the eight languages of the window. |
 
 The comparison counts the fourth number (a missing one is 0). There is no value that holds an update back: whether the installed contracts may stop an update is a decision for later, and this reading is what it would be built on.
 
