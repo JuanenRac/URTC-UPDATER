@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The Italian texts say "area di lavoro" everywhere:** the screenshot caption and the help of the main window said "spazio di lavoro" while the window itself says "area di lavoro".
+
 - **The copy of the firmware file names is refreshed:** the files that travel with an image now include the signature record (`.imgsig`). 27 new tests check the list, that nothing that travels with an image is taken for an image, every board, kind and version shape, the names that are refused and the case. The count is 609.
 - **The repository check compares the manifest with what can be computed:** `tools/ci_validate.py` now also runs the shared `tools/sync_manifests.py` offline, which compares the shipped version, the newest released heading of this changelog, the presence of tests and the claimed level of evidence with the manifest. It is part of the shared set of tools, so the copy is pinned by the lock.
 

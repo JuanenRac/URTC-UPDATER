@@ -256,7 +256,7 @@ Catturate su un banco di prova con dati di esempio inventati e senza alcuna inst
   <img src="images/screenshots/deck.png" alt="Finestra principale" width="100%">
 </p>
 
-<p align="center"><em>La finestra su uno spazio di lavoro con la famiglia: ogni progetto con maturità, stack e versione locale, e le azioni di aggiornamento sicuro.</em></p>
+<p align="center"><em>La finestra su un'area di lavoro con la famiglia: ogni progetto con maturità, stack e versione locale, e le azioni di aggiornamento sicuro.</em></p>
 
 <p align="center">
   <img src="images/screenshots/packages.png" alt="Pacchetti" width="100%">
