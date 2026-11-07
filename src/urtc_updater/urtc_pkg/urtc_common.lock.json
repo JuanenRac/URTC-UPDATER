@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "urtc_common_version": "0.1.9",
+  "urtc_common_version": "0.2.4",
   "files": {
     "compat.json": {
       "from": "generated/compat.json",
@@ -48,7 +48,7 @@
     },
     "firmware_names.py": {
       "from": "src/urtc_common/firmware_names.py",
-      "sha256": "f87c9314fb1f8992056f3f699b8128698e0706c288ceb6bc6cd402dbb5007fc8"
+      "sha256": "021b8ee53fbf128e9f0f0e849677e57738de32cd756a770314759e4404d61ec7"
     },
     "help_qt.py": {
       "from": "src/urtc_common/help_qt.py",
