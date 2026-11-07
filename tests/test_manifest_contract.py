@@ -100,7 +100,7 @@ def test_the_own_manifest_of_the_repository_is_read_with_its_optional_fields():
     module, data = _own_manifest()
     parsed = module.parse_manifest(json.dumps(data))
     assert parsed.name == data["name"]
-    assert parsed.min_common is None
+    assert parsed.min_common == data["min_common"]   # published in the manifest (the oldest copy of the shared contracts the repository carries)
     # every optional field that is common is accepted next to the required ones
     assert module.parse_manifest(json.dumps({**data, "evidence": "simulator", "hardware_bound": False})).name == data["name"]
 
