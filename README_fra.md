@@ -9,7 +9,7 @@
 ### 📦 Détecte, installe et met à jour à la main tout l'écosystème URTC
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
@@ -70,17 +70,17 @@
 
 ## 🎯 Présentation
 
-URTC-UPDATER est un petit outil - GUI avec fenêtre par défaut, CLI
-complète avec `--cli` - destiné à tourner sur la propre machine
-Windows/Linux/macOS d'un développeur (n'importe quel espace de travail avec le
-même type de checkout) et qui répond à trois questions pour chaque autre
-projet réel qu'il découvre via le propre manifeste `urtc.project.json` de
-chaque checkout voisin - le nombre lui-même n'est jamais codé en dur ici, car
-il croît avec l'écosystème :
+URTC-UPDATER est un petit outil : GUI avec fenêtre par défaut, CLI complète
+avec `--cli`. Il est destiné à tourner sur la propre machine Windows/Linux/macOS
+d'un développeur (n'importe quel espace de travail avec le même type de
+checkout) et répond à trois questions pour chaque autre projet réel qu'il
+découvre grâce au manifeste `urtc.project.json` de chaque checkout voisin. Le
+nombre de projets n'est jamais codé en dur ici, car il croît avec
+l'écosystème :
 
 1. **Qu'est-ce qui est réellement installé ici, et dans quelle version ?**
 2. **Quelle est la dernière version publiée sur GitHub ?**
-3. **Si GitHub est plus récent, laisse-moi choisir un projet ou un lot séquentiel confirmé.**
+3. **Si GitHub est plus récent, me laisser choisir un projet ou un lot séquentiel confirmé.**
 
 Ce dernier point est délibéré et non négociable : cet outil ne modifie jamais
 un projet de sa propre initiative. Une action sur un projet sélectionné exige
@@ -159,7 +159,7 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
   ensuite comme une étape séparée. Mettre à jour un checkout DÉJÀ
   EXISTANT est atomique-par-vérification à la place : le candidat est
   cloné, fusionné en fast-forward (jamais un reset forcé, donc de
-  vraies modifications locales échouent bruyamment plutôt que d'être
+  vraies modifications locales échouent de façon visible plutôt que d'être
   écrasées), puis construit/vérifié dans un clone de staging
   entièrement indépendant D'ABORD - l'installation réelle n'est touchée
   (via deux renommages de répertoire consécutifs, l'installation
@@ -205,9 +205,9 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
 - **Aucune logique de build par stack dans cet outil.** L'écosystème couvre plusieurs chaînes d'outils (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Réimplémenter ici le build de chaque projet créerait un second endroit prétendant savoir le compiler, condamné à diverger du script du projet lui-même. `install.py` exécute à la place le `build-test.sh` sans versionnement du projet (`build-test.bat` sous Windows) et échoue de façon sûre si une copie n'en a pas. Les scripts de build qui incrémentent la version (`build.sh` et similaires) ne sont jamais lancés par cet outil.
 - **Contenu brut de GitHub, pas l'API des Releases.** Voir la section 2 -
   la convention de versionnage de cet écosystème ne crée jamais de
-  tag/release, donc l'API des Releases serait activement fausse ici, pas
+  tag/release, donc l'API des Releases serait tout simplement fausse ici, pas
   seulement moins pratique.
-- **Un échec réseau transitoire reçoit un vrai réessai ; une réponse
+- **Un échec réseau transitoire est réessayé ; une réponse
   définitive jamais.** Chaque requête GitHub réelle (`_urlopen_with_retries`
   de `github_client.py`) réessaie jusqu'à 3 fois avec un backoff, mais
   uniquement quand la connexion n'a jamais obtenu de réponse du tout
@@ -215,7 +215,7 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
   renvoyé - 404, 403, 500 - n'est jamais réessayé : GitHub a déjà
   répondu, et insister ne ferait que consommer davantage de quota pour le
   même résultat.
-- **Un catalogue distant malformé échoue bruyamment ; un seul projet
+- **Un catalogue distant malformé échoue explicitement ; un seul projet
   malformé non.** Si la liste des dépôts GitHub elle-même est
   injoignable ou illisible, `discover_remote_projects()` lève une
   exception et le pont de bureau retombe sur la liste de projets découverts
@@ -276,7 +276,7 @@ Capturées sur un banc d'essai avec des données d'exemple fictives et sans inst
 | Menace | Défense |
 |---|---|
 | Une mise à jour que personne n'a approuvée, par exemple la nuit sur une cellule de robots | Rien ne change tout seul : une action sur un projet exige une confirmation explicite, un lot est confirmé à part et s'exécute projet par projet |
-| Une mise à jour cassée ou à moitié faite rend inutilisable une installation qui fonctionnait | Le candidat est cloné, fusionné en avance rapide (jamais une réinitialisation forcée, si bien que les modifications locales échouent bruyamment) et compilé d'abord dans un clone de préparation ; l'installation en service n'est remplacée, par deux renommages de dossier, que si cette compilation réussit, et la précédente est gardée sous `<nom>.backup-xxxxxxxx` |
+| Une mise à jour cassée ou à moitié faite rend inutilisable une installation qui fonctionnait | Le candidat est cloné, fusionné en avance rapide (jamais une réinitialisation forcée, si bien que les modifications locales échouent de façon visible) et compilé d'abord dans un clone de préparation ; l'installation en service n'est remplacée, par deux renommages de dossier, que si cette compilation réussit, et la précédente est gardée sous `<nom>.backup-xxxxxxxx` |
 | Une vérification qui ne peut pas être lancée ici | Un build-test qui répond 75 signifie que la validation est indisponible : la mise à jour est refusée sauf si la personne l'accepte dans les réglages |
 | Un commit que personne n'a signé | Une révision sans signature valide est refusée par défaut ; avec `"signature_policy": "warn"` elle est installée avec un avertissement |
 | Un paquet manipulé | Un paquet n'est accepté que si sa taille, son SHA-256 et sa signature Ed25519 correspondent et s'il vient des hôtes de téléchargement de GitHub ; il n'est installé qu'après confirmation, jamais pendant qu'une autre installation tourne, et la version précédente peut être restaurée |
@@ -306,7 +306,7 @@ Le programme ouvre la fenêtre Qt Quick quand on le lance sans argument et offre
 
 - **Historique des tentatives.** Le bouton **Historique** de la barre du haut montre les tentatives d'installation et de mise à jour de l'espace de travail comme des enregistrements de preuve (`urtc-evidence/1`) ; le fichier de preuve avec sa chaîne de hachages reste tel quel et la fenêtre travaille sur une seconde vue dans `.urtc-updater/common`. Chaque ligne indique le type, le résultat, l'outil, la carte et les versions, du plus récent au plus ancien ; un enregistrement modifié après son écriture, un fichier qui n'est pas du JSON ou un enregistrement d'un autre format est affiché comme non valide, avec ce qui ne va pas. La liste peut être filtrée par résultat et par texte ou réduite aux enregistrements en échec ; elle relit le dossier à chaque ouverture, affiche au plus 500 lignes (et indique combien il y en a) et ne modifie rien sur le disque. C'est la même fenêtre dans URTC-FLASHER, URTC-TESTER et URTC-UPDATER, partagée depuis URTC-COMMON, dans les huit langues. En ligne de commande, `urtc-updater --cli evidence --history FOLDER [--json]` liste les enregistrements d'un dossier, vérifie chacun et se termine avec le statut 1 si l'un n'est pas valide ; il ne fait que lire.
 
-- **Une fenêtre Firmware et `firmware sync`.** Le bouton **Firmware** demande une image de firmware (une zone et un sélecteur de fichier), vérifie sa signature de version sur demande et ouvre le Flasher installé avec l'image sélectionnée, avec les mêmes règles que `firmware check` et `firmware open` : une signature absente ou fausse est refusée, le motif est donné dans la langue de la fenêtre et rien n'est écrit sur une carte depuis ici. En option, `urtc-updater --cli firmware sync [--dry-run] [--yes]` copie la plus récente image de chaque type de `URTC/firmware` vers `URTC-FLASHER/firmware` après avoir vérifié chacune avec la signature de version, montre ce qu'il va faire et demande d'abord (sans terminal, rien n'est copié) ; les images remplacées sont déplacées dans l'espace de travail, jamais supprimées. `--option on` fait finir `update URTC` par la même question ; l'option est désactivée par défaut.
+- **Une fenêtre Firmware et `firmware sync`.** Le bouton **Firmware** demande une image de firmware (une zone et un sélecteur de fichier), vérifie sa signature de version sur demande et ouvre le Flasher installé avec l'image sélectionnée, avec les mêmes règles que `firmware check` et `firmware open` : une signature absente ou fausse est refusée, le motif est donné dans la langue de la fenêtre et rien n'est écrit sur une carte depuis ici. En option, `urtc-updater --cli firmware sync [--dry-run] [--yes]` copie l'image la plus récente de chaque type de `URTC/firmware` vers `URTC-FLASHER/firmware` après avoir vérifié chacune avec la signature de version, montre ce qu'il va faire et demande d'abord (sans terminal, rien n'est copié) ; les images remplacées sont déplacées dans l'espace de travail, jamais supprimées. `--option on` fait finir `update URTC` par la même question ; l'option est désactivée par défaut.
 
 ## 🚀 Démarrage rapide
 
@@ -385,7 +385,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   scripts qui augmentent la version
 ├── urtc_i18n.lock.json                                verrou des textes de la fenêtre
 ├── LICENSE.md .env.example                            licence de la documentation et variables
-└── pyproject.toml requirements-dev.lock ruff.toml     paquet, outils figés, réglages de lint et verrou des textes
+└── pyproject.toml requirements-dev.lock ruff.toml     paquet, outils figés, réglages de lint
 ```
 
 </details>

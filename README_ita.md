@@ -9,7 +9,7 @@
 ### 📦 Rileva, installa e aggiorna manualmente l'intero ecosistema URTC
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
@@ -70,14 +70,13 @@
 
 ## 🎯 Panoramica
 
-URTC-UPDATER è un piccolo strumento - GUI con finestra per
-impostazione predefinita, CLI completa con `--cli` - pensato per girare
-sulla macchina Windows/Linux/macOS personale di uno sviluppatore
-(qualsiasi area di lavoro con lo stesso tipo di checkout) che risponde a
-tre domande per ogni altro progetto reale che scopre tramite il manifesto
-`urtc.project.json` proprio di ciascun checkout vicino - il numero stesso
-non è mai codificato in modo fisso qui, perché cresce insieme
-all'ecosistema:
+URTC-UPDATER è un piccolo strumento: GUI con finestra per impostazione
+predefinita, CLI completa con `--cli`. È pensato per girare sulla macchina
+Windows/Linux/macOS personale di uno sviluppatore (qualsiasi area di lavoro con
+lo stesso tipo di checkout) e risponde a tre domande per ogni altro progetto
+reale che scopre tramite il manifesto `urtc.project.json` di ciascun checkout
+vicino. Il numero di progetti non è mai scritto in modo fisso qui, perché cresce
+insieme all'ecosistema:
 
 1. **Cosa c'è realmente installato qui, e in quale versione?**
 2. **Qual è l'ultima versione pubblicata su GitHub?**
@@ -160,7 +159,7 @@ Come si incastrano le parti di questo repository: chi lo usa, che cosa contiene 
   come passo separato. Aggiornare un checkout GIÀ ESISTENTE è invece
   atomico-per-verifica: il candidato viene clonato, unito con
   fast-forward (mai un reset forzato, così vere modifiche locali
-  falliscono rumorosamente invece di essere scartate), e compilato/
+  falliscono in modo evidente invece di essere scartate), e compilato/
   verificato PRIMA in un clone di staging completamente indipendente -
   l'installazione reale viene toccata (tramite due rinomine di
   directory consecutive, con l'installazione precedente conservata in
@@ -207,9 +206,9 @@ Come si incastrano le parti di questo repository: chi lo usa, che cosa contiene 
 - **Nessuna logica di build per stack in questo strumento.** L'ecosistema comprende diverse toolchain (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Reimplementare qui il build di ogni progetto creerebbe un secondo posto che pretende di saperlo compilare, destinato a divergere dallo script del progetto stesso. `install.py` esegue invece il `build-test.sh` senza versionamento del progetto (`build-test.bat` su Windows) e fallisce in modo sicuro se una copia non lo ha. Gli script di build che incrementano la versione (`build.sh` e simili) non vengono mai eseguiti da questo strumento.
 - **Contenuto raw di GitHub, non l'API delle Releases.** Vedi la sezione
   2 - la convenzione di versionamento di questo ecosistema non crea mai
-  un tag/release, quindi l'API delle Releases sarebbe attivamente
+  un tag/release, quindi l'API delle Releases sarebbe semplicemente
   sbagliata qui, non solo meno comoda.
-- **Un errore di rete transitorio riceve un vero ritentativo; una
+- **Un errore di rete transitorio viene ritentato; una
   risposta definitiva mai.** Ogni richiesta reale a GitHub
   (`_urlopen_with_retries` di `github_client.py`) riprova fino a 3 volte
   con backoff, ma solo quando la connessione non ha mai ottenuto alcuna
@@ -217,7 +216,7 @@ Come si incastrano le parti di questo repository: chi lo usa, che cosa contiene 
   effettivamente restituito - 404, 403, 500 - non viene mai riprovato:
   GitHub ha già risposto, e insistere consumerebbe solo altro rate limit
   per lo stesso risultato.
-- **Un catalogo remoto malformato fallisce rumorosamente; un singolo
+- **Un catalogo remoto malformato fallisce in modo esplicito; un singolo
   progetto malformato no.** Se l'elenco stesso dei repository GitHub è
   irraggiungibile o non analizzabile, `discover_remote_projects()`
   solleva un'eccezione e il bridge desktop ricade sull'elenco dei progetti
@@ -289,9 +288,9 @@ Il resto della politica segue, con le parole del programma.
 
 **Cosa può rispondere il build-test:** il codice di uscita 0 significa convalidato e qualsiasi altro significa fallito, tranne 75, che significa che la convalida è *non disponibile* (manca uno strumento necessario). Viene segnalato come tale e l'aggiornamento viene rifiutato, a meno che tu non lo accetti impostando `validation_unavailable` su `accept` nelle impostazioni (o `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`). Un build-test deve lasciare l'albero come l'ha trovato: se cambia un file tracciato da git, il file viene riportato al contenuto registrato prima della promozione e i passaggi dicono quale.
 
-**Commit firmati (richiesti per impostazione predefinita; tornare a un semplice avviso è una scelta esplicita):** una revisione senza firma valida (`git verify-commit`: portachiavi GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) viene rifiutata. Con `"signature_policy": "warn"` in `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=0`, o `--no-require-signed` per una esecuzione; il vecchio `"require_signed_commits": false` significa lo stesso) viene installata comunque, e i passi della finestra e della riga di comando dicono che non è firmata. Con il valore predefinito (`"signature_policy": "require"` o `URTC_UPDATER_REQUIRE_SIGNED=1`; il vecchio `"require_signed_commits": true` significa lo stesso) il candidato - l'`HEAD` di un clone nuovo o il `FETCH_HEAD` scaricato di un aggiornamento - deve superare `git verify-commit` prima di leggere il suo manifest o compilare qualcosa, e un candidato rifiutato lascia intatto il checkout installato.
+**Commit firmati (richiesti per impostazione predefinita; tornare a un semplice avviso è una scelta esplicita):** una revisione senza firma valida (`git verify-commit`: portachiavi GPG, o SSH con `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) viene rifiutata. Con `"signature_policy": "warn"` in `~/.urtc_updater_settings.json` (o `URTC_UPDATER_REQUIRE_SIGNED=0`, o `--no-require-signed` per un'esecuzione; il vecchio `"require_signed_commits": false` significa lo stesso) viene installata comunque, e i passi della finestra e della riga di comando dicono che non è firmata. Con il valore predefinito (`"signature_policy": "require"` o `URTC_UPDATER_REQUIRE_SIGNED=1`; il vecchio `"require_signed_commits": true` significa lo stesso) il candidato - l'`HEAD` di un clone nuovo o il `FETCH_HEAD` scaricato di un aggiornamento - deve superare `git verify-commit` prima di leggere il suo manifest o compilare qualcosa, e un candidato rifiutato lascia intatto il checkout installato.
 
-**Opzioni di sicurezza (entrambe attive per impostazione predefinita; modificabili dal pulsante Sicurezza della finestra, dal comando `security`, dal file delle impostazioni, dall'ambiente e dalla riga di comando):** oltre a richiedere commit firmati, l'updater può *chiedere prima di eseguire il controllo di build* di un candidato (`"confirm_before_build": true`, il valore predefinito; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Scarica e convalida il candidato, mostra il progetto, il commit, il suo autore, la sua firma e gli script di build o di strumenti modificati, e non esegue nulla finché non rispondi; senza finestra né terminale a cui chiedere, fallisce in chiuso: non esegue né installa nulla e dice come rispondere. Le esecuzioni non presidiate rispondono sì in modo esplicito con `--yes`, `URTC_UPDATER_ASSUME_YES=1` o l'impostazione "assume_yes_without_asking": true (disattivata per impostazione predefinita). Con `"signature_policy": "warn"` e `"confirm_before_build": false` si torna al comportamento precedente. `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valgono per una sola esecuzione, e un'esecuzione che disattiva una protezione attiva nelle impostazioni salvate lo segnala; la finestra, e `urtc-updater --cli security --require-signed off`, chiedono conferma prima di salvare un livello più basso. Un file di impostazioni che esiste ma non può essere letto conta come «firme richieste» finché non viene riparato o rimosso. Al controllo di build viene passato anche `URTC_PYTHON`, l'interprete che esegue l'updater, così un progetto prova con quel Python e non con il primo che il sistema trova.
+**Opzioni di sicurezza (entrambe attive per impostazione predefinita; modificabili dal pulsante Sicurezza della finestra, dal comando `security`, dal file delle impostazioni, dall'ambiente e dalla riga di comando):** oltre a richiedere commit firmati, l'updater può *chiedere prima di eseguire il controllo di build* di un candidato (`"confirm_before_build": true`, il valore predefinito; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Scarica e convalida il candidato, mostra il progetto, il commit, il suo autore, la sua firma e gli script di build o di strumenti modificati, e non esegue nulla finché non rispondi; senza finestra né terminale a cui chiedere, fallisce in modo sicuro: non esegue né installa nulla e dice come rispondere. Le esecuzioni non presidiate rispondono sì in modo esplicito con `--yes`, `URTC_UPDATER_ASSUME_YES=1` o l'impostazione "assume_yes_without_asking": true (disattivata per impostazione predefinita). Con `"signature_policy": "warn"` e `"confirm_before_build": false` si torna al comportamento precedente. `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valgono per una sola esecuzione, e un'esecuzione che disattiva una protezione attiva nelle impostazioni salvate lo segnala; la finestra, e `urtc-updater --cli security --require-signed off`, chiedono conferma prima di salvare un livello più basso. Un file di impostazioni che esiste ma non può essere letto conta come «firme richieste» finché non viene riparato o rimosso. Al controllo di build viene passato anche `URTC_PYTHON`, l'interprete che esegue l'updater, così un progetto prova con quel Python e non con il primo che il sistema trova.
 
 ## 🔌 Interfacce
 
@@ -388,7 +387,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   script che alzano la versione
 ├── urtc_i18n.lock.json                                blocco dei testi della finestra
 ├── LICENSE.md .env.example                            licenza della documentazione e variabili
-└── pyproject.toml requirements-dev.lock ruff.toml     pacchetto, strumenti bloccati, impostazioni di lint e blocco dei testi
+└── pyproject.toml requirements-dev.lock ruff.toml     pacchetto, strumenti bloccati, impostazioni di lint
 ```
 
 </details>

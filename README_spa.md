@@ -9,7 +9,7 @@
 ### 📦 Detecta, instala y actualiza a mano todo el ecosistema URTC
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
@@ -71,13 +71,12 @@
 
 ## 🎯 Resumen
 
-URTC-UPDATER es una pequeña herramienta - GUI con ventana por
-defecto, CLI completa con `--cli` - pensada para ejecutarse en la propia
-máquina Windows/Linux/macOS de un desarrollador (cualquier espacio de
-trabajo obtenido del mismo modo) que responde a tres preguntas sobre cada
-otro proyecto real que descubre a través del propio manifiesto
-`urtc.project.json` de cada checkout vecino - el número en sí nunca está
-fijado aquí, ya que crece con el propio ecosistema:
+URTC-UPDATER es una herramienta pequeña: GUI con ventana por defecto y CLI
+completa con `--cli`. Está pensada para ejecutarse en la propia máquina
+Windows/Linux/macOS de un desarrollador (cualquier espacio de trabajo obtenido
+del mismo modo) y responde a tres preguntas sobre cada otro proyecto real que
+descubre a través del `urtc.project.json` de cada checkout vecino. El número de
+proyectos nunca se fija aquí, porque crece con el propio ecosistema:
 
 1. **¿Qué hay instalado aquí de verdad, y en qué versión?**
 2. **¿Cuál es la última versión publicada en GitHub?**
@@ -209,14 +208,14 @@ Cómo encajan las partes de este repositorio: quién lo usa, qué contiene y de 
   convención de versionado de este ecosistema nunca crea un tag/release,
   así que la API de Releases sería activamente incorrecta aquí, no solo
   menos conveniente.
-- **Un fallo de red transitorio recibe un reintento real; una respuesta
+- **Un fallo de red transitorio se reintenta; una respuesta
   definitiva nunca.** Cada petición real a GitHub (`_urlopen_with_retries`
   de `github_client.py`) reintenta hasta 3 veces con backoff, pero solo
   cuando la conexión nunca llegó a obtener respuesta alguna (DNS/timeout/
   reset). Un estado HTTP real que GitHub sí devolvió - 404, 403, 500 -
   nunca se reintenta: GitHub ya respondió, y volver a golpearlo solo
   gastaría más límite de peticiones para el mismo resultado.
-- **Un catálogo remoto malformado falla de forma ruidosa; un proyecto
+- **Un catálogo remoto malformado falla de forma explícita; un proyecto
   malformado no.** Si el propio listado de repositorios de GitHub es
   inalcanzable o no se puede analizar, `discover_remote_projects()` lanza
   una excepción y el puente de escritorio recurre a la lista de proyectos
@@ -388,7 +387,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   scripts que suben la versión
 ├── urtc_i18n.lock.json                                bloqueo de los textos de la ventana
 ├── LICENSE.md .env.example                            licencia de la documentación y variables
-└── pyproject.toml requirements-dev.lock ruff.toml     paquete, herramientas fijadas, ajustes de lint y el bloqueo de los textos
+└── pyproject.toml requirements-dev.lock ruff.toml     paquete, herramientas fijadas, ajustes de lint
 ```
 
 </details>

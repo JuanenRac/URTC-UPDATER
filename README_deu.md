@@ -9,7 +9,7 @@
 ### 📦 Erkennt, installiert und aktualisiert das gesamte URTC-Ökosystem von Hand
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Licencia-GPL%203.0-blue.svg" alt="GPL 3.0 or later">
+  <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
   <img src="https://img.shields.io/badge/Language-Python%203.10%2B-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/Core-stdlib%20only-brightgreen.svg" alt="stdlib-only CLI core">
   <img src="https://img.shields.io/badge/Desktop-PySide6%20%7C%20Qt%20Quick-367BF5.svg" alt="PySide6 Qt Quick desktop GUI">
@@ -49,7 +49,7 @@
 | Ziel | Der PC der Person, die es benutzt |
 | Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
 
-**Springe zu:** [Überblick](#-überblick) · [Architektur](#-architektur) · [Sicherheit](#-sicherheit-und-schutz) · [Schnittstellen](#-schnittstellen) · [Schnellstart](#-schnellstart) · [Tests](#-tests) · [Probleme](#-fehlerbehebung) · [Struktur](#-struktur-des-repositorys) · [Verwandte](#-verwandte-projekte)
+**Springen Sie zu:** [Überblick](#-überblick) · [Architektur](#-architektur) · [Sicherheit](#-sicherheit-und-schutz) · [Schnittstellen](#-schnittstellen) · [Schnellstart](#-schnellstart) · [Tests](#-tests) · [Probleme](#-fehlerbehebung) · [Struktur](#-struktur-des-repositorys) · [Verwandte](#-verwandte-projekte)
 
 <!-- urtc-section:status_updater -->
 ## 🚦 Projektstatus
@@ -70,12 +70,12 @@
 
 ## 🎯 Überblick
 
-URTC-UPDATER ist ein kleines Tool - Fenster-GUI standardmäßig, volle
-CLI mit `--cli` - das auf dem eigenen Windows/Linux/macOS-Rechner eines
-Entwicklers laufen soll (jeder Arbeitsbereich mit demselben Checkout-Layout) und
-drei Fragen für jedes andere echte Projekt beantwortet, das es über das
-eigene `urtc.project.json`-Manifest jedes Nachbar-Checkouts entdeckt - die
-Anzahl selbst ist hier nie fest codiert, da sie mit dem Ökosystem wächst:
+URTC-UPDATER ist ein kleines Tool: standardmäßig mit Fenster-GUI, mit `--cli`
+als vollständige Kommandozeile. Es soll auf dem eigenen Windows/Linux/macOS-Rechner
+eines Entwicklers laufen (jeder Arbeitsbereich mit demselben Checkout-Layout) und
+beantwortet drei Fragen zu jedem anderen echten Projekt, das es über das
+`urtc.project.json`-Manifest des jeweiligen Nachbar-Checkouts entdeckt. Die
+Anzahl der Projekte ist hier nie fest eingetragen, da sie mit dem Ökosystem wächst:
 
 1. **Was ist hier tatsächlich installiert, und in welcher Version?**
 2. **Was ist die neueste auf GitHub veröffentlichte Version?**
@@ -172,7 +172,7 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
   des Staging-Klons wird gleich nach dessen Erstellung auf das echte
   GitHub-Upstream zurückgesetzt (ein einfacher lokaler Klon würde
   andernfalls weiterhin auf den alten Installationspfad zeigen und nach
-  der Beförderung still alle künftigen Updates beenden), und die echten
+  der Übernahme still alle künftigen Updates beenden), und die echten
   lokalen Daten des installierten Checkouts (alles, was Git als
   unversioniert oder ignoriert betrachtet - `data/settings.json` und
   Ähnliches, ohne regenerierbare Build-Artefakte) werden vor dem Bauen
@@ -205,17 +205,17 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
 - **Keine stack-spezifische Build-Logik in diesem Tool.** Das Ökosystem umfasst mehrere Toolchains (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, ARM-Firmware). Den Build jedes Projekts hier nachzubauen würde eine zweite Stelle schaffen, die behauptet, ihn zu kennen, und garantiert vom Skript des Projekts selbst abweicht. `install.py` führt stattdessen das versionsneutrale `build-test.sh` des Projekts aus (`build-test.bat` unter Windows) und scheitert sicher, wenn eine Kopie keines hat. Die Build-Skripte, die die Version erhöhen (`build.sh` und ähnliche), führt dieses Tool nie aus.
 - **GitHub-Rohinhalt, nicht die Releases-API.** Siehe Abschnitt 2 oben -
   die Versionierungskonvention dieses Ökosystems erzeugt nie ein
-  Tag/Release, daher wäre die Releases-API hier aktiv falsch, nicht nur
+  Tag/Release, daher wäre die Releases-API hier schlicht falsch, nicht nur
   weniger bequem.
-- **Ein vorübergehender Netzwerkfehler bekommt einen echten
-  Wiederholungsversuch; eine definitive Antwort nie.** Jede echte
+- **Ein vorübergehender Netzwerkfehler wird wiederholt; eine
+  endgültige Antwort nie.** Jede echte
   GitHub-Anfrage (`_urlopen_with_retries` in `github_client.py`)
   wiederholt bis zu 3-mal mit Backoff, aber nur, wenn die Verbindung
   überhaupt keine Antwort erhalten hat (DNS/Timeout/Reset). Ein echter
   HTTP-Status, den GitHub tatsächlich zurückgegeben hat - 404, 403, 500 -
   wird nie wiederholt: GitHub hat bereits geantwortet, und ein erneuter
   Versuch würde nur mehr Rate-Limit für dasselbe Ergebnis verbrauchen.
-- **Ein fehlerhafter entfernter Katalog schlägt laut fehl; ein
+- **Ein fehlerhafter entfernter Katalog schlägt mit einer klaren Fehlermeldung fehl; ein
   fehlerhaftes Projekt nicht.** Wenn die GitHub-Repository-Liste selbst
   nicht erreichbar oder nicht parsbar ist, löst `discover_remote_projects()`
   eine Ausnahme aus, und die Desktop-Brücke fällt auf die lokal entdeckte
@@ -289,7 +289,7 @@ Der Rest der Richtlinie folgt, in den Worten des Programms.
 
 **Signierte Commits (standardmäßig verlangt; die Rückkehr zu einer bloßen Warnung ist eine ausdrückliche Entscheidung):** eine Revision ohne gültige Signatur (`git verify-commit`: GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) wird abgelehnt. Mit `"signature_policy": "warn"` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=0`, oder `--no-require-signed` für einen Lauf; das ältere `"require_signed_commits": false` bedeutet dasselbe) wird sie trotzdem installiert, und die Schritte im Fenster und in der Kommandozeile sagen, dass sie nicht signiert ist. Mit dem Standard (`"signature_policy": "require"` oder `URTC_UPDATER_REQUIRE_SIGNED=1`; das ältere `"require_signed_commits": true` bedeutet dasselbe) muss der Kandidat - das `HEAD` eines neuen Klons oder das geladene `FETCH_HEAD` eines Updates - `git verify-commit` bestehen, bevor sein Manifest gelesen oder irgendetwas gebaut wird; ein abgelehnter Kandidat lässt den installierten Checkout unberührt.
 
-**Sicherheitsoptionen (beide standardmäßig an; änderbar über die Schaltfläche Sicherheit im Fenster, den Befehl `security`, die Einstellungsdatei, die Umgebung und die Kommandozeile):** Neben dem Verlangen signierter Commits kann der Updater *vor der Build-Prüfung* eines Kandidaten nachfragen (`"confirm_before_build": true`, der Standard; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Er lädt und validiert den Kandidaten, zeigt Projekt, Commit, Autor, Signatur und die geänderten Build- oder Werkzeugskripte und führt nichts aus, bis Sie antworten; gibt es weder Fenster noch Terminal zum Fragen, schlägt er geschlossen fehl: Er führt nichts aus, installiert nichts und sagt, wie zu antworten ist. Unbeaufsichtigte Läufe antworten ausdrücklich mit Ja über `--yes`, `URTC_UPDATER_ASSUME_YES=1` oder die Einstellung "assume_yes_without_asking": true (standardmäßig aus). Mit `"signature_policy": "warn"` und `"confirm_before_build": false` kehrt man zum bisherigen Verhalten zurück. `--require-signed` / `--no-require-signed` und `--confirm-build` / `--no-confirm-build` gelten für einen Lauf, und ein Lauf, der einen in den gespeicherten Einstellungen aktiven Schutz ausschaltet, sagt das; das Fenster und `urtc-updater --cli security --require-signed off` fragen nach, bevor eine niedrigere Stufe gespeichert wird. Eine Einstellungsdatei, die existiert, aber nicht gelesen werden kann, zählt als „Signaturen verlangt“, bis sie repariert oder entfernt wird. Der Build-Prüfung wird außerdem `URTC_PYTHON` mitgegeben, der Interpreter, der den Updater ausführt, damit ein Projekt mit diesem Python testet und nicht mit dem, das das System zuerst findet.
+**Sicherheitsoptionen (beide standardmäßig an; änderbar über die Schaltfläche Sicherheit im Fenster, den Befehl `security`, die Einstellungsdatei, die Umgebung und die Kommandozeile):** Neben dem Verlangen signierter Commits kann der Updater *vor der Build-Prüfung* eines Kandidaten nachfragen (`"confirm_before_build": true`, der Standard; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Er lädt und validiert den Kandidaten, zeigt Projekt, Commit, Autor, Signatur und die geänderten Build- oder Werkzeugskripte und führt nichts aus, bis Sie antworten; gibt es weder Fenster noch Terminal zum Fragen, bricht er sicher ab: Er führt nichts aus, installiert nichts und sagt, wie zu antworten ist. Unbeaufsichtigte Läufe antworten ausdrücklich mit Ja über `--yes`, `URTC_UPDATER_ASSUME_YES=1` oder die Einstellung "assume_yes_without_asking": true (standardmäßig aus). Mit `"signature_policy": "warn"` und `"confirm_before_build": false` kehrt man zum bisherigen Verhalten zurück. `--require-signed` / `--no-require-signed` und `--confirm-build` / `--no-confirm-build` gelten für einen Lauf, und ein Lauf, der einen in den gespeicherten Einstellungen aktiven Schutz ausschaltet, sagt das; das Fenster und `urtc-updater --cli security --require-signed off` fragen nach, bevor eine niedrigere Stufe gespeichert wird. Eine Einstellungsdatei, die existiert, aber nicht gelesen werden kann, zählt als „Signaturen verlangt“, bis sie repariert oder entfernt wird. Der Build-Prüfung wird außerdem `URTC_PYTHON` mitgegeben, der Interpreter, der den Updater ausführt, damit ein Projekt mit diesem Python testet und nicht mit dem, das das System zuerst findet.
 
 ## 🔌 Schnittstellen
 
@@ -387,7 +387,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   Skripte, die die Version erhöhen
 ├── urtc_i18n.lock.json                                Sperre der Fenstertexte
 ├── LICENSE.md .env.example                            Dokumentationslizenz und Variablen
-└── pyproject.toml requirements-dev.lock ruff.toml     Paket, festgelegte Werkzeuge, Lint-Einstellungen und die Sperre der Texte
+└── pyproject.toml requirements-dev.lock ruff.toml     Paket, festgelegte Werkzeuge, Lint-Einstellungen
 ```
 
 </details>
@@ -446,11 +446,11 @@ URTC besteht aus unabhängigen Repositories mit jeweils eigener Version, eigenen
 
 ## 🤝 Mitwirken und Community
 
-* Führe vor einem Pull Request `URTC_CI=1 python tools/ci_validate.py` aus: es muss bestehen. Siehe [CONTRIBUTING.md](CONTRIBUTING.md) und den [Verhaltenskodex](CODE_OF_CONDUCT.md).
+* Führen Sie vor einem Pull Request `URTC_CI=1 python tools/ci_validate.py` aus: Es muss bestehen. Siehe [CONTRIBUTING.md](CONTRIBUTING.md) und den [Verhaltenskodex](CODE_OF_CONDUCT.md).
 * Das README gibt es in acht Sprachen: Eine Textänderung wird in allen acht Dateien vorgenommen, und die mit anderen Repositorys geteilten Abschnitte schreibt `tools/readme_sections.py` von URTC-COMMON.
 * Eine Änderung am CAN-Protokoll beginnt in URTC-COMMON (`spec/can_protocol.json`) und gelangt über die geprüfte Kopie in dieses Repository.
-* Beschreibe nichts als auf einer Platine funktionierend, was nur gebaut wurde.
-* Melde eine Schwachstelle privat: [SECURITY.md](SECURITY.md). Fragen, Ideen und Meldungen: electrohobby3d@gmail.com ([SUPPORT.md](SUPPORT.md)).
+* Beschreiben Sie nichts als auf einer Platine funktionierend, was nur gebaut wurde.
+* Melden Sie eine Schwachstelle privat: [SECURITY.md](SECURITY.md). Fragen, Ideen und Meldungen: electrohobby3d@gmail.com ([SUPPORT.md](SUPPORT.md)).
 
 ## 👤 AUTOR
 
