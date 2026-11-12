@@ -13,3 +13,4 @@ This tool installs and updates the other repositories of the URTC ecosystem on a
 4. **No secrets, no private paths.** Evidence logs and messages must not carry tokens or credentials.
 5. **Tests.** `python -m pytest tests -q` (with `PYTHONPATH=src`) must pass, and a change needs a test that fails without it. Use `build-test.sh` / `build-test.bat` to check without changing the version; `build.sh` / `build.bat` raise it.
 6. **Documentation.** A change to the behaviour is written in the README (eight languages), in `docs/` and in `CHANGELOG.md` in the same commit.
+7. **Documentation language.** The files in `docs/` are written in English only, on purpose: they are technical reference for developers, kept in one language so that a change is made once and cannot drift between eight copies. The README of each repository is the part that is translated into the eight languages.
