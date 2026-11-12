@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The evidence chain is tested over generated histories with a fixed seed:** an intact history of any length verifies and chains every line to the one before, and removing a line, editing any field of any line, swapping two neighbouring lines, adding a line with a made-up chain and lines that are not JSON are always found, while lines written before the chain existed are still accepted.
+
 - **The desktop notification and the station profiles are tested at their edges:** quotes and backslashes in the text on every system, a system with no notification tool, a tool that fails to start or hangs, and every shape a profile in the settings file can have (a name that is not defined is an error, a list with entries that are not text, only a real false turns the batches off).
 
 - **The shared document policy check is refreshed:** `tools/_doc_policy.py` and `tools/ci_validate.py` are the current copies, which also fail when a build script changes a version and when a script switches into a virtual environment instead of running its python directly. The run script runs the python of the virtual environment directly.
