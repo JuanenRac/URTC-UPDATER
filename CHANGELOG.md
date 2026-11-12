@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+- **The fallback test of the durable journal checks the fallback and not the machine:** the test that proves that recovering interrupted promotions does nothing without the optional SDK now forces that state, so it gives the same result on a computer that has the SDK installed.
+
 ## [0.2.9] - The Spanish texts say "grabar" and "velocidad de bus": the calques "flashear", "flasheo" and "bitrate" are replaced in the window, the guide, the Spanish README and the shared sections, with the gender of the sentence... (and 6 more changes)
 
 - **The Spanish texts say "grabar" and "velocidad de bus":** the calques "flashear", "flasheo" and "bitrate" are replaced in the window, the guide, the Spanish README and the shared sections, with the gender of the sentence corrected, so the README names what the window shows.
