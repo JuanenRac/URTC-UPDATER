@@ -44,7 +44,7 @@
 |---|---|
 | Version | `0.2.9` |
 | Reifegrad | Etabliert |
-| Tests | 695 (`python -m pytest`) |
+| Tests | 721 (`python -m pytest`) |
 | Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Ziel | Der PC der Person, die es benutzt |
 | Auf echter Hardware | Nicht zutreffend: nichts hiervon läuft auf Hardware |
