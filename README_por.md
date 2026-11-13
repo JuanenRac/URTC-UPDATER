@@ -6,7 +6,7 @@
 
 <p align="center"><a href="README.md">🇺🇸 English</a> | <a href="README_spa.md">🇪🇸 Español</a> | <a href="README_fra.md">🇫🇷 Français</a> | <a href="README_ita.md">🇮🇹 Italiano</a> | <a href="README_deu.md">🇩🇪 Deutsch</a> | <a href="README_zho.md">🇨🇳 简体中文</a> | <a href="README_jpn.md">🇯🇵 日本語</a> | 🇵🇹 <b>Português</b></p>
 
-### 📦 Detetar, Instalar e Atualizar Manualmente Todo o Ecossistema URTC
+### 📦 Deteta, instala e atualiza manualmente todo o ecossistema URTC
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-GPL%203.0--or--later-blue.svg" alt="GPL 3.0 or later">
@@ -16,8 +16,8 @@
 </p>
 
 > **Modo desktop visual:** a interface desktop por omissão é agora construída
-> com **Qt Quick / QML** através do runtime de GUI opcional `PySide6`. O núcleo
-> do atualizador e o modo `--cli` continuam a usar apenas a stdlib, para uma
+> com **Qt Quick / QML** através do ambiente de execução gráfico opcional `PySide6`. O núcleo
+> do updater e o modo `--cli` continuam a usar apenas a biblioteca padrão, para uma
 > máquina sem ecrã.
 >
 > **Arranque no Windows e evidência de atualização:** faça duplo clique em
@@ -26,7 +26,7 @@
 > Verificação prévia, Atualização da origem, Validação do manifesto, Teste de compilação e Concluído, com a
 > evidência dos comandos capturada; `run.bat --cli ...` mantém deliberadamente
 > um terminal para diagnóstico.
-> A instalação só está disponível para um checkout em falta; a atualização só
+> A instalação só está disponível para uma cópia local em falta; a atualização só
 > quando o GitHub tem uma versão mais recente. Durante uma ação aprovada, os
 > pontos de controlo substituem os controlos do projeto selecionado, e
 > selecionar outro projeto restaura-os.
@@ -36,7 +36,7 @@
 
 ---
 
-**Ponto de honestidade: o que realmente funciona hoje:** **Maturidade: estabelecido (uma execução completa documentada, não uma utilização continuada).** Este projeto adapta o desenho já comprovado do HYDRA-UMC-UPDATER (a mesma deteção por manifesto, a instalação/atualização com clone temporário verificado de forma atómica e o registo de evidências) apenas aos repositórios do ecossistema URTC. Foi executado de ponta a ponta contra o GitHub numa área de trabalho isolada: uma instalação limpa e uma atualização posterior de um repositório real foram clonadas, compiladas e promovidas corretamente, ficando a cópia anterior guardada como cópia de segurança. A lógica de deteção e de versões (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), o cliente de conteúdo raw do GitHub com retry/backoff e lista de repositórios em cache (`github_client.py`), a comparação por commit (`commits.py`) e o cadeia clonar-preparar-verificar-promover (`install.py`) estão cobertos por testes (`python -m pytest`), incluindo um servidor HTTP de teste local e repositórios git temporários reais com um remoto bare local. A lógica própria da ponte Qt corre sem ecrã nos testes, e a janela com os seus diálogos é carregada sem ecrã para verificar que abre e responde; o seu aspeto verifica-se à vista, não com um teste. A cobertura de 8 idiomas do `i18n.py` é verificada por teste quanto a chaves e marcadores, não quanto à qualidade da tradução. Consulte o `CHANGELOG.md` para saber exatamente o que foi entregue até agora.
+**Ponto de honestidade: o que realmente funciona hoje:** **Maturidade: estabelecido (uma execução completa documentada, não uma utilização continuada).** Este projeto adapta o desenho já comprovado do HYDRA-UMC-UPDATER (a mesma deteção por manifesto, a instalação/atualização com clone temporário verificado de forma atómica e o registo de evidências) apenas aos repositórios do ecossistema URTC. Foi executado de ponta a ponta contra o GitHub numa área de trabalho isolada: uma instalação limpa e uma atualização posterior de um repositório real foram clonadas, compiladas e promovidas corretamente, ficando a cópia anterior guardada como cópia de segurança. A lógica de deteção e de versões (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), o cliente do conteúdo bruto (raw) do GitHub com repetições e espera crescente e lista de repositórios em cache (`github_client.py`), a comparação por commit (`commits.py`) e a cadeia clonar-preparar-verificar-promover (`install.py`) estão cobertos por testes (`python -m pytest`), incluindo um servidor HTTP de teste local e repositórios git temporários reais com um remoto local sem árvore de trabalho (bare). A lógica própria da ponte Qt corre sem ecrã nos testes, e a janela com os seus diálogos é carregada sem ecrã para verificar que abre e responde; o seu aspeto verifica-se à vista, não com um teste. A cobertura de 8 idiomas do `i18n.py` é verificada por teste quanto a chaves e marcadores, não quanto à qualidade da tradução. Consulte o `CHANGELOG.md` para saber exatamente o que foi entregue até agora.
 
 ---
 
@@ -78,7 +78,7 @@ O URTC-UPDATER é uma ferramenta pequena: GUI em janela por omissão e CLI
 completo com `--cli`. Foi pensada para correr na máquina Windows/Linux/macOS do
 próprio programador (qualquer área de trabalho obtida da mesma forma) e responde
 a três perguntas sobre cada outro projeto real que deteta através do
-manifesto `urtc.project.json` do respetivo checkout irmão. O número de projetos
+manifesto `urtc.project.json` do respetiva cópia irmã. O número de projetos
 nunca é fixado aqui, pois cresce com o ecossistema:
 
 1. **O que está realmente instalado aqui e em que versão?**
@@ -125,9 +125,9 @@ OK  Updated /home/user/GitHub/URTC to v0.3.1 (commit 1a2b3c4d5e6f) after a verif
 
 Executar `urtc-updater` sem argumentos (ou fazer duplo clique) abre a mesma
 informação numa superfície de controlo desktop escura: um painel **Ecossistema local** com métricas de deteção/instalação/atualização em direto, uma
-árvore **Registo de projetos** orientada por manifesto e um painel **Atualização segura** para o projeto selecionado. O layout torna visíveis as proteções
+árvore **Registo de projetos** orientada por manifesto e um painel **Atualização segura** para o projeto selecionado. A disposição torna visíveis as proteções
 reais: deteção por manifesto, uma única ação explícita sobre um projeto,
-confirmação manual, build opcional e um rasto de atividade no ecrã; o registo completo também é escrito num ficheiro em `~/.urtc_updater/logs` (ficam os 20 mais recentes).
+confirmação manual, compilação opcional e um rasto de atividade no ecrã; o registo completo também é escrito num ficheiro em `~/.urtc_updater/logs` (ficam os 20 mais recentes).
 
 ## 🧩 Papel no URTC
 
@@ -141,52 +141,52 @@ O URTC-UPDATER é o programa que mantém atualizado um PC com os repositórios U
 
 Como as partes deste repositório se encaixam: quem o usa, o que contém e de que depende. A imagem é desenhada a partir de `docs/architecture.json` e verificada com o código.
 
-### COMO FUNCIONA REALMENTE UMA VERIFICAÇÃO/ATUALIZAÇÃO
+### Como funciona realmente uma verificação ou atualização
 
 - **Fonte da versão**: a versão de um projeto vive num ficheiro de código desse projeto (`pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`, `version.properties`, `pubspec.yaml` ou um `#define` de firmware, consoante a tecnologia) que o seu próprio passo `bump.py` escreve, e esse passo nunca criou uma etiqueta git nem uma Release do GitHub. Por isso esta ferramenta lê esse mesmo ficheiro diretamente do ramo por omissão do repositório através do servidor de conteúdo bruto do GitHub, e não pela API de Releases, que diria que nenhum projeto tem releases.
 - **Deteção local**: para cada projeto detetado, verifica se existe um
   diretório com esse nome exato na raiz da área de trabalho (o layout padrão do
   ecossistema - cada projeto como diretório irmão, exatamente o que os
-  próprios scripts de build do URTC-FLASHER/URTC-TESTER já assumem) e, se
+  próprios scripts de compilação do URTC-FLASHER/URTC-TESTER já assumem) e, se
   existir, lê a SUA própria cópia local desse mesmo ficheiro de versão.
-- **Uma única implementação de parsing** (`version_parse.py`) é partilhada
-  entre a leitura local e a obtenção no GitHub, para que um checkout local e
-  uma obtenção do GitHub nunca sejam interpretados por duas regex que
+- **Uma única implementação da análise de versões** (`version_parse.py`) é partilhada
+  entre a leitura local e a obtenção no GitHub, para que uma cópia local e
+  uma obtenção do GitHub nunca sejam interpretados por duas expressões regulares que
   divergem de forma independente.
 - **Instalar/atualizar**: `git clone` (instalação) compila depois, como passo
-  separado. Atualizar um checkout EXISTENTE é, em vez disso, atómico por
+  separado. Atualizar uma cópia EXISTENTE é, em vez disso, atómico por
   verificação: o candidato é clonado, integrado por fast-forward (nunca um
-  force-reset, de modo que edições locais reais falhem de forma visível em
-  vez de serem descartadas) e compilado/verificado PRIMEIRO num staging clone
+  reposição forçada, de modo que edições locais reais falhem de forma visível em
+  vez de serem descartadas) e compilado/verificado PRIMEIRO num clone de preparação
   totalmente independente - a instalação em uso só é tocada (através de dois
   renomeamentos de diretório consecutivos, ficando a instalação anterior em
-  `<name>.backup-xxxxxxxx`, não apagada) se essa compilação de staging for bem-sucedida.
-  Uma falha de build, um checkout divergente/sujo, um crash ou um disco cheio
+  `<name>.backup-xxxxxxxx`, não apagada) se essa compilação de preparação for bem-sucedida.
+  Uma falha de compilação, uma cópia divergente ou com alterações, uma falha do processo ou um disco cheio
   em qualquer momento antes dessa promoção final deixam a instalação anterior
-  completamente intacta e operacional - ver o próprio docstring de
-  `clone_or_pull` em `install.py`. O remote git do próprio staging clone é
+  completamente intacta e operacional - ver a própria docstring de
+  `clone_or_pull` em `install.py`. O remote git do próprio clone de preparação é
   restaurado para o upstream real do GitHub logo após ser criado (um clone
   local simples apontá-lo-ia, caso contrário, para o caminho da instalação
   antiga, terminando silenciosamente todas as atualizações futuras depois de
-  promovido), e os dados locais reais do checkout instalado (tudo o que o git
+  promovido), e os dados locais reais da cópia instalada (tudo o que o git
   considera não rastreado ou ignorado - `data/settings.json` e semelhantes,
-  excluindo artefactos de build regeneráveis) são transportados para o
-  staging clone antes de compilar, para que o estado operacional real do
-  próprio projeto sobreviva a uma atualização em vez de ficar abandonado no
-  checkout `.backup-xxxxxxxx` mantido.
+  excluindo artefactos de compilação regeneráveis) são transportados para o
+  clone de preparação antes de compilar, para que o estado operacional real do
+  próprio projeto sobreviva a uma atualização em vez de ficar abandonado na
+  cópia `.backup-xxxxxxxx` mantida.
   Em ambos os casos executa o `build-test.sh`/`build-test.bat` do próprio
   projeto (a verificação sem versionamento - ver secção 3) que ele realmente
-  tiver. Esta ferramenta nunca reimplementa os passos de build de um projeto.
+  tiver. Esta ferramenta nunca reimplementa os passos de compilação de um projeto.
 
-### ARQUITETURA E DECISÕES DE DESIGN
+### Arquitetura e decisões de design
 
 - **GUI Qt Quick por omissão, `--cli` para modo sem ecrã.** `main.py`
-  verifica `--cli` antes de importar o runtime opcional PySide6, pelo que o
-  modo CLI funciona numa máquina genuinamente sem ecrã, sem display nem
+  verifica `--cli` antes de importar o ambiente de execução opcional PySide6, pelo que o
+  modo CLI funciona numa máquina genuinamente sem ecrã, sem monitor nem
   dependência de desktop. A invocação simples inicia o cliente QML onde o
-  runtime estiver instalado; a antiga shell Tkinter permanece apenas como
+  ambiente de execução estiver instalado; a antiga janela Tkinter permanece apenas como
   alternativa temporária de compatibilidade.
-- **A GUI em janela é real e fala 8 idiomas (`i18n.py`) - o `--cli` deliberadamente não.** Cada widget, e o texto de cada ponto de controlo e de cada falha de uma instalação ou atualização, aparece no idioma escolhido num seletor (en/es/fr/it/de/zh/ja/pt, português de Portugal para pt), obtido de uma preferência guardada ou da configuração regional do sistema. Os passos de instalação e atualização viajam como códigos de mensagem mais parâmetros e só a janela os transforma em texto, pelo que mudar de idioma os volta a desenhar. Os nomes de projeto e de família e os textos `notes`/`tech` de cada projeto não são traduzidos: o manifesto é a sua única fonte de verdade. A saída do `--cli` fica em inglês de propósito, porque se destina a scripts e pipes.
+- **A GUI em janela é real e fala 8 idiomas (`i18n.py`) - o `--cli` deliberadamente não.** Cada elemento da interface, e o texto de cada ponto de controlo e de cada falha de uma instalação ou atualização, aparece no idioma escolhido num seletor (en/es/fr/it/de/zh/ja/pt, português de Portugal para pt), obtido de uma preferência guardada ou da configuração regional do sistema. Os passos de instalação e atualização viajam como códigos de mensagem mais parâmetros e só a janela os transforma em texto, pelo que mudar de idioma os volta a desenhar. Os nomes de projeto e de família e os textos `notes`/`tech` de cada projeto não são traduzidos: o manifesto é a sua única fonte de verdade. A saída do `--cli` fica em inglês de propósito, porque se destina a scripts e encadeamentos (pipes).
 - **`deploy` é uma classificação, não uma restrição.** Uma primeira versão
   desta adaptação copiou literalmente o valor por omissão da GUI do próprio
   HYDRA-UMC-UPDATER - definindo o filtro de deploy como `"cm5"` em Linux - sem
@@ -199,20 +199,20 @@ Como as partes deste repositório se encaixam: quem o usa, o que contém e de qu
   O campo `deploy` de `registry.py` («cm5» / «user-pc» / «mobile» / «wearable» /
   «dev-server») continua a registar a classificação por manifesto de
   repositório - apenas nunca é usado como valor por omissão de arranque.
-- **Sem lógica de build por stack nesta ferramenta.** O ecossistema abrange várias toolchains (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Reimplementar aqui o build de cada projeto criaria um segundo sítio que diz saber compilá-lo, condenado a divergir do script do próprio projeto. O `install.py` executa antes o `build-test.sh` sem versionamento do próprio projeto (`build-test.bat` no Windows) e falha de forma segura se uma cópia não o tiver. Os scripts de build que aumentam a versão (`build.sh` e semelhantes) nunca são executados por esta ferramenta.
-- **Conteúdo raw do GitHub, não a API de Releases.** Ver a secção 2 acima -
+- **Sem lógica de compilação por tecnologia nesta ferramenta.** O ecossistema abrange várias cadeias de ferramentas (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, firmware ARM). Reimplementar aqui a compilação de cada projeto criaria um segundo sítio que diz saber compilá-lo, condenado a divergir do script do próprio projeto. O `install.py` executa antes o `build-test.sh` sem versionamento do próprio projeto (`build-test.bat` no Windows) e falha de forma segura se uma cópia não o tiver. Os scripts de compilação que aumentam a versão (`build.sh` e semelhantes) nunca são executados por esta ferramenta.
+- **Conteúdo bruto (raw) do GitHub, não a API de Releases.** Ver a secção 2 acima -
   a convenção de versionamento deste ecossistema nunca cria tag/release,
   pelo que a API de Releases estaria ativamente errada aqui, e não apenas
   menos conveniente.
-- **Uma falha de rede transitória é repetida; uma resposta definitiva nunca.** Cada pedido real ao GitHub (`_urlopen_with_retries` em `github_client.py`) repete até 3 vezes com backoff, mas apenas para uma ligação que nunca obteve qualquer resposta (DNS/tempo limite/reset). Um estado HTTP real que o GitHub devolveu efetivamente - 404, 403, 500 - nunca é repetido: o GitHub já respondeu, e insistir apenas gastaria mais do limite de pedidos para o mesmo resultado.
-- **Um catálogo remoto malformado falha de forma visível; um projeto malformado não.** Se a própria listagem de repositórios do GitHub estiver inacessível ou não for interpretável, `discover_remote_projects()` lança uma exceção e a bridge desktop recorre a uma lista de projetos detetados localmente em vez de mostrar uma deteção quebrada/vazia. O manifesto malformado de um único repositório, pelo contrário, é isolado na lista `errors` dessa deteção e nunca aborta a deteção dos restantes - um teste real com servidor de fixture (`tests/test_github_client.py`) prova ambos os caminhos.
+- **Uma falha de rede transitória é repetida; uma resposta definitiva nunca.** Cada pedido real ao GitHub (`_urlopen_with_retries` em `github_client.py`) repete até 3 vezes com espera crescente, mas apenas para uma ligação que nunca obteve qualquer resposta (DNS/tempo limite/reset). Um estado HTTP real que o GitHub devolveu efetivamente - 404, 403, 500 - nunca é repetido: o GitHub já respondeu, e insistir apenas gastaria mais do limite de pedidos para o mesmo resultado.
+- **Um catálogo remoto malformado falha de forma visível; um projeto malformado não.** Se a própria listagem de repositórios do GitHub estiver inacessível ou não for interpretável, `discover_remote_projects()` lança uma exceção e a ponte da aplicação de ambiente de trabalho recorre a uma lista de projetos detetados localmente em vez de mostrar uma deteção quebrada/vazia. O manifesto malformado de um único repositório, pelo contrário, é isolado na lista `errors` dessa deteção e nunca aborta a deteção dos restantes - um teste real com servidor de testes (`tests/test_github_client.py`) prova ambos os caminhos.
 - **As ações CLI continuam explícitas; os lotes da GUI continuam confirmados.** Os
   comandos CLI `install`/`update` recebem o nome de um único projeto. A GUI
   desktop também pode executar **Instalar todos os que faltam** ou **Atualizar todos os desatualizados**, mas apenas após uma confirmação separada e de forma sequencial
   pelos mesmos portões de segurança. Não existe qualquer atualização
   automática sem supervisão.
-- **Apenas stdlib.** `urllib` para as obtenções do GitHub (`github_client.py`),
-  `subprocess` para as chamadas a git/scripts de build (`install.py`), nada
+- **Apenas a biblioteca padrão.** `urllib` para as obtenções do GitHub (`github_client.py`),
+  `subprocess` para as chamadas a git/scripts de compilação (`install.py`), nada
   mais - é deliberado que uma ferramenta responsável por manter saudáveis as
   dependências de todos os OUTROS projetos não tenha ela própria dependências.
 - **Simplificação conhecida:** um repositório formado por vários binários com versão independente (o URTC tem quatro: principal e escravo, aplicação e bootloader) é acompanhado por UMA só versão, a que o seu próprio `urtc.project.json` declara em `native_version`. Isso responde a «este repositório está mais ou menos atualizado?», não substitui a verificação de versão por componente de uma gravação.
@@ -270,7 +270,7 @@ O resto da política segue, com as palavras do programa.
 
 **Commits assinados (exigidos por omissão; voltar a um simples aviso é uma decisão explícita):** uma revisão sem assinatura válida (`git verify-commit`: porta-chaves GPG, ou SSH com `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) é recusada. Com `"signature_policy": "warn"` em `~/.urtc_updater_settings.json` (ou `URTC_UPDATER_REQUIRE_SIGNED=0`, ou `--no-require-signed` para uma execução; o antigo `"require_signed_commits": false` significa o mesmo) é instalada na mesma, e os passos da janela e da linha de comandos dizem que não está assinada. Com o valor por omissão (`"signature_policy": "require"`, ou `URTC_UPDATER_REQUIRE_SIGNED=1`; o antigo `"require_signed_commits": true` significa o mesmo) o candidato - o `HEAD` de um clone novo ou o `FETCH_HEAD` descarregado de uma atualização - tem de passar `git verify-commit` antes de ler o seu manifesto ou compilar o que quer que seja, e um candidato recusado deixa intacto o checkout instalado.
 
-**Opções de segurança (ambas ativadas por omissão; alteráveis no botão Segurança da janela, no comando `security`, no ficheiro de definições, no ambiente e na linha de comandos):** além de exigir commits assinados, o atualizador pode *perguntar antes de executar a verificação de compilação* de um candidato (`"confirm_before_build": true`, o valor por omissão; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Obtém e valida o candidato, mostra o projeto, o commit, o seu autor, a sua assinatura e os scripts de compilação ou de ferramentas que mudaram, e não executa nada até responder; sem janela nem terminal a quem perguntar, falha de forma segura: não executa nem instala nada e diz como responder. As execuções sem supervisão respondem sim de forma explícita com `--yes`, `URTC_UPDATER_ASSUME_YES=1` ou a definição «assume_yes_without_asking»: true (desativada por omissão). Com `"signature_policy": "warn"` e `"confirm_before_build": false` volta-se ao comportamento anterior. `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valem para uma só execução, e uma execução que desativa uma proteção ativa nas definições guardadas di-lo; a janela, e `urtc-updater --cli security --require-signed off`, pedem confirmação antes de guardar um nível mais baixo. Um ficheiro de definições que existe mas não pode ser lido conta como «assinaturas exigidas» até ser reparado ou removido. À verificação de compilação é também indicado `URTC_PYTHON`, o interpretador que executa o atualizador, de modo que o projeto testa com esse Python e não com o primeiro que o sistema encontre.
+**Opções de segurança (ambas ativadas por omissão; alteráveis no botão Segurança da janela, no comando `security`, no ficheiro de definições, no ambiente e na linha de comandos):** além de exigir commits assinados, o updater pode *perguntar antes de executar a verificação de compilação* de um candidato (`"confirm_before_build": true`, o valor por omissão; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Obtém e valida o candidato, mostra o projeto, o commit, o seu autor, a sua assinatura e os scripts de compilação ou de ferramentas que mudaram, e não executa nada até responder; sem janela nem terminal a quem perguntar, falha de forma segura: não executa nem instala nada e diz como responder. As execuções sem supervisão respondem sim de forma explícita com `--yes`, `URTC_UPDATER_ASSUME_YES=1` ou a definição «assume_yes_without_asking»: true (desativada por omissão). Com `"signature_policy": "warn"` e `"confirm_before_build": false` volta-se ao comportamento anterior. `--require-signed` / `--no-require-signed` e `--confirm-build` / `--no-confirm-build` valem para uma só execução, e uma execução que desativa uma proteção ativa nas definições guardadas di-lo; a janela, e `urtc-updater --cli security --require-signed off`, pedem confirmação antes de guardar um nível mais baixo. Um ficheiro de definições que existe mas não pode ser lido conta como «assinaturas exigidas» até ser reparado ou removido. À verificação de compilação é também indicado `URTC_PYTHON`, o interpretador que executa o atualizador, de modo que o projeto testa com esse Python e não com o primeiro que o sistema encontre.
 
 ## 🔌 Interfaces
 
@@ -278,10 +278,10 @@ O programa abre a janela Qt Quick quando é executado sem argumentos e tem uma l
 
 - **Instalações anteriores guardadas.** Cada atualização guarda a instalação que substituiu em `<nome>.backup-xxxxxxxx`. Ficam as 2 mais recentes por projeto (`"backups_to_keep"` em `~/.urtc_updater_settings.json` altera o número) e as mais antigas são removidas após uma atualização bem-sucedida. `urtc-updater --cli clean-backups [--keep N] [--dry-run]` remove-as quando pedido, juntamente com qualquer pasta temporária oculta deixada por uma execução interrompida.
 - **Opcionalmente, instalação a partir do pacote assinado de uma versão.** `urtc-updater --cli package list|check|install|rollback` instala um programa (o flasher, o tester ou este updater) a partir do `.zip` / `.tar.gz` da sua versão, em vez de um clone e uma compilação. Só se propõe uma versão estritamente superior, só dos servidores de transferência do GitHub, e o pacote tem de coincidir com o tamanho e o SHA-256 anunciados e com a assinatura Ed25519 da chave das versões fixada no programa; um pacote que falhe uma verificação é eliminado. Pergunta antes de instalar (`--yes` responde para scripts), guarda as duas versões mais recentes e `rollback` volta à anterior. `install --file PACOTE` funciona a partir de um ficheiro no disco com o `.sha256` e o `.sig` ao lado, sem rede. A janela tem um botão «Procurar atualizações» para o próprio updater com as mesmas regras; a verificação automática ao arrancar é uma opção, desligada por omissão. Testado com pacotes gerados num computador, ainda não com uma release publicada.
-- **Uma janela de Pacotes e uma de Ajuda.** O botão «Pacotes» lista os pacotes assinados do flasher, do tester e deste atualizador: cada linha verifica a sua versão quando carrega em «Procurar atualizações», transfere e verifica o pacote, pergunta antes de instalar e volta à versão anterior, com as mesmas regras e opções de segurança do comando `package`; não se instala nada enquanto um projeto estiver a ser instalado ou atualizado. O botão «Ajuda» abre um guia de cinco passos na língua da janela.
+- **Uma janela de Pacotes e uma de Ajuda.** O botão «Pacotes» lista os pacotes assinados do flasher, do tester e deste updater: cada linha verifica a sua versão quando carrega em «Procurar atualizações», transfere e verifica o pacote, pergunta antes de instalar e volta à versão anterior, com as mesmas regras e opções de segurança do comando `package`; não se instala nada enquanto um projeto estiver a ser instalado ou atualizado. O botão «Ajuda» abre um guia de cinco passos na língua da janela.
 - **Restaurar uma.** `urtc-updater --cli restore-backup <PROJETO> [--backup PASTA] [--list]` repõe uma instalação guardada. A instalação que é substituída também fica guardada, pelo que a troca pode ser desfeita. A janela oferece as mesmas duas ações junto a Atualizar selecionado: Pré-visualizar a atualização (o que traria, sem alterar nada) e Restaurar a versão anterior.
-- **Mesma versão, commits novos.** A versão só muda num build de lançamento, por isso o `status` também compara o commit de cada projeto instalado com o remoto (`git ls-remote`) e mostra `NEW COMMITS` quando o GitHub tem trabalho que a cópia não tem. A janela mostra o mesmo estado e oferece a atualização.
-- **Ver antes de aprovar.** `urtc-updater --cli update <PROJETO> --preview` obtém o candidato e mostra o seu commit, autor, versão, estado da assinatura e os ficheiros de build ou de ferramentas que altera, sem tocar na cópia.
+- **Mesma versão, commits novos.** A versão só muda numa compilação de lançamento, por isso o `status` também compara o commit de cada projeto instalado com o remoto (`git ls-remote`) e mostra `NEW COMMITS` quando o GitHub tem trabalho que a cópia não tem. A janela mostra o mesmo estado e oferece a atualização.
+- **Ver antes de aprovar.** `urtc-updater --cli update <PROJETO> --preview` obtém o candidato e mostra o seu commit, autor, versão, estado da assinatura e os ficheiros de compilação ou de ferramentas que altera, sem tocar na cópia.
 - **Só avisar.** `urtc-updater --cli check [--notify] [--quiet]` lista o que poderia ser atualizado e não altera nada. Termina com o código 10 quando há algo para atualizar, para que uma tarefa agendada avise uma pessoa; `--notify` mostra também uma notificação no ambiente de trabalho.
 - **Evidências.** Cada instalação, atualização e restauro é registado com hora, máquina e utilizador em `.urtc-updater/evidence.jsonl`, com cada linha encadeada à anterior por hash. `urtc-updater --cli evidence [--export FICHEIRO]` verifica a cadeia e pode exportá-la como um único documento JSON.
 - **Perfis de estação.** `"profiles"` no ficheiro de definições indica os projetos com que uma máquina trabalha e se são permitidos lotes; `--profile NOME` (ou `"profile"` nas definições) restringe `status`, `check`, `install` e `update` a esse perfil, e a janela segue o mesmo perfil.
@@ -305,10 +305,10 @@ chmod +x build.sh   # uma só vez
 No Windows: `build.bat` e depois `run.bat` (GUI) / `run.bat --cli status` /
 `run.bat --cli install <name>` / `run.bat --cli update <name>`.
 
-A GUI preferida precisa do runtime Qt opcional (`pip install -e ".[gui]"`;
+A GUI preferida precisa do ambiente de execução Qt opcional (`pip install -e ".[gui]"`;
 `build.bat`/`build.sh` já o instalam). O `--cli` não tem dependência de GUI e
 é o ponto de entrada correto para uma máquina sem ecrã. Se o Qt não estiver
-disponível, a antiga shell Tkinter é apenas uma alternativa de
+disponível, a antiga janela Tkinter é apenas uma alternativa de
 compatibilidade.
 
 <!-- urtc-section:compatibility -->
@@ -332,10 +332,10 @@ O conjunto tem 695 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`
   (sem `--offline`) - `-` só aparece quando a verificação do GitHub foi
   totalmente ignorada.
 - `install`/`update` falha com «No non-versioning build-test.sh/.bat found»: essa cópia não tem `build-test.sh` (`build-test.bat` no Windows). Atualize o próprio projeto ou verifique-o manualmente; esta ferramenta nunca executa em vez disso um script de build que aumente a versão.
-- `git pull --ff-only` falha: o checkout local tem alterações por
+- `git pull --ff-only` falha: a cópia local tem alterações por
   submeter ou um histórico divergente - resolva-o manualmente (`git status`
   no diretório do próprio projeto) antes de tentar `update` novamente. Esta
-  ferramenta nunca faz force-reset de um checkout.
+  ferramenta nunca faz reposição forçada de uma cópia.
 
 ## 📂 Estrutura do repositório
 
