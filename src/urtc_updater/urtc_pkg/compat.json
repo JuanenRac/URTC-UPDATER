@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "protocol_version": 1,
+  "protocol_version": 2,
   "projects": [
     {
       "repo": "URTC",
