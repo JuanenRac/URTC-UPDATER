@@ -44,7 +44,7 @@
 |---|---|
 | Versione | `0.2.9` |
 | Maturità | Consolidato |
-| Test | 695 (`python -m pytest`) |
+| Test | 721 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destinazione | Il PC di chi lo usa |
 | Su hardware reale | Non applicabile: nulla qui gira su hardware |
