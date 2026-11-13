@@ -315,7 +315,7 @@ Which versions of the URTC programs work together, and which protocol version ea
 
 ## 🧪 Testing
 
-The suite has 695 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
+The suite has 721 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
 
 ## 🏗️ Build & Release
 
