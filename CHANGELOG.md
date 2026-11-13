@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The Spanish, German, French and European Portuguese README were read sentence by sentence:** English words left in the sentences (checkout, staging, runtime, regex, fixture, backoff, build) are worded in the language of the page, headings are no longer in capitals and the articles of the words that changed agree with them.
+
 - **The Spanish, German, French and European Portuguese README were read for register and wording:** the programs are called the same way in every language (tester, updater, Web Studio), calques, straight quotes and words of another language were corrected, and the Related Projects section follows the shared texts.
 
 - **The doctor is tested at the edges of its inputs with every system call replaced by a fake:** a program that is missing, fails, hangs or answers nothing, a module that is not installed, a port that is busy, silent or answers, the first program of a group that counts, the way a report is drawn in the eight languages and the exit status; the coverage floor of the continuous check is raised to the value that is measured.

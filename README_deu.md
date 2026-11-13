@@ -16,15 +16,15 @@
 </p>
 
 > **Visueller Desktopmodus:** die Standard-Desktopoberfläche nutzt jetzt
-> **Qt Quick / QML** mit der optionalen GUI-Laufzeit `PySide6`. Kern und
+> **Qt Quick / QML** mit der optionalen grafischen Laufzeitumgebung `PySide6`. Kern und
 > `--cli` bleiben für einen Rechner ohne Bildschirm reine Standardbibliothek.
 >
 > **Windows-Start und Nachweise:** öffnen Sie `run-gui.vbs` (oder `run.bat`
 > ohne Argumente) für den konsolenfreien Desktop-Client. Das Update-Panel zeigt
-> echte Checkpoints für Vorabprüfung, Quelle, Manifest, Build-Test und Abschluss
+> echte Prüfpunkte für Vorabprüfung, Quelle, Manifest, Build-Test und Abschluss
 > mit erfassten Nachweisen; `run.bat --cli ...` behält das Diagnose-Terminal.
-> Installieren ist nur ohne Checkout aktiv, Aktualisieren nur bei neuerer
-> GitHub-Version. Während einer bestätigten Aktion ersetzen Checkpoints die
+> Installieren ist nur ohne lokale Kopie aktiv, Aktualisieren nur bei neuerer
+> GitHub-Version. Während einer bestätigten Aktion ersetzen Prüfpunkte die
 > Projektsteuerung; eine neue Projektauswahl stellt sie wieder her.
 > **Alle fehlenden installieren** und **Alle veralteten aktualisieren** sind
 > separat bestätigte, sequenzielle Sammelaktionen auf Basis desselben realen
@@ -32,7 +32,7 @@
 
 ---
 
-**Ehrlicher Zwischenstand: Was heute wirklich funktioniert:** **Reifegrad: etabliert (ein dokumentierter Durchlauf, keine nachhaltige Nutzung).** Dieses Projekt überträgt das bewährte Design von HYDRA-UMC-UPDATER (gleiche Manifest-Erkennung, Installation/Aktualisierung über einen atomar geprüften temporären Klon und Nachweisprotokoll) nur auf die Repositories des URTC-Ökosystems. Es wurde Ende-zu-Ende gegen GitHub in einem isolierten Arbeitsbereich ausgeführt: Eine saubere Installation und eine spätere Aktualisierung eines echten Repositories wurden korrekt geklont, gebaut und übernommen, die vorherige Kopie blieb als Sicherung erhalten. Die Erkennungs- und Versionslogik (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), der GitHub-Raw-Content-Client mit Retry/Backoff und zwischengespeicherter Repository-Liste (`github_client.py`), der Commit-Vergleich (`commits.py`) und die Pipeline Klonen-Vorbereiten-Prüfen-Übernehmen (`install.py`) sind durch Tests abgedeckt (`python -m pytest`), darunter ein lokaler HTTP-Testserver und echte temporäre Git-Repositories mit lokalem Bare-Remote. Die eigene Logik der Qt-Brücke läuft in den Tests ohne Bildschirm, und das Fenster mit seinen Dialogen wird ohne Bildschirm geladen, um zu prüfen, dass es sich öffnet und antwortet; sein Aussehen wird mit dem Auge geprüft, nicht durch einen Test. Die 8-Sprachen-Abdeckung von `i18n.py` wird per Test auf Schlüssel und Platzhalter geprüft, nicht auf Übersetzungsqualität. Siehe `CHANGELOG.md` für genau das, was bisher ausgeliefert wurde.
+**Ehrlicher Zwischenstand: Was heute wirklich funktioniert:** **Reifegrad: etabliert (ein dokumentierter Durchlauf, keine nachhaltige Nutzung).** Dieses Projekt überträgt das bewährte Design von HYDRA-UMC-UPDATER (gleiche Manifest-Erkennung, Installation/Aktualisierung über einen atomar geprüften temporären Klon und Nachweisprotokoll) nur auf die Repositories des URTC-Ökosystems. Es wurde durchgängig gegen GitHub in einem isolierten Arbeitsbereich ausgeführt: Eine saubere Installation und eine spätere Aktualisierung eines echten Repositories wurden korrekt geklont, gebaut und übernommen, die vorherige Kopie blieb als Sicherung erhalten. Die Erkennungs- und Versionslogik (`registry.py`, `project_manifest.py`, `version_parse.py`, `detect.py`), der Client für den Rohinhalt von GitHub mit Wiederholungen und steigender Wartezeit und zwischengespeicherter Repository-Liste (`github_client.py`), der Commit-Vergleich (`commits.py`) und der Ablauf Klonen, Vorbereiten, Prüfen und Übernehmen (`install.py`) sind durch Tests abgedeckt (`python -m pytest`), darunter ein lokaler HTTP-Testserver und echte temporäre Git-Repositories mit lokalem Remote ohne Arbeitsverzeichnis (Bare). Die eigene Logik der Qt-Brücke läuft in den Tests ohne Bildschirm, und das Fenster mit seinen Dialogen wird ohne Bildschirm geladen, um zu prüfen, dass es sich öffnet und antwortet; sein Aussehen wird mit dem Auge geprüft, nicht durch einen Test. Die 8-Sprachen-Abdeckung von `i18n.py` wird per Test auf Schlüssel und Platzhalter geprüft, nicht auf Übersetzungsqualität. Siehe `CHANGELOG.md` für genau das, was bisher ausgeliefert wurde.
 
 ---
 
@@ -72,9 +72,9 @@
 
 URTC-UPDATER ist ein kleines Tool: standardmäßig mit Fenster-GUI, mit `--cli`
 als vollständige Kommandozeile. Es soll auf dem eigenen Windows/Linux/macOS-Rechner
-eines Entwicklers laufen (jeder Arbeitsbereich mit demselben Checkout-Layout) und
+eines Entwicklers laufen (jeder Arbeitsbereich mit derselben Verzeichnisanordnung) und
 beantwortet drei Fragen zu jedem anderen echten Projekt, das es über das
-`urtc.project.json`-Manifest des jeweiligen Nachbar-Checkouts entdeckt. Die
+`urtc.project.json`-Manifest der jeweiligen Nachbarkopie entdeckt. Die
 Anzahl der Projekte ist hier nie fest eingetragen, da sie mit dem Ökosystem wächst:
 
 1. **Was ist hier tatsächlich installiert, und in welcher Version?**
@@ -141,7 +141,7 @@ URTC-UPDATER ist das Programm, das einen PC mit den URTC-Repositorys auf dem neu
 
 Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält und wovon es abhängt. Das Bild wird aus `docs/architecture.json` gezeichnet und gegen den Code geprüft.
 
-### WIE EINE PRÜFUNG/AKTUALISIERUNG WIRKLICH FUNKTIONIERT
+### Wie eine Prüfung oder Aktualisierung wirklich funktioniert
 
 - **Versionsquelle**: Die Version eines Projekts steht in einer Quelldatei dieses Projekts (`pyproject.toml`, `Cargo.toml`, `version.go`, `package.json`, `version.properties`, `pubspec.yaml` oder ein Firmware-`#define`, je nach Technik), die der eigene `bump.py`-Schritt schreibt, und dieser Schritt hat nie ein Git-Tag oder ein GitHub-Release erzeugt. Deshalb liest dieses Werkzeug genau diese Datei direkt vom Standard-Branch über den Raw-Content-Host von GitHub - nicht über die Releases-API, die jedes Projekt als ohne Releases melden würde.
 - **Lokale Erkennung**: Für jedes entdeckte Projekt wird
@@ -150,48 +150,48 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
   Projekt als Geschwisterverzeichnis, genau das, was die eigenen Build-Skripte
   von URTC-FLASHER/URTC-TESTER bereits voraussetzen), und falls ja,
   wird dessen eigene lokale Kopie derselben Versionsdatei gelesen.
-- **Eine einzige Parsing-Implementierung** (`version_parse.py`) wird
-  zwischen dem lokalen Lesen und dem GitHub-Abruf geteilt, sodass ein
-  lokaler Checkout und ein GitHub-Abruf niemals von zwei unabhängig
-  auseinanderdriftenden Regexes interpretiert werden.
+- **Eine einzige Implementierung zum Auslesen der Version** (`version_parse.py`) wird
+  zwischen dem lokalen Lesen und dem GitHub-Abruf geteilt, sodass eine
+  lokale Kopie und ein GitHub-Abruf niemals von zwei unabhängig
+  auseinanderdriftenden regulären Ausdrücken interpretiert werden.
 - **Installieren/Aktualisieren**: `git clone` (Installation) baut
-  danach als separaten Schritt. Das Aktualisieren eines BEREITS
-  BESTEHENDEN Checkouts ist stattdessen atomar-durch-Verifikation: der
+  danach als separaten Schritt. Das Aktualisieren einer BEREITS
+  BESTEHENDEN Kopie ist stattdessen atomar-durch-Verifikation: der
   Kandidat wird geklont, per Fast-Forward gemergt (nie ein erzwungener
   Reset, sodass echte lokale Änderungen laut fehlschlagen statt verworfen
-  zu werden) und ZUERST in einem vollständig unabhängigen Staging-Klon
+  zu werden) und ZUERST in einem vollständig unabhängigen Vorbereitungsklon
   gebaut/verifiziert - die laufende Installation wird nur (über zwei
   aufeinanderfolgende Verzeichnis-Umbenennungen, die vorherige
   Installation bleibt unter `<name>.backup-xxxxxxxx` erhalten, statt gelöscht zu
-  werden) angefasst, wenn dieser Staging-Build tatsächlich erfolgreich
-  ist. Ein Build-Fehler, ein divergierender/schmutziger Checkout, ein
+  werden) angefasst, wenn dieser Vorbereitungs-Build tatsächlich erfolgreich
+  ist. Ein Build-Fehler, eine abweichende oder veränderte lokale Kopie, ein
   Absturz oder eine volle Festplatte an jedem Punkt vor dieser
   endgültigen Übernahme lassen die vorherige Installation vollständig
   unangetastet und weiterhin betriebsbereit - siehe den eigenen
   Docstring von `clone_or_pull` in `install.py`. Das eigene Git-Remote
-  des Staging-Klons wird gleich nach dessen Erstellung auf das echte
+  des Vorbereitungsklons wird gleich nach dessen Erstellung auf das echte
   GitHub-Upstream zurückgesetzt (ein einfacher lokaler Klon würde
   andernfalls weiterhin auf den alten Installationspfad zeigen und nach
   der Übernahme still alle künftigen Updates beenden), und die echten
-  lokalen Daten des installierten Checkouts (alles, was Git als
+  lokalen Daten der installierten Kopie (alles, was Git als
   unversioniert oder ignoriert betrachtet - `data/settings.json` und
   Ähnliches, ohne regenerierbare Build-Artefakte) werden vor dem Bauen
-  in den Staging-Klon übernommen, sodass der echte Betriebszustand eines
-  Projekts ein Update übersteht, statt im aufbewahrten `.backup-xxxxxxxx`-
-  Checkout gestrandet zu bleiben. So oder so wird das
+  in den Vorbereitungsklon übernommen, sodass der echte Betriebszustand eines
+  Projekts ein Update übersteht, statt in der aufbewahrten `.backup-xxxxxxxx`-
+  Kopie gestrandet zu bleiben. So oder so wird das
   eigene `build-test.sh`/`build-test.bat` dieses Projekts (die nicht-
   versionierende Prüfung - siehe Abschnitt 3) ausgeführt, falls
   vorhanden. Dieses Tool reimplementiert nie die eigenen Build-Schritte
   eines Projekts.
 
-### ARCHITEKTUR UND DESIGN-ENTSCHEIDUNGEN
+### Architektur und Designentscheidungen
 
-- **Qt-Quick-GUI standardmäßig, `--cli` für Headless.** `main.py` prüft
-  `--cli`, bevor die optionale PySide6-Laufzeit importiert wird, sodass der CLI-Modus
+- **Qt-Quick-GUI standardmäßig, `--cli` für den Betrieb ohne Bildschirm.** `main.py` prüft
+  `--cli`, bevor die optionale PySide6-Laufzeitumgebung importiert wird, sodass der CLI-Modus
   auf einem wirklich bildschirmlosen Rechner ohne Display und Desktop-Abhängigkeit
-  funktioniert. Ohne Argumente startet der QML-Client, sofern die Laufzeit installiert
+  funktioniert. Ohne Argumente startet der QML-Client, sofern die Laufzeitumgebung installiert
   ist; die ältere Tkinter-Oberfläche bleibt nur als vorübergehender Kompatibilitäts-Fallback.
-- **Die Fenster-GUI ist echt und spricht 8 Sprachen (`i18n.py`) - `--cli` absichtlich nicht.** Jedes Widget sowie der Text jedes Checkpoints und jedes Fehlers einer Installation oder Aktualisierung erscheint in der im Auswahlfeld gewählten Sprache (en/es/fr/it/de/zh/ja/pt, europäisches Portugiesisch für pt), entnommen einer gespeicherten Einstellung oder der Systemsprache. Installations- und Update-Schritte werden als Nachrichtencodes samt Parametern weitergegeben und erst das Fenster macht Text daraus, sodass ein Sprachwechsel sie neu darstellt. Projekt- und Familiennamen sowie die `notes`/`tech`-Texte jedes Projekts bleiben unübersetzt: Das Manifest ist ihre einzige Quelle der Wahrheit. Die Ausgabe von `--cli` bleibt absichtlich Englisch, weil sie für Skripte und Pipes gedacht ist.
+- **Die Fenster-GUI ist echt und spricht 8 Sprachen (`i18n.py`) - `--cli` absichtlich nicht.** Jedes Widget sowie der Text jedes Prüfpunkte und jedes Fehlers einer Installation oder Aktualisierung erscheint in der im Auswahlfeld gewählten Sprache (en/es/fr/it/de/zh/ja/pt, europäisches Portugiesisch für pt), entnommen einer gespeicherten Einstellung oder der Systemsprache. Installations- und Update-Schritte werden als Nachrichtencodes samt Parametern weitergegeben und erst das Fenster macht Text daraus, sodass ein Sprachwechsel sie neu darstellt. Projekt- und Familiennamen sowie die `notes`/`tech`-Texte jedes Projekts bleiben unübersetzt: Das Manifest ist ihre einzige Quelle der Wahrheit. Die Ausgabe von `--cli` bleibt absichtlich Englisch, weil sie für Skripte und Pipes gedacht ist.
 - **`deploy` ist eine Klassifizierung, keine Einschränkung.** Ein erster Entwurf dieser
   Anpassung übernahm die GUI-Voreinstellung von HYDRA-UMC-UPDATER wörtlich - der
   Deploy-Filter stand unter Linux auf `"cm5"` - ohne zu prüfen, dass kein echtes
@@ -202,7 +202,7 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
   die man einen Sonderfall bräuchte. Das `deploy`-Feld von `registry.py` („cm5“ /
   „user-pc“ / „mobile“ / „wearable“ / „dev-server“) verzeichnet weiterhin die
   Klassifizierung je Repository-Manifest - es wird nur nie als Startvorgabe verwendet.
-- **Keine stack-spezifische Build-Logik in diesem Tool.** Das Ökosystem umfasst mehrere Toolchains (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, ARM-Firmware). Den Build jedes Projekts hier nachzubauen würde eine zweite Stelle schaffen, die behauptet, ihn zu kennen, und garantiert vom Skript des Projekts selbst abweicht. `install.py` führt stattdessen das versionsneutrale `build-test.sh` des Projekts aus (`build-test.bat` unter Windows) und scheitert sicher, wenn eine Kopie keines hat. Die Build-Skripte, die die Version erhöhen (`build.sh` und ähnliche), führt dieses Tool nie aus.
+- **Keine technikspezifische Build-Logik in diesem Tool.** Das Ökosystem umfasst mehrere Werkzeugketten (Python, Rust, Go, Node/TS, Android/Kotlin, Flutter, ARM-Firmware). Den Build jedes Projekts hier nachzubauen würde eine zweite Stelle schaffen, die behauptet, ihn zu kennen, und garantiert vom Skript des Projekts selbst abweicht. `install.py` führt stattdessen das versionsneutrale `build-test.sh` des Projekts aus (`build-test.bat` unter Windows) und scheitert sicher, wenn eine Kopie keines hat. Die Build-Skripte, die die Version erhöhen (`build.sh` und ähnliche), führt dieses Tool nie aus.
 - **GitHub-Rohinhalt, nicht die Releases-API.** Siehe Abschnitt 2 oben -
   die Versionierungskonvention dieses Ökosystems erzeugt nie ein
   Tag/Release, daher wäre die Releases-API hier schlicht falsch, nicht nur
@@ -210,19 +210,19 @@ Wie die Teile dieses Repositorys zusammenpassen: wer es nutzt, was es enthält u
 - **Ein vorübergehender Netzwerkfehler wird wiederholt; eine
   endgültige Antwort nie.** Jede echte
   GitHub-Anfrage (`_urlopen_with_retries` in `github_client.py`)
-  wiederholt bis zu 3-mal mit Backoff, aber nur, wenn die Verbindung
+  wiederholt bis zu 3-mal mit steigender Wartezeit, aber nur, wenn die Verbindung
   überhaupt keine Antwort erhalten hat (DNS/Timeout/Reset). Ein echter
   HTTP-Status, den GitHub tatsächlich zurückgegeben hat - 404, 403, 500 -
   wird nie wiederholt: GitHub hat bereits geantwortet, und ein erneuter
-  Versuch würde nur mehr Rate-Limit für dasselbe Ergebnis verbrauchen.
+  Versuch würde nur mehr Anfragelimit für dasselbe Ergebnis verbrauchen.
 - **Ein fehlerhafter entfernter Katalog schlägt mit einer klaren Fehlermeldung fehl; ein
   fehlerhaftes Projekt nicht.** Wenn die GitHub-Repository-Liste selbst
-  nicht erreichbar oder nicht parsbar ist, löst `discover_remote_projects()`
+  nicht erreichbar oder nicht auswertbar ist, löst `discover_remote_projects()`
   eine Ausnahme aus, und die Desktop-Brücke fällt auf die lokal entdeckte
   Projektliste zurück, statt einen defekten oder leeren Scan anzuzeigen. Das
   fehlerhafte Manifest eines einzelnen Repositories wird dagegen in die eigene
   `errors`-Liste dieses Scans isoliert und bricht die Entdeckung des
-  restlichen Katalogs nie ab - ein echter Test mit Fixture-Server
+  restlichen Katalogs nie ab - ein echter Test mit Testserver
   (`tests/test_github_client.py`) belegt beide Pfade.
 - **Die CLI bleibt explizit; GUI-Sammelaktionen bleiben bestätigt.** Die
   CLI-Befehle `install`/`update` erwarten einen Projektnamen. Die GUI kann
@@ -277,7 +277,7 @@ Aufgenommen auf einem Prüfstand mit erfundenen Beispieldaten und ohne eine echt
 | Bedrohung | Abwehr |
 |---|---|
 | Eine Aktualisierung, die niemand freigegeben hat, etwa nachts auf einer Robotersteuerungszelle | Nichts ändert sich von selbst: Eine Aktion an einem Projekt braucht eine ausdrückliche Bestätigung, ein Stapel wird gesondert bestätigt und läuft Projekt für Projekt |
-| Eine kaputte oder halbfertige Aktualisierung macht eine funktionierende Installation unbrauchbar | Der Kandidat wird geklont, per Fast-Forward zusammengeführt (nie ein erzwungenes Zurücksetzen, sodass lokale Änderungen laut scheitern) und zuerst in einem Staging-Klon gebaut; die laufende Installation wird nur durch zwei Ordnerumbenennungen ersetzt, wenn dieser Build besteht, und die vorherige bleibt als `<Name>.backup-xxxxxxxx` erhalten |
+| Eine kaputte oder halbfertige Aktualisierung macht eine funktionierende Installation unbrauchbar | Der Kandidat wird geklont, per Fast-Forward zusammengeführt (nie ein erzwungenes Zurücksetzen, sodass lokale Änderungen laut scheitern) und zuerst in einem Vorbereitungsklon gebaut; die laufende Installation wird nur durch zwei Ordnerumbenennungen ersetzt, wenn dieser Build besteht, und die vorherige bleibt als `<Name>.backup-xxxxxxxx` erhalten |
 | Eine Prüfung, die hier nicht laufen kann | Ein Build-Test, der 75 meldet, bedeutet: Die Validierung ist nicht verfügbar; die Aktualisierung wird abgelehnt, außer die Person akzeptiert sie in den Einstellungen |
 | Ein Commit, den niemand signiert hat | Eine Revision ohne gültige Signatur wird standardmäßig abgelehnt; mit `"signature_policy": "warn"` wird sie mit einer Warnung installiert |
 | Ein manipuliertes Paket | Ein Paket wird nur akzeptiert, wenn Größe, SHA-256 und Ed25519-Signatur passen und es von den Download-Hosts von GitHub kommt; es wird nur nach einer Bestätigung installiert, nie während eine andere Installation läuft, und die vorherige Version lässt sich wiederherstellen |
@@ -287,7 +287,7 @@ Der Rest der Richtlinie folgt, in den Worten des Programms.
 
 **Was der Build-Test antworten darf:** Exit-Code 0 bedeutet validiert, jeder andere Code bedeutet fehlgeschlagen, außer 75: Das bedeutet, dass die Validierung *nicht verfügbar* ist (ein benötigtes Werkzeug ist nicht installiert). Das wird so gemeldet und das Update abgelehnt, es sei denn, Sie akzeptieren es, indem Sie `validation_unavailable` in den Einstellungen auf `accept` setzen (oder `URTC_UPDATER_ACCEPT_UNAVAILABLE_VALIDATION=1`). Ein Build-Test soll den Baum so hinterlassen, wie er ihn vorgefunden hat: Ändert er eine von git verfolgte Datei, wird sie vor der Übernahme auf den eingecheckten Inhalt zurückgesetzt, und die Schritte nennen sie.
 
-**Signierte Commits (standardmäßig verlangt; die Rückkehr zu einer bloßen Warnung ist eine ausdrückliche Entscheidung):** eine Revision ohne gültige Signatur (`git verify-commit`: GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) wird abgelehnt. Mit `"signature_policy": "warn"` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=0`, oder `--no-require-signed` für einen Lauf; das ältere `"require_signed_commits": false` bedeutet dasselbe) wird sie trotzdem installiert, und die Schritte im Fenster und in der Kommandozeile sagen, dass sie nicht signiert ist. Mit dem Standard (`"signature_policy": "require"` oder `URTC_UPDATER_REQUIRE_SIGNED=1`; das ältere `"require_signed_commits": true` bedeutet dasselbe) muss der Kandidat - das `HEAD` eines neuen Klons oder das geladene `FETCH_HEAD` eines Updates - `git verify-commit` bestehen, bevor sein Manifest gelesen oder irgendetwas gebaut wird; ein abgelehnter Kandidat lässt den installierten Checkout unberührt.
+**Signierte Commits (standardmäßig verlangt; die Rückkehr zu einer bloßen Warnung ist eine ausdrückliche Entscheidung):** eine Revision ohne gültige Signatur (`git verify-commit`: GPG-Schlüsselbund oder SSH mit `"allowed_signers_file"` / `URTC_UPDATER_ALLOWED_SIGNERS`) wird abgelehnt. Mit `"signature_policy": "warn"` in `~/.urtc_updater_settings.json` (oder `URTC_UPDATER_REQUIRE_SIGNED=0`, oder `--no-require-signed` für einen Lauf; das ältere `"require_signed_commits": false` bedeutet dasselbe) wird sie trotzdem installiert, und die Schritte im Fenster und in der Kommandozeile sagen, dass sie nicht signiert ist. Mit dem Standard (`"signature_policy": "require"` oder `URTC_UPDATER_REQUIRE_SIGNED=1`; das ältere `"require_signed_commits": true` bedeutet dasselbe) muss der Kandidat - das `HEAD` eines neuen Klons oder das geladene `FETCH_HEAD` eines Updates - `git verify-commit` bestehen, bevor sein Manifest gelesen oder irgendetwas gebaut wird; ein abgelehnter Kandidat lässt den installierte Kopie unberührt.
 
 **Sicherheitsoptionen (beide standardmäßig an; änderbar über die Schaltfläche Sicherheit im Fenster, den Befehl `security`, die Einstellungsdatei, die Umgebung und die Kommandozeile):** Neben dem Verlangen signierter Commits kann der Updater *vor der Build-Prüfung* eines Kandidaten nachfragen (`"confirm_before_build": true`, der Standard; `URTC_UPDATER_CONFIRM_BUILD=1`, `--confirm-build`). Er lädt und validiert den Kandidaten, zeigt Projekt, Commit, Autor, Signatur und die geänderten Build- oder Werkzeugskripte und führt nichts aus, bis Sie antworten; gibt es weder Fenster noch Terminal zum Fragen, bricht er sicher ab: Er führt nichts aus, installiert nichts und sagt, wie zu antworten ist. Unbeaufsichtigte Läufe antworten ausdrücklich mit Ja über `--yes`, `URTC_UPDATER_ASSUME_YES=1` oder die Einstellung „assume_yes_without_asking“: true (standardmäßig aus). Mit `"signature_policy": "warn"` und `"confirm_before_build": false` kehrt man zum bisherigen Verhalten zurück. `--require-signed` / `--no-require-signed` und `--confirm-build` / `--no-confirm-build` gelten für einen Lauf, und ein Lauf, der einen in den gespeicherten Einstellungen aktiven Schutz ausschaltet, sagt das; das Fenster und `urtc-updater --cli security --require-signed off` fragen nach, bevor eine niedrigere Stufe gespeichert wird. Eine Einstellungsdatei, die existiert, aber nicht gelesen werden kann, zählt als „Signaturen verlangt“, bis sie repariert oder entfernt wird. Der Build-Prüfung wird außerdem `URTC_PYTHON` mitgegeben, der Interpreter, der den Updater ausführt, damit ein Projekt mit diesem Python testet und nicht mit dem, das das System zuerst findet.
 
@@ -324,7 +324,7 @@ chmod +x build.sh   # einmalig
 Unter Windows: `build.bat`, dann `run.bat` (GUI) / `run.bat --cli status`
 / `run.bat --cli install <Name>` / `run.bat --cli update <Name>`.
 
-Die bevorzugte GUI braucht die optionale Qt-Laufzeit (`pip install -e ".[gui]"`;
+Die bevorzugte GUI braucht die optionale Qt-Laufzeitumgebung (`pip install -e ".[gui]"`;
 `build.bat`/`build.sh` installieren sie bereits). `--cli` hat keine GUI-
 Abhängigkeit und ist der richtige Einstieg für einen Rechner ohne Bildschirm.
 Ohne Qt bleibt das alte Tkinter-Fenster nur ein Kompatibilitäts-Fallback.
@@ -337,11 +337,11 @@ Welche Versionen der URTC-Programme zusammenarbeiten und welche Protokollversion
 
 ## 🧪 Tests
 
-Die Suite hat 695 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositories (Staging, Übernahme, Sicherung, Ablehnungen, ein Build-Test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Nachweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
+Die Suite hat 695 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositories (Vorbereitung, Übernahme, Sicherung, Ablehnungen, ein Build-Test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Nachweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
 
 ## 🏗️ Build und Veröffentlichung
 
-`build.sh` / `build.bat` erstellen die `.venv`, installieren das Paket (`pip install -e .`, mit der Qt-Laufzeit für das Fenster) und prüfen alles per Kompilierung; `build-test.sh` / `build-test.bat` prüfen ohne Installation; `run.sh` / `run.bat` öffnen das Fenster oder mit `--cli` die Befehlszeile; `run-gui.vbs` öffnet es unter Windows ohne Konsolenfenster. Eine verpackte eigenständige ausführbare Datei wird noch nicht gebaut.
+`build.sh` / `build.bat` erstellen die `.venv`, installieren das Paket (`pip install -e .`, mit der Qt-Laufzeitumgebung für das Fenster) und prüfen alles per Kompilierung; `build-test.sh` / `build-test.bat` prüfen ohne Installation; `run.sh` / `run.bat` öffnen das Fenster oder mit `--cli` die Befehlszeile; `run-gui.vbs` öffnet es unter Windows ohne Konsolenfenster. Eine verpackte eigenständige ausführbare Datei wird noch nicht gebaut.
 
 ## 🩺 Fehlerbehebung
 
@@ -350,11 +350,11 @@ Die Suite hat 695 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; 
   `status` aus (ohne `--offline`) - `-` erscheint nur, wenn die
   GitHub-Prüfung komplett übersprungen wurde.
 - `install`/`update` scheitert mit „No non-versioning build-test.sh/.bat found“: Diese Kopie hat kein `build-test.sh` (`build-test.bat` unter Windows). Aktualisieren Sie das Projekt selbst oder prüfen Sie es von Hand; dieses Tool führt nie stattdessen ein Build-Skript aus, das die Version erhöht.
-- `git pull --ff-only` schlägt fehl: Der lokale Checkout hat nicht
+- `git pull --ff-only` schlägt fehl: Die lokale Kopie hat nicht
   committete Änderungen oder die Historie ist auseinandergelaufen -
   lösen Sie das manuell (`git status` im eigenen Verzeichnis des
   Projekts), bevor Sie `update` erneut versuchen. Dieses Tool erzwingt
-  nie einen Reset eines Checkouts.
+  nie ein Zurücksetzen einer lokalen Kopie.
 
 ## 📂 Struktur des Repositorys
 
@@ -401,7 +401,7 @@ Die kommentierte Liste jeder Quelldatei, eine Zeile je Datei, steht in [docs/SOU
   Doppelklick-Installation ganz ohne `pip`/venv-Schritt - heute braucht
   die GUI noch vorher `./build.sh`, genau wie die CLI.
 - Optionale Abhängigkeits-Vorprüfung pro Projekt (eine fehlende
-  arm-none-eabi-gcc-/Node-Toolchain melden, bevor ein `install`
+  arm-none-eabi-gcc-/Node-Werkzeugkette melden, bevor ein `install`
   mittendrin fehlschlägt).
 - Komponentenweise Nachverfolgung für die eigene Mehrbinär-Firmware von
   URTC (siehe die „bekannte Vereinfachung“ in Abschnitt 3),
