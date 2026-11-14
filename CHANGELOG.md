@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [0.3.0] - Protocol version 2 in the compatibility table, doctor and evidence chain tests, and README readings
 
 - **The Spanish, German, French and European Portuguese README were read sentence by sentence:** English words left in the sentences (checkout, staging, runtime, regex, fixture, backoff, build) are worded in the language of the page, headings are no longer in capitals and the articles of the words that changed agree with them.
 
@@ -19,6 +19,8 @@ All notable changes to this project are documented here.
 - **The shared document policy check is refreshed:** `tools/_doc_policy.py` and `tools/ci_validate.py` are the current copies, which also fail when a build script changes a version and when a script switches into a virtual environment instead of running its python directly. The run script runs the python of the virtual environment directly.
 
 - **The fallback test of the durable journal checks the fallback and not the machine:** the test that proves that recovering interrupted promotions does nothing without the optional SDK now forces that state, so it gives the same result on a computer that has the SDK installed.
+
+## [Unreleased]
 
 ## [0.2.9] - The Spanish texts say "grabar" and "velocidad de bus": the calques "flashear", "flasheo" and "bitrate" are replaced in the window, the guide, the Spanish README and the shared sections, with the gender of the sentence... (and 6 more changes)
 
