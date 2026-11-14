@@ -42,7 +42,7 @@
 
 | | |
 |---|---|
-| Version | `0.2.9` |
+| Version | `0.3.0` |
 | Maturity | Established |
 | Tests | 721 (`python -m pytest`) |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |

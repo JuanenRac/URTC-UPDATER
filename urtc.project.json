@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "ecosystem": "URTC",
   "name": "URTC-UPDATER",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "min_common": "0.1.9",
   "role": "tool",
   "stack": "python",
