@@ -42,9 +42,9 @@
 
 | | |
 |---|---|
-| Version | `0.3.0` |
+| Version | `0.3.1` |
 | Maturité | Établi |
-| Tests | 721 (`python -m pytest`) |
+| Tests | 734 (`python -m pytest`) |
 | Technologie | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Cible | Le PC de la personne qui l'utilise |
 | Sur matériel réel | Sans objet : rien ici ne s'exécute sur du matériel |
@@ -336,7 +336,7 @@ Les versions des programmes URTC qui fonctionnent ensemble, et la version du pro
 
 ## 🧪 Tests
 
-La suite compte 721 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q` ; quelques-uns sont ignorés quand une dépendance optionnelle manque) : la découverte et les manifestes, l'unique analyseur de versions, le client GitHub face à un serveur local (nouvelles tentatives, erreurs, un catalogue mal formé), l'installation et la mise à jour sur de vrais dépôts git locaux (préparation, promotion, sauvegarde, refus, un build-test qui répond 75, sécurité de l'espace de travail), la restauration et le nettoyage des sauvegardes, la politique de commits signés, les options de sécurité, les paquets signés et leur retour arrière, la chaîne de preuves, les réglages et profils, les textes de la fenêtre dans les huit langues et le pont Qt, et les images du guide de la fenêtre, dessinées sans écran. `python -m mypy` et `ruff check .` tournent en CI.
+La suite compte 734 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q` ; quelques-uns sont ignorés quand une dépendance optionnelle manque) : la découverte et les manifestes, l'unique analyseur de versions, le client GitHub face à un serveur local (nouvelles tentatives, erreurs, un catalogue mal formé), l'installation et la mise à jour sur de vrais dépôts git locaux (préparation, promotion, sauvegarde, refus, un build-test qui répond 75, sécurité de l'espace de travail), la restauration et le nettoyage des sauvegardes, la politique de commits signés, les options de sécurité, les paquets signés et leur retour arrière, la chaîne de preuves, les réglages et profils, les textes de la fenêtre dans les huit langues et le pont Qt, et les images du guide de la fenêtre, dessinées sans écran. `python -m mypy` et `ruff check .` tournent en CI.
 
 ## 🏗️ Compilation et publication
 
@@ -368,9 +368,9 @@ URTC-UPDATER/
 ├── src/urtc_updater/                                  le programme : découverte, versions, installation et mise à jour, sécurité, paquets signés, la fenêtre Qt Quick et ses textes en huit langues
 ├── tests/                                             de vrais tests pour chaque module
 ├── docs/                                              référence des commandes, interface et guide de la fenêtre
-├── tools/                                             contrôle de compilation, captures, icône et outils partagés
+├── tools/                                             contrôle de compilation, captures, icône, paquets de la release et outils partagés
 ├── images/                                            bannière et images de ce README
-├── .github/                                           workflow de CI et modèles d'issues et de pull requests
+├── .github/                                           workflows de CI et de paquets, modèles d'issues et de PR
 ├── build.sh build.bat                                 scripts de compilation
 ├── build-test.sh build-test.bat                       scripts de compilation et de test qui ne changent rien dans le dépôt
 ├── test.sh test.bat                                   lancent les tests
@@ -385,7 +385,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   scripts qui augmentent la version
 ├── urtc_i18n.lock.json                                verrou des textes de la fenêtre
 ├── LICENSE.md .env.example                            licence de la documentation et variables
-└── pyproject.toml requirements-dev.lock ruff.toml     paquet, outils figés, réglages de lint
+└── pyproject.toml requirements-dev.lock ruff.toml     paquet, outils figés, réglages de lint et verrou des textes
 ```
 
 </details>

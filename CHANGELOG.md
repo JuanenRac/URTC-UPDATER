@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+## [0.3.1] - The packages of the release are built by a workflow and the release carries them again
+
+- **The release files are attached again: 0.3.0 was published without them.** The updater of the URTC programs looks in the latest release for `urtc-updater-<version>-<system>-<arch>.zip` (Windows) or `.tar.gz` (Linux and macOS) with its `.sha256` and its `.sig`, and a release that has none answers "the release has no file called ..." and cannot update. This repository had no workflow that made the package, so a release was published with no file.
+
+- **A manual workflow builds the four packages of a release:** `package-build.yml` (started by hand, only by the owner, with `dry_run` on by default and the `ref` it must build) builds the commit it was started from, which must be in main, and uploads `urtc-updater-<version>-windows-x64.zip`, `-linux-x64.tar.gz`, `-linux-arm64.tar.gz` and `-macos-arm64.tar.gz` with `SHA256SUMS` and a build manifest as one artifact with a build-provenance attestation. It holds no key and signs nothing: the `.sha256` and the Ed25519 `.sig` (`urtc-pkg/1`) of each package are made later on the maintainer's computer over the very bytes of the artifact. With `dry_run` off a draft release with the unsigned files is also prepared, after the approval of the owner.
+
+- **`tools/make_release_package.py` makes the packages and checks them:** `build` packs the program (`src/urtc_updater`, the licence, the readme and a small start file named as the entry in `app_info.json`) once for each system with the same bytes on every run (the gzip header holds no time), `reproduce` proves that two builds are identical, and `check` verifies the four names, the kind of archive of each system, `app_info.json`, a safe extraction, that nothing compiled travels in the package and that the program of this system starts from its package and reports its version. A job on Windows starts the program from the Windows package in the workflow.
+
+- **`tools/make_update_package.py` is the packing and signing tool of URTC-COMMON reading the update modules this program carries:** only its import block differs, so it signs the packages that Actions made (`sign PACKAGE`) and verifies a package against the pinned key.
+
+- **13 new tests** check the names the updater looks for for every system, the contents of each package, the checks of the tool (a missing package, a wrong version, a stranger among the files), the reproducible bytes, the sums, a signature with a test key that the verifier of the program accepts, that the update code finds the package of a release with the three files, and that the workflow is manual, holds no key and attests its artifact.
+
 ## [0.3.0] - Protocol version 2 in the compatibility table, doctor and evidence chain tests, and README readings
 
 - **The Spanish, German, French and European Portuguese README were read sentence by sentence:** English words left in the sentences (checkout, staging, runtime, regex, fixture, backoff, build) are worded in the language of the page, headings are no longer in capitals and the articles of the words that changed agree with them.
@@ -21,8 +35,6 @@ All notable changes to this project are documented here.
 - **The shared document policy check is refreshed:** `tools/_doc_policy.py` and `tools/ci_validate.py` are the current copies, which also fail when a build script changes a version and when a script switches into a virtual environment instead of running its python directly. The run script runs the python of the virtual environment directly.
 
 - **The fallback test of the durable journal checks the fallback and not the machine:** the test that proves that recovering interrupted promotions does nothing without the optional SDK now forces that state, so it gives the same result on a computer that has the SDK installed.
-
-## [Unreleased]
 
 ## [0.2.9] - The Spanish texts say "grabar" and "velocidad de bus": the calques "flashear", "flasheo" and "bitrate" are replaced in the window, the guide, the Spanish README and the shared sections, with the gender of the sentence... (and 6 more changes)
 

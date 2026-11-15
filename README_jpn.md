@@ -41,9 +41,9 @@
 
 | | |
 |---|---|
-| バージョン | `0.3.0` |
+| バージョン | `0.3.1` |
 | 成熟度 | 確立 |
-| テスト | 721 (`python -m pytest`) |
+| テスト | 734 (`python -m pytest`) |
 | 技術 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 対象 | 利用者の PC |
 | 実機での確認 | 対象外：ここにあるものはハードウェア上では動きません |
@@ -244,7 +244,7 @@ update <name>`。
 
 ## 🧪 テスト
 
-テストスイートは 721 件です（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`。任意の依存関係がない場合は一部がスキップされます）。検出とマニフェスト、唯一のバージョンパーサー、ローカルサーバーに対する GitHub クライアント（再試行、エラー、不正なカタログ）、実際のローカル git リポジトリでのインストールと更新（ステージング用クローン、昇格、バックアップ、拒否、75 を返す build-test、ワークスペースの安全）、バックアップの復元と整理、署名付きコミットのポリシー、セキュリティオプション、署名付きパッケージとそのロールバック、証跡のチェーン、設定とプロファイル、8 言語のウィンドウテキストと Qt ブリッジ、そして画面なしで描いたウィンドウガイドの画像を検査します。CI では `python -m mypy` と `ruff check .` も実行します。
+テストスイートは 734 件です（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`。任意の依存関係がない場合は一部がスキップされます）。検出とマニフェスト、唯一のバージョンパーサー、ローカルサーバーに対する GitHub クライアント（再試行、エラー、不正なカタログ）、実際のローカル git リポジトリでのインストールと更新（ステージング用クローン、昇格、バックアップ、拒否、75 を返す build-test、ワークスペースの安全）、バックアップの復元と整理、署名付きコミットのポリシー、セキュリティオプション、署名付きパッケージとそのロールバック、証跡のチェーン、設定とプロファイル、8 言語のウィンドウテキストと Qt ブリッジ、そして画面なしで描いたウィンドウガイドの画像を検査します。CI では `python -m mypy` と `ruff check .` も実行します。
 
 ## 🏗️ ビルドとリリース
 
@@ -271,9 +271,9 @@ URTC-UPDATER/
 ├── src/urtc_updater/                                  プログラム：検出、バージョン、インストールと更新、セキュリティ、署名付きパッケージ、Qt Quick ウィンドウと 8 言語のテキスト
 ├── tests/                                             各モジュールの実際のテスト
 ├── docs/                                              コマンドリファレンス、GUI、ウィンドウガイド
-├── tools/                                             ビルド検査、スクリーンショット、アイコン、共有ツール
+├── tools/                                             ビルド検査、スクリーンショット、アイコン、リリースパッケージ、共有ツール
 ├── images/                                            バナーとこの README の画像
-├── .github/                                           CI ワークフローと Issue・プルリクエストのテンプレート
+├── .github/                                           CI とパッケージのワークフロー、Issue・PR のテンプレート
 ├── build.sh build.bat                                 ビルドスクリプト
 ├── build-test.sh build-test.bat                       リポジトリを変更しないビルド・テストのスクリプト
 ├── test.sh test.bat                                   テストを実行
@@ -288,7 +288,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   バージョンを上げるスクリプト
 ├── urtc_i18n.lock.json                                ウィンドウのテキストのロック
 ├── LICENSE.md .env.example                            ドキュメントのライセンスと環境変数
-└── pyproject.toml requirements-dev.lock ruff.toml     パッケージ、固定ツール、lint 設定
+└── pyproject.toml requirements-dev.lock ruff.toml     パッケージ、固定ツール、lint 設定、テキストのロック
 ```
 
 </details>

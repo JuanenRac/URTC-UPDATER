@@ -365,6 +365,8 @@ $ urtc-updater --cli package rollback urtc-flasher
 
 The rules are those of the programs that update themselves: only a strictly higher version, only the download hosts of GitHub, the announced size and SHA-256, the Ed25519 signature of the key of the releases pinned in this tool, a safe extraction, two releases kept and a rollback. A package that fails a check is deleted and nothing is installed. The programs live under `URTC_UPDATE_ROOT` (or the data folder of the person), one folder per program. Exit code `1` when a check fails or the network or the disk does.
 
+The package of this program (`urtc-updater`) is made like the others: `.github/workflows/package-build.yml` (started by hand) builds `urtc-updater-<version>-windows-x64.zip` and `urtc-updater-<version>-linux-x64.tar.gz`, `-linux-arm64.tar.gz` and `-macos-arm64.tar.gz` with `tools/make_release_package.py`, and each one is released with its `.sha256` and `.sig`. The package holds the source of the program and a start file (`run_urtc_updater.py`); it needs a Python 3.10 or newer.
+
 ### `firmware {check|open} IMAGE [--yes]`
 
 Checks a firmware image of a release and offers to open the installed Flasher with it already selected.

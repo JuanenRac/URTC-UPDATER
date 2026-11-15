@@ -118,29 +118,6 @@
           }
         },
         {
-          "name": "config/",
-          "desc": {
-            "en": "machine configuration of the board",
-            "es": "configuración de la máquina de la placa",
-            "de": "Maschinenkonfiguration der Platine",
-            "fr": "configuration de la machine de la carte",
-            "it": "configurazione della macchina della scheda",
-            "ja": "ボードのマシン設定",
-            "zh": "板卡的机器配置",
-            "pt": "configuração da máquina da placa"
-          },
-          "tree_desc": {
-            "en": "machine configuration of the controller board (stop category, emergency stop input, production flash)",
-            "es": "configuración de la máquina de la placa controladora (categoría de paro, entrada de paro de emergencia, programación de producción)",
-            "de": "Maschinenkonfiguration der Steuerplatine (Stoppkategorie, Not-Halt-Eingang, Produktionsflash)",
-            "fr": "configuration de la machine de la carte contrôleur (catégorie d'arrêt, entrée d'arrêt d'urgence, programmation de production)",
-            "it": "configurazione della macchina della scheda controller (categoria di arresto, ingresso di arresto di emergenza, programmazione di produzione)",
-            "ja": "コントローラーボードのマシン設定（停止カテゴリー、非常停止入力、量産書き込み）",
-            "zh": "板卡的机器配置（停止类别、急停输入、量产烧录）",
-            "pt": "configuração da máquina da placa controladora (categoria de paragem, entrada de paragem de emergência, gravação de produção)"
-          }
-        },
-        {
           "name": "docs/",
           "desc": {
             "en": "command reference, GUI and window guide",
@@ -156,14 +133,14 @@
         {
           "name": "tools/",
           "desc": {
-            "en": "build check, screenshots, icon, shared tools",
-            "es": "comprobación de compilación, capturas, icono y herramientas compartidas",
-            "de": "Build-Prüfung, Screenshots, Symbol und gemeinsame Werkzeuge",
-            "fr": "contrôle de compilation, captures, icône et outils partagés",
-            "it": "controllo di compilazione, schermate, icona e strumenti condivisi",
-            "zh": "构建检查、截图、图标和共用工具",
-            "ja": "ビルド検査、スクリーンショット、アイコン、共有ツール",
-            "pt": "verificação de compilação, capturas, ícone e ferramentas partilhadas"
+            "en": "build check, screenshots, icon, release packages, shared tools",
+            "es": "comprobación de compilación, capturas, icono, paquetes de la release y herramientas compartidas",
+            "de": "Build-Prüfung, Screenshots, Symbol, Release-Pakete und gemeinsame Werkzeuge",
+            "fr": "contrôle de compilation, captures, icône, paquets de la release et outils partagés",
+            "it": "controllo di compilazione, schermate, icona, pacchetti della release e strumenti condivisi",
+            "zh": "构建检查、截图、图标、发布包和共用工具",
+            "ja": "ビルド検査、スクリーンショット、アイコン、リリースパッケージ、共有ツール",
+            "pt": "verificação de compilação, capturas, ícone, pacotes da versão e ferramentas partilhadas"
           }
         },
         {
@@ -182,14 +159,14 @@
         {
           "name": ".github/",
           "desc": {
-            "en": "CI workflow, issue and pull-request templates",
-            "es": "flujo de CI y plantillas de issues y pull requests",
-            "de": "CI-Workflow sowie Vorlagen für Issues und Pull Requests",
-            "fr": "workflow de CI et modèles d'issues et de pull requests",
-            "it": "workflow di CI e modelli per issue e pull request",
-            "zh": "CI 工作流以及 Issue 和 Pull Request 模板",
-            "ja": "CI ワークフローと Issue・プルリクエストのテンプレート",
-            "pt": "fluxo de CI e modelos de issues e pull requests"
+            "en": "CI and package workflows, issue and PR templates",
+            "es": "flujos de CI y de paquetes, plantillas de issues y PR",
+            "de": "CI- und Paket-Workflows, Issue- und PR-Vorlagen",
+            "fr": "workflows de CI et de paquets, modèles d'issues et de PR",
+            "it": "workflow di CI e pacchetti, modelli di issue e PR",
+            "zh": "CI 与打包工作流，Issue 和 PR 模板",
+            "ja": "CI とパッケージのワークフロー、Issue・PR のテンプレート",
+            "pt": "fluxos de CI e de pacotes, modelos de issues e PR"
           }
         }
       ]
