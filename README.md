@@ -42,9 +42,9 @@
 
 | | |
 |---|---|
-| Version | `0.3.0` |
+| Version | `0.3.1` |
 | Maturity | Established |
-| Tests | 721 (`python -m pytest`) |
+| Tests | 734 (`python -m pytest`) |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
 | On real hardware | Not applicable: nothing here runs on hardware |
@@ -315,7 +315,7 @@ Which versions of the URTC programs work together, and which protocol version ea
 
 ## 🧪 Testing
 
-The suite has 721 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
+The suite has 734 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
 
 ## 🏗️ Build & Release
 
@@ -347,9 +347,9 @@ URTC-UPDATER/
 ├── src/urtc_updater/                                  the program: discovery, versions, install and update, security, signed packages, the Qt Quick window and its texts in eight languages
 ├── tests/                                             real tests for every module
 ├── docs/                                              command reference, GUI and window guide
-├── tools/                                             build check, screenshots, icon, shared tools
+├── tools/                                             build check, screenshots, icon, release packages, shared tools
 ├── images/                                            banner and the pictures of this README
-├── .github/                                           CI workflow, issue and pull-request templates
+├── .github/                                           CI and package workflows, issue and PR templates
 ├── build.sh build.bat                                 build scripts
 ├── build-test.sh build-test.bat                       build and test scripts that change nothing in the repository
 ├── test.sh test.bat                                   run the tests

@@ -38,9 +38,9 @@
 
 | | |
 |---|---|
-| 版本 | `0.3.0` |
+| 版本 | `0.3.1` |
 | 成熟度 | 成熟 |
-| 测试 | 721 (`python -m pytest`) |
+| 测试 | 734 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |
@@ -234,7 +234,7 @@ status` / `run.bat --cli install <name>` / `run.bat --cli update
 
 ## 🧪 测试
 
-测试套件共有 721 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
+测试套件共有 734 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
 
 ## 🏗️ 构建与发布
 
@@ -261,9 +261,9 @@ URTC-UPDATER/
 ├── src/urtc_updater/                                  程序：发现、版本、安装和更新、安全、签名包、Qt Quick 窗口及其八种语言的文本
 ├── tests/                                             每个模块的真实测试
 ├── docs/                                              命令参考、界面和窗口指南
-├── tools/                                             构建检查、截图、图标和共用工具
+├── tools/                                             构建检查、截图、图标、发布包和共用工具
 ├── images/                                            横幅和本 README 的图片
-├── .github/                                           CI 工作流以及 Issue 和 Pull Request 模板
+├── .github/                                           CI 与打包工作流，Issue 和 PR 模板
 ├── build.sh build.bat                                 构建脚本
 ├── build-test.sh build-test.bat                       构建并测试的脚本，不会修改仓库内容
 ├── test.sh test.bat                                   运行测试
@@ -278,7 +278,7 @@ URTC-UPDATER/
 ├── bump.py bump_version.py bump_manifest_version.py   提升版本号的脚本
 ├── urtc_i18n.lock.json                                窗口文本的锁文件
 ├── LICENSE.md .env.example                            文档许可证和环境变量
-└── pyproject.toml requirements-dev.lock ruff.toml     软件包、锁定的工具和 lint 设置
+└── pyproject.toml requirements-dev.lock ruff.toml     软件包、锁定的工具、lint 设置和文本锁文件
 ```
 
 </details>

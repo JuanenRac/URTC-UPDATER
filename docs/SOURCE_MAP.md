@@ -46,6 +46,8 @@ URTC-UPDATER/
 │   ├── capture_screens.py   # Takes the pictures of the guide from the real window, without a screen
 │   ├── ci_validate.py       # Manifest/CHANGELOG/docs validation used by CI
 │   ├── generate_app_icon.py # Renders the public URTC SVG into the Windows-consumed icon
+│   ├── make_release_package.py # Builds, reproduces and checks the four unsigned packages of a release (names, contents, start of the program)
+│   ├── make_update_package.py # Packs, signs and verifies an update package (the tool of URTC-COMMON reading the modules this program carries)
 │   └── _doc_policy.py / _readme_parity.py / _tracked_names.py # Shared checks used by ci_validate.py
 ├── .env.example            # Environment variable template
 ├── build.sh / build.bat    # venv + editable install + compile-check
