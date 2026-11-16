@@ -44,7 +44,7 @@
 |---|---|
 | Version | `0.3.1` |
 | Maturity | Established |
-| Tests | 721 (`python -m pytest`) |
+| Tests | 734 (`python -m pytest`) |
 | Stack | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Target | The PC of the person using it |
 | On real hardware | Not applicable: nothing here runs on hardware |
