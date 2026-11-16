@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The security note of the README describes the Ed25519 bootloader:** the main bootloader checks the image against a table of public keys and holds no secret, official releases are signed with the release image-signing key and bench builds trust the public development key; the note no longer speaks of a shared-key HMAC. The eight languages follow.
+
 ## [0.3.1] - The packages of the release are built by a workflow and the release carries them again
 
 - **The release files are attached again: 0.3.0 was published without them.** The updater of the URTC programs looks in the latest release for `urtc-updater-<version>-<system>-<arch>.zip` (Windows) or `.tar.gz` (Linux and macOS) with its `.sha256` and its `.sig`, and a release that has none answers "the release has no file called ..." and cannot update. This repository had no workflow that made the package, so a release was published with no file.
