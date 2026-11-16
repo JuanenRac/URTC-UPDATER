@@ -3,19 +3,23 @@
 # Copyright (C) 2026 JuanenRac (Electro Hobby 3D) <electrohobby3d@gmail.com>
 # GPL-3.0-or-later - see LICENSE
 # =============================================================================
-"""Commit-signature policy: warn by default, require on request.
+"""Commit-signature policy: `warn` or `require`.
+
+The policy object itself starts as `warn`, but the updater asks for `require` unless the saved setting (`security.saved_require_signed`) says otherwise, so a fresh install
+requires a signature.
 
 By default the updater trusts whatever the GitHub remote serves (a
 compromised account or repository could push a commit that this tool would
 then build and run). The policy decides what happens with a revision that
 carries no valid GPG or SSH signature (`git verify-commit`):
 
-* `warn` (the default): the install or update goes ahead, and the window and
+* `warn`: the install or update goes ahead, and the window and
   the command line state in the steps that the revision is not signed.
-* `require`: the candidate revision - the fresh clone's HEAD, or the fetched
+* `require` (what a fresh install uses): the candidate revision - the fresh clone's HEAD, or the fetched
   FETCH_HEAD of an update - must carry a valid signature BEFORE its manifest
   is read or anything in it is built. A refused candidate leaves the
-  installed checkout untouched.
+  installed checkout untouched. A GPG signature counts when it is good for any key in the keyring of the person who runs the updater (`git verify-commit` does not
+  pin the maintainer's key); for SSH signatures `allowed_signers_file` limits which keys are trusted.
 
 A settings file that exists but cannot be read counts as "required" (the safe side)
 until it is fixed or removed; the environment variable can still say otherwise.
@@ -53,7 +57,7 @@ class SignaturePolicy:
 
     @property
     def mode(self) -> str:
-        """"require" refuses an unsigned revision, "warn" (the default) installs it and says so."""
+        """"require" refuses an unsigned revision, "warn" installs it and says so. The updater itself starts in "require" (see `security.saved_require_signed`)."""
         return "require" if self.required else "warn"
 
 
