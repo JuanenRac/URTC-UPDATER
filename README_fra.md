@@ -44,7 +44,7 @@
 |---|---|
 | Version | `0.3.1` |
 | Maturité | Établi |
-| Tests | 734 (`python -m pytest`) |
+| Tests | 721 (`python -m pytest`) |
 | Technologie | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Cible | Le PC de la personne qui l'utilise |
 | Sur matériel réel | Sans objet : rien ici ne s'exécute sur du matériel |
