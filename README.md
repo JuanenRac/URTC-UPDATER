@@ -317,6 +317,10 @@ Which versions of the URTC programs work together, and which protocol version ea
 
 The suite has 734 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; a few skip where an optional dependency is missing): the discovery and the manifests, the one version parser, the GitHub client against a local server (retries, errors, a malformed catalogue), install and update on real local git repositories (staging, promotion, backup, refusals, a build-test that answers 75, workspace safety), restoring and cleaning backups, the signed-commit policy, the security options, signed packages and their rollback, the evidence chain, the settings and profiles, the window texts in the eight languages and the Qt bridge, and the pictures of the window guide, drawn without a screen. `python -m mypy` and `ruff check .` run in CI.
 
+### Operation and tools
+
+* **First start of an updated program:** The launcher (`src/urtc_updater/urtc_pkg/launcher.py`) runs the release `current.txt` points to and goes back to the previous release by itself when a first start fails (it ends with an error before the program reported `mark_started`). Setting `URTC_UPDATE_FIRST_START_MIN_S` to a number of seconds above zero also counts as failed a first start that ends with code 0 sooner than that; unset, 0 or a negative value changes nothing, so a command-line program that ends quickly on purpose is not affected.
+
 ## 🏗️ Build & Release
 
 `build.sh` / `build.bat` create the `.venv`, install the package (`pip install -e .`, with the Qt runtime for the window) and compile-check everything; `build-test.sh` / `build-test.bat` check without installing; `run.sh` / `run.bat` start the window, or the command line with `--cli`; `run-gui.vbs` opens it on Windows with no console window. A packaged standalone executable is not built yet.

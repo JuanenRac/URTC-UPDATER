@@ -339,6 +339,10 @@ Welche Versionen der URTC-Programme zusammenarbeiten und welche Protokollversion
 
 Die Suite hat 734 Tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; einige werden übersprungen, wenn eine optionale Abhängigkeit fehlt): die Erkennung und die Manifeste, der eine Versionsparser, der GitHub-Client gegen einen lokalen Server (Wiederholungen, Fehler, ein fehlerhafter Katalog), Installation und Aktualisierung auf echten lokalen Git-Repositories (Vorbereitung, Übernahme, Sicherung, Ablehnungen, ein Build-Test, der 75 meldet, Sicherheit des Arbeitsbereichs), Wiederherstellen und Aufräumen von Sicherungen, die Richtlinie für signierte Commits, die Sicherheitsoptionen, signierte Pakete und ihr Zurückrollen, die Nachweiskette, Einstellungen und Profile, die Fenstertexte in den acht Sprachen und die Qt-Brücke sowie die Bilder der Fensteranleitung, ohne Bildschirm gezeichnet. `python -m mypy` und `ruff check .` laufen in der CI.
 
+### Betrieb und Werkzeuge
+
+* **Erster Start eines aktualisierten Programms:** Der Starter (`src/urtc_updater/urtc_pkg/launcher.py`) startet die Version, auf die `current.txt` zeigt, und kehrt von selbst zur vorherigen zurück, wenn ein erster Start scheitert (er endet mit einem Fehler, bevor das Programm `mark_started` gemeldet hat). Wird `URTC_UPDATE_FIRST_START_MIN_S` auf eine Sekundenzahl über null gesetzt, gilt auch ein erster Start als gescheitert, der früher mit Code 0 endet; ohne Wert, mit 0 oder einem negativen Wert ändert sich nichts, ein Kommandozeilenprogramm, das absichtlich schnell endet, ist also nicht betroffen.
+
 ## 🏗️ Build und Veröffentlichung
 
 `build.sh` / `build.bat` erstellen die `.venv`, installieren das Paket (`pip install -e .`, mit der Qt-Laufzeitumgebung für das Fenster) und prüfen alles per Kompilierung; `build-test.sh` / `build-test.bat` prüfen ohne Installation; `run.sh` / `run.bat` öffnen das Fenster oder mit `--cli` die Befehlszeile; `run-gui.vbs` öffnet es unter Windows ohne Konsolenfenster. Eine verpackte eigenständige ausführbare Datei wird noch nicht gebaut.
