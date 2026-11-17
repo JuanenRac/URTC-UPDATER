@@ -128,7 +128,7 @@ class UpdaterBridge(QObject):
     languageChanged = Signal()
     deployOptionsChanged = Signal()
     securityChanged = Signal()
-    _buildConfirmRequested = Signal(str, str, str, str, str)
+    _buildConfirmRequested = Signal(str, str, str, str, str, bool)
     _remoteResult = Signal(object, object, object)
     _actionResult = Signal(str, object)
     _operationCheckpoint = Signal(str, object, str)
@@ -481,15 +481,16 @@ class UpdaterBridge(QObject):
         self._build_event.clear()
         self._build_answer = False
         scripts = ", ".join(request.changed_scripts) if request.changed_scripts else self._t("build_confirm_none")
-        self._buildConfirmRequested.emit(request.project, request.commit, request.author or "?", request.signature, scripts)
+        self._buildConfirmRequested.emit(request.project, request.commit, request.author or "?", request.signature, scripts, request.first_install)
         if not self._build_event.wait(600):
             return False
         return self._build_answer
 
-    @Slot(str, str, str, str, str)
-    def _on_build_confirm_requested(self, project: str, commit: str, author: str, signature: str, scripts: str) -> None:
+    @Slot(str, str, str, str, str, bool)
+    def _on_build_confirm_requested(self, project: str, commit: str, author: str, signature: str, scripts: str, first_install: bool = False) -> None:
         self._build_request_project = project
-        self._build_request_details = self._t("build_confirm_details", commit=commit, author=author, signature=signature, scripts=scripts)
+        details = "build_confirm_details_first" if first_install else "build_confirm_details"
+        self._build_request_details = self._t(details, commit=commit, author=author, signature=signature, scripts=scripts)
         self.securityChanged.emit()
         self.buildConfirmRequested.emit()
 

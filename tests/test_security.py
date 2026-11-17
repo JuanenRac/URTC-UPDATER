@@ -270,6 +270,42 @@ def test_a_new_install_asks_before_its_build_check(tmp_path: Path, monkeypatch):
     assert ran == []
 
 
+def test_the_question_of_a_first_installation_lists_the_build_files_that_will_run(tmp_path: Path, monkeypatch):
+    remote = make_remote(tmp_path, clone=False)
+    monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote.bare))
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")
+    seen: list[security.BuildRequest] = []
+    monkeypatch.setattr(install, "_run_build_script_at", lambda *a, **k: install.InstallResult(True, "built"))
+    with security.confirmer(lambda request: seen.append(request) or False):
+        install_or_update(entry(), remote.workspace)
+    assert seen and seen[0].first_install
+    assert any(name.startswith("build-test.") for name in seen[0].changed_scripts), seen[0].changed_scripts
+
+
+def test_an_update_is_not_a_first_installation(tmp_path: Path, monkeypatch):
+    remote = make_remote(tmp_path)
+    monkeypatch.setattr(install, "github_repo_url", lambda _entry: str(remote.bare))
+    remote.push("1.1.0", "second", {"tools/build_test.py": "print('changed')\n"})
+    monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")
+    seen: list[security.BuildRequest] = []
+    with security.confirmer(lambda request: seen.append(request) or False):
+        install_or_update(entry(), remote.workspace)
+    assert seen and not seen[0].first_install
+
+
+def test_the_build_files_are_the_ones_the_pathspecs_of_the_update_select():
+    names = ["README.md", "build-test.sh", "build.bat", "ci/build_x.sh", "tools/a/b.py", "tools", "scripts/run.sh", "src/tools.py", "toolsx/y.py", "docs/build-test.md"]
+    assert install.build_files_in(names) == ("build-test.sh", "build.bat", "tools/a/b.py", "tools", "scripts/run.sh")
+    assert install.build_files_in([]) == ()
+
+
+def test_the_first_installation_text_exists_in_every_language():
+    for code, _label in i18n.LANGUAGES:
+        text = i18n.t(code, "build_confirm_details_first", commit="c0ffee", author="A", signature="S", scripts="X")
+        assert all(part in text for part in ("c0ffee", "A", "S", "X")) and "{" not in text, code
+        assert text != i18n.t(code, "build_confirm_details", commit="c0ffee", author="A", signature="S", scripts="X"), code
+
+
 def test_with_nobody_to_ask_an_update_is_refused_with_a_message_that_says_so(tmp_path: Path, monkeypatch):
     remote = _setup_update(tmp_path, monkeypatch)
     monkeypatch.setenv(security.ENV_REQUIRE_SIGNED, "0")   # the default would stop an unsigned test commit first; the question is what is under test

@@ -1,10 +1,10 @@
 {
   "format": 1,
-  "urtc_common_version": "0.2.7",
+  "urtc_common_version": "0.2.8",
   "catalog": "spec/i18n/catalog/updater.json",
-  "catalog_sha256": "f42634a0d5ff456d1e7a20529e2158eaaa7a3833b5e3ccbec1f42a393a7d614f",
+  "catalog_sha256": "b68acf71076671658c34fadd2a5e01600873925d37d9b102a4c967960a4278d9",
   "files": {
-    "src/urtc_updater/translations_data.py": "0a20588c81cfa6ff748784ed8569eefc35c04b23899b06f01b466ebe6c874c69",
+    "src/urtc_updater/translations_data.py": "15de9f0f3124b1af7d096bb1c9ee0136082a525f94387891aa468a9c1b9b3734",
     "tests/test_i18n_generated.py": "2dbb1740abb41abb5dca047084ac545d4cb403687e599550a73e4e1174c1ce87"
   }
 }
