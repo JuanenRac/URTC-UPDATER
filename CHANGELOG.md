@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The launcher can require a minimum duration of a first start:** the copy of the shared launcher is brought up to date; with `URTC_UPDATE_FIRST_START_MIN_S` set to a number of seconds above zero, a newly installed release that ends with code 0 before that time is not taken as a good first start. Zero (the default) keeps the behaviour as it was.
+
 - **The question before the build check lists the scripts on a first installation too:** a new installation used to show "none" because there was nothing to compare with; now it lists every build and tool file of the candidate that will run (`build-test.*`, `build*.sh`, `build*.bat`, `tools`, `scripts`) and says it is a first installation, in the window (eight languages) and in the terminal. `BuildRequest` has a new field `first_install` (false by default). Tested with a new installation, an update, the selection of the files and the text in every language.
 
 - **The security note of the README describes the Ed25519 bootloader:** the main bootloader checks the image against a table of public keys and holds no secret, official releases are signed with the release image-signing key and bench builds trust the public development key; the note no longer speaks of a shared-key HMAC. The eight languages follow.
