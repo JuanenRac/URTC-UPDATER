@@ -338,6 +338,10 @@ Les versions des programmes URTC qui fonctionnent ensemble, et la version du pro
 
 La suite compte 734 tests (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q` ; quelques-uns sont ignorés quand une dépendance optionnelle manque) : la découverte et les manifestes, l'unique analyseur de versions, le client GitHub face à un serveur local (nouvelles tentatives, erreurs, un catalogue mal formé), l'installation et la mise à jour sur de vrais dépôts git locaux (préparation, promotion, sauvegarde, refus, un build-test qui répond 75, sécurité de l'espace de travail), la restauration et le nettoyage des sauvegardes, la politique de commits signés, les options de sécurité, les paquets signés et leur retour arrière, la chaîne de preuves, les réglages et profils, les textes de la fenêtre dans les huit langues et le pont Qt, et les images du guide de la fenêtre, dessinées sans écran. `python -m mypy` et `ruff check .` tournent en CI.
 
+### Exploitation et outils
+
+* **Premier démarrage d'un programme mis à jour :** Le lanceur (`src/urtc_updater/urtc_pkg/launcher.py`) lance la version vers laquelle pointe `current.txt` et revient seul à la précédente si le premier démarrage échoue (il se termine par une erreur avant que le programme ait signalé `mark_started`). Si `URTC_UPDATE_FIRST_START_MIN_S` est réglée à un nombre de secondes supérieur à zéro, un premier démarrage qui se termine avec le code 0 plus tôt que cela est aussi considéré comme échoué ; non définie, à 0 ou négative, rien ne change : un programme en ligne de commande qui se termine vite exprès n'est pas touché.
+
 ## 🏗️ Compilation et publication
 
 `build.sh` / `build.bat` créent le `.venv`, installent le paquet (`pip install -e .`, avec l'environnement Qt pour la fenêtre) et vérifient la compilation de tout ; `build-test.sh` / `build-test.bat` vérifient sans installer ; `run.sh` / `run.bat` ouvrent la fenêtre, ou la ligne de commande avec `--cli` ; `run-gui.vbs` l'ouvre sous Windows sans fenêtre de console. Un exécutable autonome empaqueté n'est pas encore construit.

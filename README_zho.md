@@ -236,6 +236,10 @@ status` / `run.bat --cli install <name>` / `run.bat --cli update
 
 测试套件共有 734 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
 
+### 运维与工具
+
+* **更新后程序的首次启动：** 启动器（`src/urtc_updater/urtc_pkg/launcher.py`） 运行 `current.txt` 指向的版本；首次启动失败（在程序报告 `mark_started` 之前以错误结束）时会自动回到上一版本。把 `URTC_UPDATE_FIRST_START_MIN_S` 设为大于零的秒数后，比该时间更早以代码 0 结束的首次启动同样视为失败；未设置、为 0 或为负数时不会有任何变化，因此有意快速结束的命令行程序不受影响。
+
 ## 🏗️ 构建与发布
 
 `build.sh` / `build.bat` 创建 `.venv`、安装软件包（`pip install -e .`，并为窗口安装 Qt 运行时）并编译检查所有内容；`build-test.sh` / `build-test.bat` 只检查不安装；`run.sh` / `run.bat` 打开窗口，或用 `--cli` 打开命令行；`run-gui.vbs` 在 Windows 上无控制台窗口地打开它。目前还没有构建打包的独立可执行文件。

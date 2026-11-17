@@ -340,6 +340,10 @@ Quali versioni dei programmi URTC funzionano insieme, e quale versione del proto
 
 La suite ha 734 test (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alcuni vengono saltati se manca una dipendenza opzionale): il rilevamento e i manifesti, l'unico parser di versioni, il client GitHub contro un server locale (tentativi, errori, un catalogo malformato), installazione e aggiornamento su veri repository git locali (preparazione, promozione, backup, rifiuti, un build-test che risponde 75, sicurezza dell'area di lavoro), ripristino e pulizia dei backup, la politica dei commit firmati, le opzioni di sicurezza, i pacchetti firmati e il loro rollback, la catena delle evidenze, impostazioni e profili, i testi della finestra nelle otto lingue e il bridge Qt, e le immagini della guida della finestra, disegnate senza schermo. `python -m mypy` e `ruff check .` girano in CI.
 
+### Operatività e strumenti
+
+* **Primo avvio di un programma aggiornato:** Il launcher (`src/urtc_updater/urtc_pkg/launcher.py`) esegue la versione a cui punta `current.txt` e torna da solo alla precedente se il primo avvio fallisce (termina con un errore prima che il programma segnali `mark_started`). Se `URTC_UPDATE_FIRST_START_MIN_S` è impostata a un numero di secondi maggiore di zero, è considerato fallito anche un primo avvio che termina con codice 0 prima di quel tempo; non definita, a 0 o negativa non cambia nulla, quindi un programma da riga di comando che termina presto di proposito non è toccato.
+
 ## 🏗️ Compilazione e rilascio
 
 `build.sh` / `build.bat` creano il `.venv`, installano il pacchetto (`pip install -e .`, con l'ambiente Qt per la finestra) e controllano la compilazione di tutto; `build-test.sh` / `build-test.bat` controllano senza installare; `run.sh` / `run.bat` aprono la finestra, o la riga di comando con `--cli`; `run-gui.vbs` la apre su Windows senza finestra di console. Un eseguibile autonomo pacchettizzato non viene ancora generato.
