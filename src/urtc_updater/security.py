@@ -146,6 +146,8 @@ class BuildRequest:
     author: str
     signature: str
     changed_scripts: tuple[str, ...]
+    #: True on a first installation: nothing was installed before, so ``changed_scripts`` lists every build and tool file of the candidate (what will run), not what changed.
+    first_install: bool = False
 
 
 ConfirmFunction = Callable[[BuildRequest], bool]

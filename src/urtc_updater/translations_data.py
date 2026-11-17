@@ -280,6 +280,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "could not restore {backup} ({error}); {path} was left as it was",
         "inst_restored": "Restored {path} to v{version} from {backup}",
         "inst_restored_kept": "Restored {path} to v{version} from {backup}; the installation that was in place is kept at {set_aside}",
+        "build_confirm_details_first": "Commit: {commit}\nAuthor: {author}\nSignature: {signature}\nFirst installation. Build and tool files it will run: {scripts}",
     },
     "es": {
         "workspace_label": "Espacio de trabajo: {path}",
@@ -553,6 +554,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "no se pudo restaurar {backup} ({error}); {path} se dejó como estaba",
         "inst_restored": "Se restauró {path} a v{version} desde {backup}",
         "inst_restored_kept": "Se restauró {path} a v{version} desde {backup}; la instalación que estaba puesta se conserva en {set_aside}",
+        "build_confirm_details_first": "Commit: {commit}\nAutor: {author}\nFirma: {signature}\nPrimera instalación. Ficheros de compilación y herramientas que se ejecutarán: {scripts}",
     },
     "de": {
         "workspace_label": "Arbeitsbereich: {path}",
@@ -826,6 +828,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "{backup} konnte nicht wiederhergestellt werden ({error}); {path} blieb unverändert",
         "inst_restored": "{path} wurde aus {backup} auf v{version} wiederhergestellt",
         "inst_restored_kept": "{path} wurde aus {backup} auf v{version} wiederhergestellt; die bisherige Installation liegt unter {set_aside}",
+        "build_confirm_details_first": "Commit: {commit}\nAutor: {author}\nSignatur: {signature}\nErstinstallation. Build- und Werkzeugdateien, die ausgeführt werden: {scripts}",
     },
     "fr": {
         "workspace_label": "Espace de travail : {path}",
@@ -1099,6 +1102,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "impossible de restaurer {backup} ({error}) ; {path} a été laissé tel quel",
         "inst_restored": "{path} restauré en v{version} depuis {backup}",
         "inst_restored_kept": "{path} restauré en v{version} depuis {backup} ; l'installation qui était en place est conservée dans {set_aside}",
+        "build_confirm_details_first": "Commit : {commit}\nAuteur : {author}\nSignature : {signature}\nPremière installation. Fichiers de build et d'outils qui seront exécutés : {scripts}",
     },
     "it": {
         "workspace_label": "Area di lavoro: {path}",
@@ -1372,6 +1376,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "impossibile ripristinare {backup} ({error}); {path} è rimasto com'era",
         "inst_restored": "Ripristinato {path} alla v{version} da {backup}",
         "inst_restored_kept": "Ripristinato {path} alla v{version} da {backup}; l'installazione che era in uso è conservata in {set_aside}",
+        "build_confirm_details_first": "Commit: {commit}\nAutore: {author}\nFirma: {signature}\nPrima installazione. File di build e di strumenti che verranno eseguiti: {scripts}",
     },
     "ja": {
         "workspace_label": "ワークスペース：{path}",
@@ -1645,6 +1650,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "{backup} を復元できませんでした（{error}）。{path} はそのままです",
         "inst_restored": "{path} を {backup} から v{version} に復元しました",
         "inst_restored_kept": "{path} を {backup} から v{version} に復元しました。それまでのインストールは {set_aside} に保管されています",
+        "build_confirm_details_first": "コミット：{commit}\n作成者：{author}\n署名：{signature}\n初回インストール。実行されるビルド・ツールファイル：{scripts}",
     },
     "zh": {
         "workspace_label": "工作区：{path}",
@@ -1918,6 +1924,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "无法恢复 {backup}（{error}）；{path} 保持原样",
         "inst_restored": "已从 {backup} 将 {path} 恢复到 v{version}",
         "inst_restored_kept": "已从 {backup} 将 {path} 恢复到 v{version}；原来的安装保留在 {set_aside}",
+        "build_confirm_details_first": "提交：{commit}\n作者：{author}\n签名：{signature}\n首次安装。将运行的构建和工具文件：{scripts}",
     },
     "pt": {
         "workspace_label": "Espaço de trabalho: {path}",
@@ -2191,5 +2198,6 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "inst_restore_failed": "não foi possível restaurar {backup} ({error}); {path} ficou como estava",
         "inst_restored": "Restaurado {path} para a v{version} a partir de {backup}",
         "inst_restored_kept": "Restaurado {path} para a v{version} a partir de {backup}; a instalação que estava em uso fica guardada em {set_aside}",
+        "build_confirm_details_first": "Commit: {commit}\nAutor: {author}\nAssinatura: {signature}\nPrimeira instalação. Ficheiros de compilação e de ferramentas que serão executados: {scripts}",
     },
 }

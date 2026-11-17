@@ -766,10 +766,11 @@ def _confirm_build(
     if previous:
         changed = tuple(_git_text(path, "diff", "--name-only", f"{previous}..{sha}", "--", *_BUILD_PATHSPECS).split())
     else:
-        changed = ()
+        # a first installation: every build and tool file of the candidate is new, and the person is shown the ones that will run
+        changed = build_files_in(_git_text(path, "ls-tree", "-r", "--name-only", sha).splitlines()) if sha else ()
     policy = current_policy()
     reason = unsigned_reason(path, sha, policy) if sha else "no commit"
-    request = BuildRequest(entry.name, script_name, sha[:12], author, "signed" if reason is None else reason, changed)
+    request = BuildRequest(entry.name, script_name, sha[:12], author, "signed" if reason is None else reason, changed, first_install=not previous)
     decision = decide_build(request)
     if not decision.allowed:
         _checkpoint(progress, "validation", "cp_build_not_confirmed", project=entry.name)
@@ -1171,6 +1172,20 @@ def _restore_backup_locked(name: str, workspace_root: Path, backup: str | None) 
 
 #: Paths whose changes matter most before approving an update: what gets run.
 _BUILD_PATHSPECS = ("build-test.*", "build*.sh", "build*.bat", "tools", "scripts")
+
+
+def build_files_in(names: list[str]) -> tuple[str, ...]:
+    """The files among ``names`` that the build and tool pathspecs of git would select (a pattern matches across folders, a plain name is a file or a folder)."""
+    from fnmatch import fnmatchcase
+
+    chosen = []
+    for name in names:
+        name = name.strip()
+        if name and any(
+            fnmatchcase(name, spec) if any(c in spec for c in "*?[") else name == spec or name.startswith(spec + "/") for spec in _BUILD_PATHSPECS
+        ):
+            chosen.append(name)
+    return tuple(chosen)
 
 
 @dataclass

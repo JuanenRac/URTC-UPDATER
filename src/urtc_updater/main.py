@@ -400,7 +400,8 @@ def _terminal_confirmer(request: security.BuildRequest) -> bool:
     print(f"  Author:    {request.author or 'unknown'}", file=sys.stderr)
     print(f"  Signature: {request.signature}", file=sys.stderr)
     changed = ", ".join(request.changed_scripts) if request.changed_scripts else "none"
-    print(f"  Build and tool files that changed: {changed}", file=sys.stderr)
+    label = "First installation. Build and tool files it will run" if request.first_install else "Build and tool files that changed"
+    print(f"  {label}: {changed}", file=sys.stderr)
     try:
         answer = input("Run the build check? [y/N] ")
     except EOFError:
