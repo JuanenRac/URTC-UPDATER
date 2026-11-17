@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "urtc_common_version": "0.2.6",
+  "urtc_common_version": "0.2.8",
   "files": {
     "compat.json": {
       "from": "generated/compat.json",
@@ -60,7 +60,7 @@
     },
     "launcher.py": {
       "from": "src/urtc_common/launcher.py",
-      "sha256": "dbd8ebc1767b4af82cc651b23a78565d59c5b8c2f831296b7d3befa5688bde13"
+      "sha256": "a78a716be4310bedcf9b42adbfbef3d19bbd2afc5f4dcaf97878d9bdc86d429b"
     },
     "record_signing.py": {
       "from": "src/urtc_common/record_signing.py",
