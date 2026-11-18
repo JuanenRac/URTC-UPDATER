@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The copy of the shared update module refuses a rollback to a damaged release:** going back to the previous version first checks that release (its `app_info.json` and the file it names to run); a missing or unusable one is refused with a clear message, in the eight languages, and nothing is changed.
 - **The launcher can require a minimum duration of a first start:** the copy of the shared launcher is brought up to date; with `URTC_UPDATE_FIRST_START_MIN_S` set to a number of seconds above zero, a newly installed release that ends with code 0 before that time is not taken as a good first start. Zero (the default) keeps the behaviour as it was.
 
 - **The question before the build check lists the scripts on a first installation too:** a new installation used to show "none" because there was nothing to compare with; now it lists every build and tool file of the candidate that will run (`build-test.*`, `build*.sh`, `build*.bat`, `tools`, `scripts`) and says it is a first installation, in the window (eight languages) and in the terminal. `BuildRequest` has a new field `first_install` (false by default). Tested with a new installation, an update, the selection of the files and the text in every language.
