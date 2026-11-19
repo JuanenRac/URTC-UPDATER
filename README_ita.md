@@ -42,7 +42,7 @@
 
 | | |
 |---|---|
-| Versione | `0.3.1` |
+| Versione | `0.3.2` |
 | Maturità | Consolidato |
 | Test | 734 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |

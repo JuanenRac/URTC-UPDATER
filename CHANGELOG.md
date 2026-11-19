@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.3.2] - A rollback that checks its target, an optional minimum first start and a first-installation build check list
+
 - **The copy of the shared update module refuses a rollback to a damaged release:** going back to the previous version first checks that release (its `app_info.json` and the file it names to run); a missing or unusable one is refused with a clear message, in the eight languages, and nothing is changed.
 - **The launcher can require a minimum duration of a first start:** the copy of the shared launcher is brought up to date; with `URTC_UPDATE_FIRST_START_MIN_S` set to a number of seconds above zero, a newly installed release that ends with code 0 before that time is not taken as a good first start. Zero (the default) keeps the behaviour as it was.
 
