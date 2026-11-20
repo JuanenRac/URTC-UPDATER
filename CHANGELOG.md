@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The project manifest reader accepts the optional `evidence_record` field:** the free text in which a maintainer records what was tried on real hardware no longer makes the closed list of fields reject the manifest; an empty one is refused.
+
 ## [0.3.2] - A rollback that checks its target, an optional minimum first start and a first-installation build check list
 
 - **The copy of the shared update module refuses a rollback to a damaged release:** going back to the previous version first checks that release (its `app_info.json` and the file it names to run); a missing or unusable one is refused with a clear message, in the eight languages, and nothing is changed.
