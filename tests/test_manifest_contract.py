@@ -27,7 +27,7 @@ REQUIRED = frozenset({
     "family", "parent", "native_version", "build", "notes",
 })
 #: the optional fields every updater accepts, whatever its family
-OPTIONAL = frozenset({"service", "deployment_target_note", "evidence", "hardware_bound", "min_common"})
+OPTIONAL = frozenset({"service", "deployment_target_note", "evidence", "evidence_record", "hardware_bound", "min_common"})
 #: the attributes of the manifest reader's result that every updater has (the native version is kept in the shape each family writes it)
 ATTRIBUTES = frozenset({
     "schema_version", "ecosystem", "name", "version", "role", "stack", "technologies", "deployment_target", "maturity", "family", "parent",
