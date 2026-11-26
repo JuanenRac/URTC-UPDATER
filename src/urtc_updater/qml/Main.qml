@@ -700,7 +700,7 @@ ApplicationWindow {
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 31; color: "#172a40"; radius: 7
                         RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12; spacing: 8
                             Repeater { model: [ui("col_project"), ui("col_maturity"), ui("col_stack"), ui("col_local"), ui("col_github"), ui("col_state")]
-                                delegate: LabelText { required property string modelData; text: modelData; color: window.textMuted; font.pixelSize: 10; font.bold: true; Layout.fillWidth: modelData === ui("col_project"); Layout.preferredWidth: modelData === ui("col_project") ? 210 : 83 }
+                                delegate: LabelText { required property string modelData; text: modelData; color: window.textMuted; font.pixelSize: 10; font.bold: true; Layout.fillWidth: true; Layout.maximumWidth: modelData === ui("col_project") ? Number.POSITIVE_INFINITY : 83; Layout.preferredWidth: modelData === ui("col_project") ? 210 : 83; Layout.minimumWidth: modelData === ui("col_project") ? 110 : 30; elide: Text.ElideRight }
                             }
                         }
                     }
@@ -719,12 +719,12 @@ ApplicationWindow {
                             Behavior on color { ColorAnimation { duration: 130 } }
                             MouseArea { id: rowArea; anchors.fill: parent; hoverEnabled: true; onClicked: backend.selectProject(project.name) }
                             RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12; spacing: 8
-                                LabelText { text: (project.isChild ? "↳  " : "◆  ") + project.name; color: project.isChild ? window.textMuted : window.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; Layout.preferredWidth: 210; elide: Text.ElideRight }
-                                LabelText { text: project.maturity; color: window.textMuted; font.pixelSize: 10; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter }
-                                LabelText { text: project.stack; color: window.textMuted; font.pixelSize: 10; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight }
-                                LabelText { text: project.local; color: window.textMuted; font.pixelSize: 10; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter }
-                                LabelText { text: project.github; color: window.textMuted; font.pixelSize: 10; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter }
-                                LabelText { text: project.state; color: window.stateColor(project.stateKey); font.pixelSize: 10; font.bold: true; Layout.preferredWidth: 100; elide: Text.ElideRight }
+                                LabelText { text: (project.isChild ? "↳  " : "◆  ") + project.name; color: project.isChild ? window.textMuted : window.textPrimary; font.pixelSize: 11; Layout.fillWidth: true; Layout.preferredWidth: 210; Layout.minimumWidth: 110; elide: Text.ElideRight }
+                                LabelText { text: project.maturity; color: window.textMuted; font.pixelSize: 10; Layout.fillWidth: true; Layout.maximumWidth: 83; Layout.minimumWidth: 30; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight }
+                                LabelText { text: project.stack; color: window.textMuted; font.pixelSize: 10; Layout.fillWidth: true; Layout.maximumWidth: 83; Layout.minimumWidth: 30; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight }
+                                LabelText { text: project.local; color: window.textMuted; font.pixelSize: 10; Layout.fillWidth: true; Layout.maximumWidth: 83; Layout.minimumWidth: 30; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight }
+                                LabelText { text: project.github; color: window.textMuted; font.pixelSize: 10; Layout.fillWidth: true; Layout.maximumWidth: 83; Layout.minimumWidth: 30; Layout.preferredWidth: 83; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight }
+                                LabelText { text: project.state; color: window.stateColor(project.stateKey); font.pixelSize: 10; font.bold: true; Layout.fillWidth: true; Layout.maximumWidth: 100; Layout.minimumWidth: 30; Layout.preferredWidth: 100; elide: Text.ElideRight }
                             }
                         }
                     }
@@ -737,8 +737,15 @@ ApplicationWindow {
             SectionPanel {
                 Layout.preferredWidth: 305
                 Layout.fillHeight: true
+                // scrolls when the window is not tall enough for the whole column
+                ScrollView {
+                    id: safeScroll
+                    objectName: "safeUpdateScroll"
+                    anchors.fill: parent; anchors.margins: 18; clip: true
+                    contentWidth: availableWidth
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
                 ColumnLayout {
-                    anchors.fill: parent; anchors.margins: 18; spacing: 11
+                    width: safeScroll.availableWidth; spacing: 11
                     LabelText { text: ui("safe_update_title"); font.pixelSize: 18; font.bold: true }
                     LabelText { text: ui("safe_update_hint"); color: window.textMuted; font.pixelSize: 11; wrapMode: Text.WordWrap; Layout.fillWidth: true }
                     ColumnLayout {
@@ -794,7 +801,7 @@ ApplicationWindow {
                     Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: window.border }
                     LabelText { text: ui("safety_title"); font.pixelSize: 12; font.bold: true; font.letterSpacing: 1 }
                     LabelText { text: ui("safety_summary"); color: window.textMuted; font.pixelSize: 10; Layout.fillWidth: true; wrapMode: Text.WordWrap }
-                    Item { Layout.fillHeight: true }
+                }
                 }
             }
 

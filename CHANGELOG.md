@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The update column and the registry headings fit a window of the starting size:** the Safe Update column scrolls when the window is not tall enough for it, and the columns of the project registry shrink and cut their text with dots instead of writing over each other.
+
+- **The pictures of the window are taken again** in the eight languages, on the current window.
+
 - **The menu buttons are all inside the window:** side by side with the title they did not fit even on a full screen, so the last ones (Help and About among them) were out of sight. They are a row of their own that wraps, and a headless test loads the window in the eight languages and fails when a control is cut off.
 
 - **The picture tool writes where it is told:** a relative `--out` of `tools/capture_screens.py` was read inside the temporary folder of the run, so the run passed and the folder of the caller stayed empty.
