@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.3.3] - Pinned revision signers, evidence record in manifests and window layout fixes
+
 - **The update column and the registry headings fit a window of the starting size:** the Safe Update column scrolls when the window is not tall enough for it, and the columns of the project registry shrink and cut their text with dots instead of writing over each other.
 
 - **The pictures of the window are taken again** in the eight languages, on the current window.
