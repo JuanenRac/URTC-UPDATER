@@ -42,7 +42,7 @@
 
 | | |
 |---|---|
-| Version | `0.3.2` |
+| Version | `0.3.3` |
 | Reifegrad | Etabliert |
 | Tests | 752 (`python -m pytest`) |
 | Technik | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
