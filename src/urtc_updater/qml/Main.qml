@@ -614,15 +614,21 @@ ApplicationWindow {
                     LabelText { text: backend.busy ? ui("status_busy") : ui("status_online"); color: window.textMuted; font.pixelSize: 11; font.bold: true }
                 }
             }
-            GameButton { text: ui("security_menu"); Layout.preferredWidth: 128; accent: "#5a4a22"; Layout.alignment: Qt.AlignRight; onClicked: securityDialog.open() }
-            GameButton { text: backend.updates.t("UPD_BTN_CHECK"); Layout.preferredWidth: 156; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: updateDialog.open() }
-            GameButton { text: ui("pkg_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: packagesDialog.open() }
-            GameButton { text: ui("compat_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: compatDialog.open() }
-            GameButton { text: backend.history.text("EH_BTN_OPEN"); objectName: "historyButton"; Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: historyDialog.open() }
-            GameButton { text: ui("fw_menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: firmwareDialog.open() }
-            GameButton { text: backend.doctor.text("menu"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: doctorDialog.open() }
-            GameButton { text: ui("menu_help"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: helpDialog.open() }
-            GameButton { text: ui("menu_about"); Layout.preferredWidth: 128; accent: "#264966"; Layout.alignment: Qt.AlignRight; onClicked: aboutDialog.open() }
+        }
+
+        // The menu buttons are a row of their own that wraps: side by side with the title they did not fit even in a full screen.
+        Flow {
+            Layout.fillWidth: true
+            spacing: 10
+            GameButton { text: ui("security_menu"); width: 128; accent: "#5a4a22"; onClicked: securityDialog.open() }
+            GameButton { text: backend.updates.t("UPD_BTN_CHECK"); width: 156; accent: "#264966"; onClicked: updateDialog.open() }
+            GameButton { text: ui("pkg_menu"); width: 128; accent: "#264966"; onClicked: packagesDialog.open() }
+            GameButton { text: ui("compat_menu"); width: 128; accent: "#264966"; onClicked: compatDialog.open() }
+            GameButton { text: backend.history.text("EH_BTN_OPEN"); objectName: "historyButton"; width: 128; accent: "#264966"; onClicked: historyDialog.open() }
+            GameButton { text: ui("fw_menu"); width: 128; accent: "#264966"; onClicked: firmwareDialog.open() }
+            GameButton { text: backend.doctor.text("menu"); width: 128; accent: "#264966"; onClicked: doctorDialog.open() }
+            GameButton { text: ui("menu_help"); width: 128; accent: "#264966"; onClicked: helpDialog.open() }
+            GameButton { text: ui("menu_about"); width: 128; accent: "#264966"; onClicked: aboutDialog.open() }
         }
 
         RowLayout {

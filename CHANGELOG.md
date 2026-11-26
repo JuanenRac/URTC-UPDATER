@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The menu buttons are all inside the window:** side by side with the title they did not fit even on a full screen, so the last ones (Help and About among them) were out of sight. They are a row of their own that wraps, and a headless test loads the window in the eight languages and fails when a control is cut off.
+
+- **The picture tool writes where it is told:** a relative `--out` of `tools/capture_screens.py` was read inside the temporary folder of the run, so the run passed and the folder of the caller stayed empty.
+
 - **The signer of a revision can be pinned:** the optional setting `trusted_signers` (or the variable `URTC_UPDATER_TRUSTED_SIGNERS`) is a list of GPG or SSH key fingerprints. With a list, a revision is accepted as signed only when `git verify-commit` accepts it and the key that signed it is listed; in `warn` mode the steps say so. An entry that is not a fingerprint matches nothing. The default is an empty list: any signature that git accepts, as before.
 
 - **The project manifest reader accepts the optional `evidence_record` field:** the free text in which a maintainer records what was tried on real hardware no longer makes the closed list of fields reject the manifest; an empty one is refused.
