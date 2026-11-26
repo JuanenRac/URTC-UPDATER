@@ -33,7 +33,7 @@ if sys.platform == "win32":
 
 SIZE = (1500, 900)  # the default size of the window
 README_SIZE = (1920, 1080)  # the pictures of the README
-README_RENDER = (2400, 1350)  # the window they are drawn on (same proportions), scaled down to README_SIZE
+README_RENDER = (1920, 1080)  # the window they are drawn on
 # the code the program stores -> the suffix of the picture (English has none)
 LANGUAGE_SUFFIX = {"en": "", "es": "-es", "de": "-de", "fr": "-fr", "it": "-it", "ja": "-ja", "zh": "-zh", "pt": "-pt"}
 LANGUAGE_NAME = {"en": "english", "es": "spanish", "de": "german", "fr": "french", "it": "italian", "ja": "japanese", "zh": "chinese", "pt": "portuguese"}
@@ -86,6 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--language", choices=sorted(LANGUAGE_NAME.values()), default="english", help="the interface language of the pictures")
     parser.add_argument("--all-languages", action="store_true", help="one run per language (each in its own process)")
     args = parser.parse_args(argv)
+    args.out = os.path.abspath(args.out)  # before the program moves to its temporary folder: a relative folder is where the caller is
     if args.all_languages:
         import subprocess
 
@@ -151,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
             time.sleep(0.01)
 
     root.setVisibility(QWindow.Visibility.Windowed)
-    # the picture of the README is drawn on a wider window (the toolbar has more buttons than 1920 pixels hold) and scaled down to 1920x1080
+    # the picture of the README is drawn at the size of a full screen
     size = README_RENDER if args.readme else SIZE
     root.setWidth(size[0])
     root.setHeight(size[1])
