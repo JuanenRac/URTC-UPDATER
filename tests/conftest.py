@@ -21,6 +21,7 @@ def _signature_policy_off(monkeypatch, tmp_path_factory):
     monkeypatch.setenv("URTC_UPDATER_REQUIRE_SIGNED", "0")
     monkeypatch.setenv("URTC_UPDATER_CONFIRM_BUILD", "0")
     monkeypatch.delenv("URTC_UPDATER_ALLOWED_SIGNERS", raising=False)
+    monkeypatch.delenv("URTC_UPDATER_TRUSTED_SIGNERS", raising=False)
     empty = tmp_path_factory.mktemp("gitconfig") / "config"
     empty.write_text("", encoding="utf-8")
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty))

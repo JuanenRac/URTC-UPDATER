@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The signer of a revision can be pinned:** the optional setting `trusted_signers` (or the variable `URTC_UPDATER_TRUSTED_SIGNERS`) is a list of GPG or SSH key fingerprints. With a list, a revision is accepted as signed only when `git verify-commit` accepts it and the key that signed it is listed; in `warn` mode the steps say so. An entry that is not a fingerprint matches nothing. The default is an empty list: any signature that git accepts, as before.
+
 - **The project manifest reader accepts the optional `evidence_record` field:** the free text in which a maintainer records what was tried on real hardware no longer makes the closed list of fields reject the manifest; an empty one is refused.
 
 ## [0.3.2] - A rollback that checks its target, an optional minimum first start and a first-installation build check list
