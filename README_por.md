@@ -46,7 +46,7 @@
 
 | | |
 |---|---|
-| Versão | `0.3.3` |
+| Versão | `0.3.4` |
 | Maturidade | Estabelecido |
 | Testes | 774 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
