@@ -142,7 +142,7 @@ def unsigned_reason(repo: Path, revision: str, policy: SignaturePolicy) -> str |
         cmd.append("--raw")
     cmd.append(revision)
     try:
-        result = subprocess.run(cmd, cwd=repo, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(cmd, cwd=repo, capture_output=True, encoding="utf-8", errors="replace", timeout=60)
     except (OSError, subprocess.TimeoutExpired) as exc:
         return f"could not run git verify-commit: {exc}"
     if result.returncode != 0:

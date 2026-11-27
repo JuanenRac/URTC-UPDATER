@@ -71,7 +71,7 @@ def discover_workspace(workspace_root: Path) -> LocalDiscovery:
             continue
         try:
             manifest = parse_manifest(manifest_path.read_text(encoding="utf-8"), expected_name=project_path.name)
-        except (OSError, ManifestValidationError) as exc:
+        except (OSError, UnicodeDecodeError, ManifestValidationError) as exc:
             errors.append(f"{project_path.name}: invalid manifest: {exc}")
             continue
         entry = entry_from_manifest(manifest)
