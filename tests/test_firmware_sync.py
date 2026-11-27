@@ -52,16 +52,40 @@ def test_the_plan_takes_the_newest_signed_image_of_each_kind_with_its_files(work
     assert (workspace / "URTC-FLASHER" / "firmware" / "URTC_MAIN_FIRMWARE_v0.4.1.bin").exists() is False  # planning writes nothing
 
 
-def test_an_image_without_a_valid_release_signature_is_left_out_and_nothing_replaces_its_kind(workspace):
+def test_one_image_without_a_valid_release_signature_stops_the_whole_set(workspace, capsys):
+    target = workspace / "URTC-FLASHER" / "firmware"
+    (target / "firmware_manifest.json").write_text('{"old": true}', encoding="utf-8")
+    before = {item.name: item.read_bytes() for item in target.iterdir()}
     write_image(workspace / "URTC" / "firmware", "URTC_MAIN_FIRMWARE_v0.4.2.bin", b"unsigned" * 20, signed=False)
     work = fs.plan(workspace, PUBLIC)
     assert work.refused == ["URTC_MAIN_FIRMWARE_v0.4.2.bin: signature_missing"]
-    assert work.images == ["URTC_SLAVE_FIRMWARE_v0.2.4.bin"]                                          # the main image is not replaced by an older one by accident
-    assert all("MAIN" not in old.name for old in work.replaced)
-    (workspace / "URTC" / "firmware" / "URTC_SLAVE_FIRMWARE_v0.2.4.bin").write_bytes(b"edited")      # now the slave image no longer matches its signature either
-    again = fs.plan(workspace, PUBLIC)
-    assert again.copies == [] and len(again.refused) == 2
-    assert fs.describe(again)[-1] == "Nothing can be copied."
+    assert work.copies == [] and work.replaced == [] and work.images == []                            # not the good slave image, not the set manifest
+    assert fs.describe(work)[-1] == "Nothing is copied: the firmware set goes as a whole or not at all."
+    assert fs.run(workspace, assume_yes=True, public_key_hex=PUBLIC) == 1
+    assert "signature_missing" in capsys.readouterr().out
+    fs.apply(workspace, work)                                                                        # even carried out, the plan changes nothing
+    assert {item.name: item.read_bytes() for item in target.iterdir()} == before
+    assert not (workspace / ".urtc-updater" / "firmware-replaced").exists()
+
+
+def test_a_file_that_cannot_be_written_leaves_the_folder_of_the_flasher_as_it_was(workspace, monkeypatch):
+    target = workspace / "URTC-FLASHER" / "firmware"
+    before = {item.name: item.read_bytes() for item in target.iterdir()}
+    work = fs.plan(workspace, PUBLIC)
+    real, written = fs.shutil.copyfile, []
+
+    def full_disk(src, dst):
+        if len(written) == 3:
+            Path(dst).write_bytes(b"half")
+            raise OSError("no space left on device")
+        written.append(dst)
+        return real(src, dst)
+
+    monkeypatch.setattr(fs.shutil, "copyfile", full_disk)
+    with pytest.raises(OSError, match="no space"):
+        fs.apply(workspace, work)
+    assert {item.name: item.read_bytes() for item in target.iterdir()} == before
+    assert not (workspace / ".urtc-updater" / "firmware-replaced").exists()
 
 
 def test_apply_copies_the_files_and_moves_the_replaced_images_without_deleting_them(workspace):

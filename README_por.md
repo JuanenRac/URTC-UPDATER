@@ -48,7 +48,7 @@
 |---|---|
 | Versão | `0.3.3` |
 | Maturidade | Estabelecido |
-| Testes | 767 (`python -m pytest`) |
+| Testes | 774 (`python -m pytest`) |
 | Tecnologia | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | Destino | O PC de quem o usa |
 | Em hardware real | Não aplicável: nada aqui corre em hardware |
@@ -288,7 +288,7 @@ O programa abre a janela Qt Quick quando é executado sem argumentos e tem uma l
 
 - **Histórico das tentativas.** O botão **Histórico** da barra superior mostra as tentativas de instalação e de atualização da área de trabalho como registos de evidência (`urtc-evidence/1`); o ficheiro de evidência com a sua cadeia de hashes mantém-se como está e a janela trabalha sobre uma segunda vista em `.urtc-updater/common`. Cada linha mostra o tipo, o resultado, a ferramenta, a placa e as versões, da mais recente para a mais antiga; um registo editado depois de escrito, um ficheiro que não é JSON ou um registo de outro formato é apresentado como não válido, com o que está errado. A lista pode ser filtrada por resultado e por texto ou reduzida aos registos que falham; lê a pasta de cada vez que abre, mostra no máximo 500 linhas (e indica quantas há) e não altera nada no disco. É a mesma janela no URTC-FLASHER, no URTC-TESTER e no URTC-UPDATER, partilhada a partir do URTC-COMMON, nos oito idiomas. Na linha de comandos, `urtc-updater --cli evidence --history FOLDER [--json]` lista os registos de uma pasta, verifica cada um e termina com o estado 1 se algum não for válido; só lê.
 
-- **Uma janela Firmware e `firmware sync`.** O botão **Firmware** pede uma imagem de firmware (uma caixa e um seletor de ficheiros), verifica a sua assinatura de versão quando pedido e abre o Flasher instalado com a imagem selecionada, com as mesmas regras de `firmware check` e `firmware open`: uma assinatura em falta ou errada é recusada, o motivo é dito na língua da janela e daqui não se escreve nada em nenhuma placa. Opcionalmente, `urtc-updater --cli firmware sync [--dry-run] [--yes]` copia a imagem mais recente de cada tipo de `URTC/firmware` para `URTC-FLASHER/firmware` depois de verificar cada uma com a assinatura de versão, mostra o que vai fazer e pergunta primeiro (sem terminal não copia nada); as imagens que substitui são movidas para a área de trabalho, nunca apagadas. `--option on` faz `update URTC` terminar com a mesma pergunta; a opção está desativada por omissão.
+- **Uma janela Firmware e `firmware sync`.** O botão **Firmware** pede uma imagem de firmware (uma caixa e um seletor de ficheiros), verifica a sua assinatura de versão quando pedido e abre o Flasher instalado com a imagem selecionada, com as mesmas regras de `firmware check` e `firmware open`: uma assinatura em falta ou errada é recusada, o motivo é dito na língua da janela e daqui não se escreve nada em nenhuma placa. Opcionalmente, `urtc-updater --cli firmware sync [--dry-run] [--yes]` copia a imagem mais recente de cada tipo de `URTC/firmware` para `URTC-FLASHER/firmware` depois de verificar cada uma com a assinatura de versão, mostra o que vai fazer e pergunta primeiro (sem terminal não copia nada); as imagens que substitui são movidas para a área de trabalho, nunca apagadas. `--option on` faz `update URTC` terminar com a mesma pergunta; a opção está desativada por omissão. Se uma delas for recusada, não se copia nada.
 
 ## 🚀 Início rápido
 
@@ -319,7 +319,7 @@ As versões dos programas URTC que funcionam em conjunto, e a versão do protoco
 
 ## 🧪 Testes
 
-O conjunto tem 767 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de evidências, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
+O conjunto tem 774 testes (`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`; alguns são ignorados quando falta uma dependência opcional): a deteção e os manifestos, o analisador de versões único, o cliente do GitHub contra um servidor local (repetições, erros, um catálogo mal formado), instalação e atualização em repositórios git locais reais (preparação, promoção, cópia de segurança, recusas, um build-test que responde 75, segurança da área de trabalho), restaurar e limpar cópias, a política de commits assinados, as opções de segurança, os pacotes assinados e a sua reversão, a cadeia de evidências, as definições e perfis, os textos da janela nos oito idiomas e a ponte Qt, e as imagens do guia da janela, desenhadas sem ecrã. `python -m mypy` e `ruff check .` correm na CI.
 
 ### Operação e ferramentas
 

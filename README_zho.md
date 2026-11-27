@@ -40,7 +40,7 @@
 |---|---|
 | 版本 | `0.3.3` |
 | 成熟度 | 成熟 |
-| 测试 | 767 (`python -m pytest`) |
+| 测试 | 774 (`python -m pytest`) |
 | 技术栈 | Python 3.10+ / PySide6 / Qt Quick (QML) / Git / GitHub raw content |
 | 目标 | 使用者的电脑 |
 | 真实硬件 | 不适用：这里的内容不在硬件上运行 |
@@ -205,7 +205,7 @@ URTC-UPDATER 是让装有 URTC 仓库的电脑保持最新的程序。它根据�
 
 - **尝试历史。** 顶部栏的**历史**按钮把工作区的安装和更新尝试显示为证据记录（`urtc-evidence/1`）；带哈希链的证据文件保持不变，窗口使用 `.urtc-updater/common` 下的第二份视图。每一行显示类型、结果、工具、板卡和版本，最新的在前；写入后被编辑的记录、不是 JSON 的文件或其他格式的记录会显示为无效，并说明问题所在。列表可按结果和文本筛选，也可只显示失败的记录；每次打开都会重新读取文件夹，最多显示 500 行（并告知总数），不会更改磁盘上的任何内容。URTC-FLASHER、URTC-TESTER 和 URTC-UPDATER 使用同一个窗口，由 URTC-COMMON 共享，支持八种语言。命令行中，`urtc-updater --cli evidence --history FOLDER [--json]` 列出文件夹中的记录并逐条检查，只要有无效记录就以状态 1 退出；它只读取。
 
-- **固件窗口与 `firmware sync`。** **固件**按钮会询问固件镜像（一个输入框和文件选择器），按要求检查其发布签名，并在选中该镜像的情况下打开已安装的 Flasher，规则与 `firmware check` 和 `firmware open` 相同：签名缺失或错误会被拒绝，原因以窗口的语言说明，并且从这里不会向板卡写入任何内容。可选地，`urtc-updater --cli firmware sync [--dry-run] [--yes]` 会在用发布签名检查每个镜像之后，把 `URTC/firmware` 中每种类型的最新镜像复制到 `URTC-FLASHER/firmware`，先显示将要做的事并征求确认（没有终端时不复制任何内容）；被替换的镜像会移到工作区，绝不删除。`--option on` 让 `update URTC` 以同样的询问结束；该选项默认关闭。
+- **固件窗口与 `firmware sync`。** **固件**按钮会询问固件镜像（一个输入框和文件选择器），按要求检查其发布签名，并在选中该镜像的情况下打开已安装的 Flasher，规则与 `firmware check` 和 `firmware open` 相同：签名缺失或错误会被拒绝，原因以窗口的语言说明，并且从这里不会向板卡写入任何内容。可选地，`urtc-updater --cli firmware sync [--dry-run] [--yes]` 会在用发布签名检查每个镜像之后，把 `URTC/firmware` 中每种类型的最新镜像复制到 `URTC-FLASHER/firmware`，先显示将要做的事并征求确认（没有终端时不复制任何内容）；被替换的镜像会移到工作区，绝不删除。`--option on` 让 `update URTC` 以同样的询问结束；该选项默认关闭。只要其中一个镜像被拒绝，就什么都不复制。
 
 ## 🚀 快速开始
 
@@ -234,7 +234,7 @@ status` / `run.bat --cli install <name>` / `run.bat --cli update
 
 ## 🧪 测试
 
-测试套件共有 767 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
+测试套件共有 774 个测试（`QT_QPA_PLATFORM=offscreen python -m pytest tests -q`；缺少可选依赖时有些会被跳过）：发现和清单、唯一的版本解析器、针对本地服务器的 GitHub 客户端（重试、错误、格式错误的目录）、在真实本地 git 仓库上的安装和更新（暂存、提升、备份、拒绝情形、返回 75 的 build-test、工作区安全）、恢复和清理备份、签名提交策略、安全选项、签名包及其回滚、证据链、设置和配置档案、八种语言的窗口文本和 Qt 桥接，以及无需屏幕绘制的窗口指南图片。CI 中会运行 `python -m mypy` 和 `ruff check .`。
 
 ### 运维与工具
 
