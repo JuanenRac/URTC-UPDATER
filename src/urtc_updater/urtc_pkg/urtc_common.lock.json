@@ -1,10 +1,10 @@
 {
   "format": 1,
-  "urtc_common_version": "0.3.1",
+  "urtc_common_version": "0.3.2",
   "files": {
     "compat.json": {
       "from": "generated/compat.json",
-      "sha256": "0aa7621c657f52f64d02fb88057da18a0e565810c63092d99da2091ba105ee5d"
+      "sha256": "0cb7355bca48e99fca9d0cbd74f09c58b964f6979436473f8275282c4ff5564b"
     },
     "compat.py": {
       "from": "src/urtc_common/compat.py",
