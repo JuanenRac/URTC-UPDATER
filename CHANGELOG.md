@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The compatibility table is current:** `docs/COMPATIBILITY.md` is the current copy of URTC-COMMON, and so is the table of versions that the program compares the installed ones with.
+
 ## [0.3.4] - Cut downloads, damaged files and an all-or-nothing firmware copy
 
 - **The firmware copy to the Flasher is all or nothing:** when the release signature of one image was refused, `firmware sync` still copied the other images and the set manifest, which then described images the Flasher did not have. Now nothing is copied or moved and the reason is said (also by `doctor` and the Firmware window); a file that cannot be written leaves the folder of the Flasher as it was.

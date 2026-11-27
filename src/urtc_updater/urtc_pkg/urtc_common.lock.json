@@ -4,7 +4,7 @@
   "files": {
     "compat.json": {
       "from": "generated/compat.json",
-      "sha256": "b474603b7384dae402f0491f15b7f120dcae62da3fd3f25f1a0c6f85d5aabd8f"
+      "sha256": "0aa7621c657f52f64d02fb88057da18a0e565810c63092d99da2091ba105ee5d"
     },
     "compat.py": {
       "from": "src/urtc_common/compat.py",
