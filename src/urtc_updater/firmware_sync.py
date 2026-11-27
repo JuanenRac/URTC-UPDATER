@@ -11,8 +11,8 @@
 
 The Flasher carries the firmware it flashes. After the tool head repository is updated, the images in its ``firmware`` folder are newer than the ones
 the Flasher carries (``compat`` shows it). This copies the newest image of each kind (main and slave, application and bootloader) with the files that
-travel with it, and it refuses anything it cannot prove: an image whose release signature does not match the key of the releases pinned in this program
-is left out and said so, and nothing is copied for it. The images the Flasher already carried and that are replaced are not deleted: they are moved to
+travel with it, and it refuses anything it cannot prove. The set goes as a whole or not at all: if one image has a release signature that does not match the
+key of the releases pinned in this program, it is said so and nothing is copied or moved (no other image, not the set manifest). The images the Flasher already carried and that are replaced are not deleted: they are moved to
 ``.urtc-updater/firmware-replaced/<time>`` of the workspace. Nothing is written to a board, and the Flasher checks every image again before it flashes.
 
 The option ``sync_firmware_to_flasher`` of the settings (or ``URTC_UPDATER_SYNC_FIRMWARE=1``) makes ``update`` of the tool head repository offer this at the
@@ -60,7 +60,8 @@ def _version(text: str) -> tuple[int, ...]:
 
 @dataclass
 class Plan:
-    """What a synchronisation would do. ``problems`` is empty when it can be carried out; ``copies`` may still be empty (nothing to do)."""
+    """What a synchronisation would do. ``problems`` is empty when it can be carried out; ``copies`` may still be empty (nothing to do, or an image was
+    ``refused``: then nothing at all is copied or moved)."""
 
     source: Path
     target: Path
@@ -105,13 +106,14 @@ def plan(workspace: Path, public_key_hex: str | None = None) -> Plan:
             result.refused.append(f"{image.name}: {error.code}")
             continue
         chosen.append(image)
+    if result.refused:
+        return result  # all or nothing: the set manifest describes every image, so a part of the set is never copied
     for image in chosen:
         for name in sorted(path.name for path in source.iterdir() if path.is_file() and path.name.startswith(image.name)):
             _consider(result, source / name, target / name)
-    if chosen:
-        for name in SET_FILES:
-            if (source / name).is_file():
-                _consider(result, source / name, target / name)
+    for name in SET_FILES:
+        if (source / name).is_file():
+            _consider(result, source / name, target / name)
     kept = {dst.name for _, dst in result.copies} | set(result.unchanged)
     wanted_kinds = {parsed[:2] for image in chosen if (parsed := firmware_names.parse_image_name(image.name))}
     if target.is_dir():
@@ -130,20 +132,29 @@ def _consider(result: Plan, src: Path, dst: Path) -> None:
 
 
 def apply(workspace: Path, work: Plan, now: Callable[[], float] = time.time) -> list[str]:
-    """Carry the plan out: the replaced images go to a folder of the workspace (never deleted), the new files are written next to their final name and renamed."""
+    """Carry the plan out: every new file is first written next to its final name; only when all of them are there the replaced images go to a folder of the
+    workspace (never deleted) and the new files are renamed. A file that cannot be written leaves the folder of the Flasher as it was."""
     if work.problems:
         raise ValueError("; ".join(work.problems))
     done: list[str] = []
     work.target.mkdir(parents=True, exist_ok=True)
+    staged: list[tuple[Path, Path]] = []
+    try:
+        for src, dst in work.copies:
+            temporary = dst.with_name(dst.name + ".part")
+            staged.append((temporary, dst))
+            shutil.copyfile(src, temporary)
+    except OSError:
+        for temporary, _ in staged:
+            temporary.unlink(missing_ok=True)
+        raise
     if work.replaced:
         backup = workspace / REPLACED_FOLDER / time.strftime("%Y%m%d_%H%M%S", time.localtime(now()))
         backup.mkdir(parents=True, exist_ok=True)
         for old in work.replaced:
             shutil.move(str(old), str(backup / old.name))
             done.append(f"moved {old.name} to {backup}")
-    for src, dst in work.copies:
-        temporary = dst.with_name(dst.name + ".part")
-        shutil.copyfile(src, temporary)
+    for temporary, dst in staged:
         os.replace(temporary, dst)
         done.append(f"copied {dst.name}")
     return done
@@ -163,7 +174,7 @@ def apply_recorded(workspace: Path, work: Plan, now: Callable[[], float] = time.
         record(workspace, work, f"failed: {exc}", ok=False)
         raise
     names = ", ".join(work.images) or "files"
-    record(workspace, work, f"copied {names} from {SOURCE_REPO} ({len(work.copies)} file(s), {len(work.replaced)} replaced file(s) kept in {REPLACED_FOLDER})", ok=not work.refused)
+    record(workspace, work, f"copied {names} from {SOURCE_REPO} ({len(work.copies)} file(s), {len(work.replaced)} replaced file(s) kept in {REPLACED_FOLDER})", ok=True)
     return done
 
 
@@ -172,10 +183,12 @@ def describe(work: Plan) -> list[str]:
     for problem in work.problems:
         lines.append(f"cannot sync: {problem}")
     for refused in work.refused:
-        lines.append(f"left out (its release signature is not valid): {refused}")
-    if not work.problems:
+        lines.append(f"refused (its release signature is not valid): {refused}")
+    if work.refused:
+        lines.append("Nothing is copied: the firmware set goes as a whole or not at all.")
+    elif not work.problems:
         if not work.copies:
-            lines.append("The Flasher already carries the firmware of the tool head repository." if not work.refused else "Nothing can be copied.")
+            lines.append("The Flasher already carries the firmware of the tool head repository.")
         for name in work.images:
             lines.append(f"copy {name} (with its signature and checksums)")
         for old in work.replaced:
@@ -199,7 +212,7 @@ def run(workspace: Path, *, assume_yes: bool = False, dry_run: bool = False, ask
     work = plan(workspace, public_key_hex)
     for line in describe(work):
         print(line)
-    if work.problems or work.refused and not work.copies:
+    if work.problems or work.refused:
         return 1
     if not work.copies:
         return 0
@@ -213,7 +226,7 @@ def run(workspace: Path, *, assume_yes: bool = False, dry_run: bool = False, ask
         return 1
     for line in apply_recorded(workspace, work):
         print(line)
-    return 1 if work.refused else 0
+    return 0
 
 
 def offer_after_update(workspace: Path, project: str, ask: Callable[[str], str] | None = None) -> int | None:

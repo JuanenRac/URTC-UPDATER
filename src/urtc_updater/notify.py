@@ -19,9 +19,15 @@ from typing import Callable
 Runner = Callable[..., object]
 
 
+# PowerShell ends a single-quoted string at any of these, not only at the plain apostrophe; each one is written twice to stand for itself.
+_SINGLE_QUOTES = ("'", "\u2018", "\u2019", "\u201a", "\u201b")
+
+
 def _powershell_script(title: str, body: str) -> str:
     def quote(text: str) -> str:
-        return "'" + text.replace("'", "''") + "'"
+        for mark in _SINGLE_QUOTES:
+            text = text.replace(mark, mark * 2)
+        return "'" + text + "'"
 
     return (
         "Add-Type -AssemblyName System.Windows.Forms; "

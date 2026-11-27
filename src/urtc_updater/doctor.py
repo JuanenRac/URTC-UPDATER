@@ -243,8 +243,8 @@ def check_sync(workspace: Path) -> list[Check]:
         work = firmware_sync.plan(workspace)
     except (OSError, ValueError) as exc:
         return [*checks, Check(SECTION_SYNC, INFO, "sync_unavailable", {"reason": str(exc)})]
-    if work.problems:
-        checks.append(Check(SECTION_SYNC, INFO, "sync_unavailable", {"reason": "; ".join(work.problems)}))
+    if work.problems or work.refused:
+        checks.append(Check(SECTION_SYNC, INFO, "sync_unavailable", {"reason": "; ".join(work.problems + work.refused)}))
     elif work.copies:
         checks.append(Check(SECTION_SYNC, WARN, "sync_pending", {"count": len(work.copies)}))
     else:

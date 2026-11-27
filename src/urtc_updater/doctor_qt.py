@@ -143,7 +143,7 @@ class DoctorModel(QObject):
         """The answer to the question: copy (and record) or leave everything as it is (and record that too)."""
         work = firmware_sync.plan(self._workspace())
         if work.problems or not work.copies:
-            self._message = self.t("sync_unavailable").format(reason="; ".join(work.problems) or "-")
+            self._message = self.t("sync_unavailable").format(reason="; ".join(work.problems + work.refused) or "-")
         elif not yes:
             firmware_sync.record(self._workspace(), work, "declined: the person did not confirm in the window, nothing was copied", ok=False)
             self._message = self.t("sync_declined")
