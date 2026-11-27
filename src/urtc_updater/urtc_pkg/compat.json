@@ -52,7 +52,7 @@
       "repo": "URTC-WEB-STUDIO",
       "title": "Web studio",
       "kind": "program",
-      "version": "0.5.4",
+      "version": "0.5.5",
       "common": "0.3.0"
     },
     {
@@ -80,7 +80,7 @@
       "repo": "URTC-DOCS",
       "title": "Documentation generator",
       "kind": "program",
-      "version": "0.1.9"
+      "version": "0.2.0"
     },
     {
       "repo": "URTC-COMMON",
