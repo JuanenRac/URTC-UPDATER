@@ -126,6 +126,11 @@ BUILD_TEST_SCRIPT_WINDOWS = "build-test.bat"
 # terminal window merely to show a project's build output.
 ProgressCallback = Callable[[str, str], None]
 
+#: git writes UTF-8 whatever the code page of the console is: without this, a name or a note outside ASCII is read wrong on Windows.
+_GIT_TEXT: dict[str, Any] = {"encoding": "utf-8", "errors": "replace"}
+#: For lists of file names: a byte that is not UTF-8 has to come back as it was, so the file is still found.
+_GIT_PATHS: dict[str, Any] = {"encoding": "utf-8", "errors": "surrogateescape"}
+
 
 #: Exit code of a build-test that could not validate because a tool it needs is not installed (the BSD EX_TEMPFAIL value). It means
 #: "validation unavailable", which is not the same as "validation failed": a repository that wants this state uses it, and the person decides.
@@ -159,6 +164,12 @@ def _run(
         # captured evidence instead, so provide one harmless newline and do
         # not leave a hidden child waiting forever for a keypress.
         kwargs["input"] = "\n"
+    if capture_output:
+        # A tool may write names the code page of the console cannot hold; git writes UTF-8. A character that cannot be
+        # decoded must not turn a finished step into an error.
+        kwargs["errors"] = "replace"
+        if cmd[0] == "git":
+            kwargs["encoding"] = "utf-8"
     try:
         return subprocess.run(cmd, **kwargs)
     except FileNotFoundError as exc:
@@ -240,7 +251,7 @@ def _real_untracked_paths(path: Path) -> list[str]:
     trying to solve."""
     result = subprocess.run(
         ["git", "status", "--porcelain", "--ignored", "-z"],
-        cwd=str(path), check=False, capture_output=True, text=True,
+        cwd=str(path), check=False, capture_output=True, **_GIT_PATHS,
     )
     if result.returncode != 0 or not result.stdout:
         return []
@@ -298,7 +309,7 @@ def _tracked_dirty_paths(path: Path) -> list[str]:
     being able to verify clean is not the same as clean."""
     result = subprocess.run(
         ["git", "status", "--porcelain", "-z"],
-        cwd=str(path), check=False, capture_output=True, text=True,
+        cwd=str(path), check=False, capture_output=True, **_GIT_PATHS,
     )
     if result.returncode != 0:
         raise DirtyCheckError(
@@ -380,7 +391,7 @@ def _manifest_from_revision(path: Path, revision: str, entry: ProjectEntry) -> P
         cwd=str(path),
         check=False,
         capture_output=True,
-        text=True,
+        **_GIT_TEXT,
     )
     if result.returncode != 0:
         raise ManifestValidationError("candidate revision has no readable urtc.project.json")
@@ -742,7 +753,7 @@ def run_build_script(
 
 
 def _git_text(path: Path, *args: str) -> str:
-    result = subprocess.run(["git", *args], cwd=str(path), check=False, capture_output=True, text=True)
+    result = subprocess.run(["git", *args], cwd=str(path), check=False, capture_output=True, **_GIT_TEXT)
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
@@ -1228,14 +1239,14 @@ def preview_update(entry: ProjectEntry, workspace_root: Path) -> UpdatePreview:
         refusal = verify_revision(path, sha, policy)
         signature = refusal if refusal else ("accepted" if policy.required else "not required")
         author = subprocess.run(
-            ["git", "log", "-1", "--format=%an <%ae>", sha], cwd=str(path), check=False, capture_output=True, text=True
+            ["git", "log", "-1", "--format=%an <%ae>", sha], cwd=str(path), check=False, capture_output=True, **_GIT_TEXT
         ).stdout.strip()
         names = subprocess.run(
             ["git", "diff", "--name-only", f"HEAD..{sha}", "--", *_BUILD_PATHSPECS],
-            cwd=str(path), check=False, capture_output=True, text=True,
+            cwd=str(path), check=False, capture_output=True, **_GIT_TEXT,
         ).stdout.split()
         stat_text = subprocess.run(
             ["git", "diff", "--stat", f"HEAD..{sha}", "--", *_BUILD_PATHSPECS],
-            cwd=str(path), check=False, capture_output=True, text=True,
+            cwd=str(path), check=False, capture_output=True, **_GIT_TEXT,
         ).stdout.strip()
     return UpdatePreview(sha, author, candidate.version, installed.version, signature, names, stat_text)
