@@ -4,6 +4,7 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **A check or a download of an update cut in the middle is reported:** an incomplete answer ended the worker with an error nobody handled and the window stayed busy. A damaged `current.txt` or history of the updates no longer raises (the copy of the common library follows).
 - **Local files with names outside ASCII are no longer left behind by an update on Windows:** the names git reports were read with the code page of the console, so a file such as `configuración.json` or one with a Japanese name was not found and the updated installation was missing it (the kept previous installation still had it). Everything git writes is now read as UTF-8, which also lets a manifest or an author name with such characters through.
 - **A download cut in the middle is asked again and then reported:** it used to end the scan of the whole family, or the listing, with an error nobody handled.
 - **A settings file, a manifest or an installed state that is damaged or saved in another encoding no longer stops the program:** it counts as unreadable (the security options stay on) and is left as it is; a byte-order mark is accepted.
