@@ -212,7 +212,7 @@ Comment les parties de ce dépôt s'articulent : qui l'utilise, ce qu'il contien
   de `github_client.py`) réessaie jusqu'à 3 fois avec une attente croissante, mais
   uniquement quand la connexion n'a jamais obtenu de réponse du tout
   (DNS/délai d'attente/reset). Un statut HTTP réel que GitHub a effectivement
-  renvoyé - 404, 403, 500 - n'est jamais réessayé : GitHub a déjà
+  renvoyé - 404, 500 ou un 403 sans `Retry-After` - n'est jamais réessayé : GitHub a déjà
   répondu, et insister ne ferait que consommer davantage de quota pour le
   même résultat.
 - **Un catalogue distant malformé échoue explicitement ; un seul projet

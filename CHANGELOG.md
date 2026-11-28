@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- **The README says that a short wait asked by GitHub is retried:** a 403 or 429 with `Retry-After` is tried again; other HTTP answers are not.
+
 - **The compatibility table is current:** `docs/COMPATIBILITY.md` is the current copy of URTC-COMMON, and so is the table of versions that the program compares the installed ones with.
 
 ## [0.3.4] - Cut downloads, damaged files and an all-or-nothing firmware copy
