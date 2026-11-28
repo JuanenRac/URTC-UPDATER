@@ -212,7 +212,7 @@ Cómo encajan las partes de este repositorio: quién lo usa, qué contiene y de 
   definitiva nunca.** Cada petición real a GitHub (`_urlopen_with_retries`
   de `github_client.py`) reintenta hasta 3 veces con espera creciente, pero solo
   cuando la conexión nunca llegó a obtener respuesta alguna (DNS/tiempo de espera/
-  reset). Un estado HTTP real que GitHub sí devolvió - 404, 403, 500 -
+  reset). Un estado HTTP real que GitHub sí devolvió - 404, 500 o un 403 sin `Retry-After` -
   nunca se reintenta: GitHub ya respondió, y volver a golpearlo solo
   gastaría más límite de peticiones para el mismo resultado.
 - **Un catálogo remoto malformado falla de forma explícita; un proyecto
